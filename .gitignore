@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local prowler clone used by data ingestion
+/prowler-src
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
