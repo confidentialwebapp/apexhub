@@ -29,8 +29,8 @@ export default function Home() {
       {/* ---------- HERO ---------- */}
       <section className="relative overflow-hidden border-b border-border">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60rem_30rem_at_72%_-12%,rgba(168,85,247,0.20),transparent)]" />
-        <NodeGraph className="pointer-events-none absolute right-0 top-0 h-full w-[55%] opacity-[0.5] [mask-image:linear-gradient(to_left,black,transparent)]" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-24">
+        <NodeGraph className="pointer-events-none absolute right-0 top-0 hidden h-full w-[55%] opacity-[0.5] [mask-image:linear-gradient(to_left,black,transparent)] md:block" />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 sm:px-5 sm:py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-24">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/70 px-3 py-1 text-xs text-muted backdrop-blur">
               <span className="brand-gradient inline-block h-1.5 w-1.5 rounded-full" />
@@ -58,7 +58,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-6xl px-5">
+      <div className="mx-auto max-w-6xl px-4 sm:px-5">
         {/* ---------- STAT BAND ---------- */}
         <section className="-mt-px grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-5">
           <Stat label="Artifacts" value={artifacts} />

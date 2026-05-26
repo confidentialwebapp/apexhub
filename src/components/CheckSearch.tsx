@@ -120,7 +120,7 @@ export function CheckSearch({
                 )}
               </div>
               <h3 className="mt-2 font-medium">{c.title}</h3>
-              <p className="mt-0.5 font-mono text-xs text-muted">{c.id}</p>
+              <p className="mt-0.5 break-all font-mono text-xs text-muted">{c.id}</p>
             </Link>
           </li>
         ))}
@@ -128,7 +128,7 @@ export function CheckSearch({
 
       {/* pagination */}
       {pages > 1 && (
-        <div className="mt-6 flex items-center justify-center gap-2 text-sm">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-sm">
           <PageBtn disabled={curPage <= 1} onClick={() => setPage(1)}>« First</PageBtn>
           <PageBtn disabled={curPage <= 1} onClick={() => setPage(curPage - 1)}>‹ Prev</PageBtn>
           <span className="px-2 text-muted">Page {curPage} / {pages}</span>
