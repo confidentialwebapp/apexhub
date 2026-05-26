@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { CopyButton } from "./CopyButton";
 
 // Providers whose checks are generated at runtime (Checkov/Trivy/LLM) and have
-// no per-check source file in the prowler repo.
+// no per-check source file in the apexhub repo.
 const NON_REPO = new Set(["iac", "llm", "image"]);
 
-const RAW = "https://raw.githubusercontent.com/prowler-cloud/prowler/master/prowler/providers";
-const BLOB = "https://github.com/prowler-cloud/prowler/blob/master/prowler/providers";
+// Vendored into this repo under checks-source/ (Apache-2.0).
+const RAW = "https://raw.githubusercontent.com/confidentialwebapp/apexhub/main/checks-source/providers";
+const BLOB = "https://github.com/confidentialwebapp/apexhub/blob/main/checks-source/providers";
 
 type Tab = "source" | "fixer";
 
@@ -68,7 +69,7 @@ export function SourceCode({
   if (!supported) {
     return (
       <p className="text-sm text-muted">
-        This check is generated at runtime ({provider}); it has no dedicated source file in the Prowler repository.
+        This check is generated at runtime ({provider}); it has no dedicated source file in the APEX Hub repository.
       </p>
     );
   }

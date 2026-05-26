@@ -1,4 +1,4 @@
-// Schema mirrors the Prowler Hub API.
+// APEX Hub API schema.
 
 export interface RemediationItem {
   description: string;

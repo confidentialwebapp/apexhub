@@ -36,8 +36,8 @@ yarn-error.log*
 # vercel
 .vercel
 
-# local prowler clone used by data ingestion
-/prowler-src
+# local data-source clone used during ingestion
+/data-src
 
 # typescript
 *.tsbuildinfo

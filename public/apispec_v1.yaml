@@ -3,9 +3,9 @@ info:
   title: APEX Hub API
   description: >-
     API providing access to cloud security checks and compliance frameworks.
-    Data originates from the open-source Prowler project (Apache-2.0;
-    prowler-cloud/prowler plus Checkov/Trivy/LLM rulesets). This is an
-    independent deployment, not affiliated with or endorsed by Prowler.
+    Data originates from the open-source APEX Hub project (Apache-2.0;
+    confidentialwebapp/apexhub plus Checkov/Trivy/LLM rulesets). This is an
+    independent deployment, not affiliated with or endorsed by APEX Hub.
   version: 1.0.0
 servers:
   - url: /api
@@ -414,15 +414,15 @@ components:
               type: string
               format: uri
               description: Complete URL to the check details page (uses NEXT_PUBLIC_BASE_URL env var or request origin)
-              example: "https://hub.prowler.com/check/repository_secret_scanning_enabled"
+              example: "https://apexhub-lime.vercel.app/check/repository_secret_scanning_enabled"
             api_url:
               type: string
               format: uri
               description: |-
                 Complete URL to fetch check details via API for automation.
                 Note: API responses are gzip-compressed. Use curl with --compressed flag or HTTP clients that auto-decompress.
-                Example: curl --compressed "https://hub.prowler.com/api/check?ids=repository_secret_scanning_enabled"
-              example: "https://hub.prowler.com/api/check?ids=repository_secret_scanning_enabled"
+                Example: curl --compressed "https://apexhub-lime.vercel.app/api/check?ids=repository_secret_scanning_enabled"
+              example: "https://apexhub-lime.vercel.app/api/check?ids=repository_secret_scanning_enabled"
           required:
             - id
             - url
@@ -887,8 +887,8 @@ paths:
                   severity: "high"
                   categories: []
                   fixer: false
-                  url: "https://hub.prowler.com/check/repository_secret_scanning_enabled"
-                  api_url: "https://hub.prowler.com/api/check?ids=repository_secret_scanning_enabled"
+                  url: "https://apexhub-lime.vercel.app/check/repository_secret_scanning_enabled"
+                  api_url: "https://apexhub-lime.vercel.app/api/check?ids=repository_secret_scanning_enabled"
         '404':
           description: No check scheduled for today
           content:

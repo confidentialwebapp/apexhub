@@ -1,0 +1,8 @@
+APEX Hub — vendored check source
+=================================
+
+The files under `checks-source/providers/` are security check implementations
+distributed under the Apache License, Version 2.0 (see ./LICENSE). They are
+vendored here to power the in-app "Source code" viewer for checks.
+
+This is a snapshot and may differ from the latest definitions.

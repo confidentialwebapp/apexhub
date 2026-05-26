@@ -5,7 +5,7 @@
 const COOKIE = "apexhub_admin";
 
 function token(): string {
-  const pw = process.env.ADMIN_PASSWORD || "prowler";
+  const pw = process.env.ADMIN_PASSWORD || "apexhub";
   // Non-secret obfuscation; gate is the password check on /admin/auth.
   return Buffer.from(`apexhub:${pw}`).toString("base64url");
 }
@@ -15,7 +15,7 @@ export function adminUser(): string {
 }
 
 export function checkCredentials(username: string, password: string): boolean {
-  return username === adminUser() && password === (process.env.ADMIN_PASSWORD || "prowler");
+  return username === adminUser() && password === (process.env.ADMIN_PASSWORD || "apexhub");
 }
 
 export function sessionCookie(): string {

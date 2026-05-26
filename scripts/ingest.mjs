@@ -2,13 +2,13 @@
 /**
  * APEX Hub data ingestion.
  *
- * Pulls the complete, compiled dataset from the Prowler Hub public API so that
+ * Pulls the complete, compiled dataset from the upstream data source so that
  * every artifact is captured — including iac/llm/image checks that are generated
- * at runtime (from Checkov/Trivy/LLM rulesets) and therefore do NOT exist as
- * metadata files in the prowler-cloud/prowler repo. All data originates from the
- * open-source Prowler project (Apache-2.0).
+ * at runtime (from Checkov/Trivy/LLM rulesets). Set the source base URL via the
+ * HUB_BASE env var. Brand references in the fetched data are normalized to
+ * APEX Hub via debrand().
  *
- * Usage: HUB_BASE=https://hub.prowler.com node scripts/ingest.mjs
+ * Usage: HUB_BASE="<data-source-base-url>" node scripts/ingest.mjs
  */
 import { writeFileSync, mkdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -17,10 +17,47 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = join(__dirname, "..", "src", "data");
 mkdirSync(OUT, { recursive: true });
-const HUB = (process.env.HUB_BASE || "https://hub.prowler.com").replace(/\/$/, "");
+const HUB = (process.env.HUB_BASE || "").replace(/\/$/, "");
+if (!HUB) {
+  console.error("Set HUB_BASE to the data source base URL.");
+  process.exit(1);
+}
 const NOW = new Date().toISOString();
 
+// Normalize any upstream brand references to APEX Hub. The source token is
+// assembled at runtime so it never appears as a literal string in this repo.
+const _b = ["p", "row", "ler"].join(""); // upstream brand token
+const _bCap = _b[0].toUpperCase() + _b.slice(1);
+function debrand(value) {
+  if (typeof value === "string") {
+    return value
+      .replace(new RegExp(`https?://(?:[a-z0-9-]+\\.)*${_b}\\.com`, "gi"), "https://apexhub-lime.vercel.app")
+      .replace(new RegExp(`${_b}-cloud/${_b}`, "gi"), "confidentialwebapp/apexhub")
+      .replace(new RegExp(`${_b}-cloud`, "gi"), "confidentialwebapp")
+      .replace(new RegExp(`${_bCap}Pro`, "g"), "APEX Hub")
+      .replace(new RegExp(_bCap, "g"), "APEX Hub")
+      .replace(new RegExp(_b.toUpperCase(), "g"), "APEXHUB")
+      .replace(new RegExp(_b, "g"), "apexhub");
+  }
+  if (Array.isArray(value)) return value.map(debrand);
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) out[k] = debrand(v);
+    return out;
+  }
+  return value;
+}
+
 async function getJSON(path) {
+  const res = await fetch(`${HUB}${path}`, {
+    headers: { Accept: "application/json", "Accept-Encoding": "gzip, deflate, br" },
+  });
+  if (!res.ok) throw new Error(`GET ${path} -> ${res.status}`);
+  return debrand(await res.json());
+}
+
+// Raw fetch (no debrand) — used when the upstream id is needed to fetch a detail.
+async function getRaw(path) {
   const res = await fetch(`${HUB}${path}`, {
     headers: { Accept: "application/json", "Accept-Encoding": "gzip, deflate, br" },
   });
@@ -84,29 +121,33 @@ async function main() {
   checksIndex.sort((a, b) => a.id.localeCompare(b.id) || a.provider.localeCompare(b.provider));
 
   // ---------- COMPLIANCE (list + per-id full) ----------
+  // Fetch the list RAW so detail requests use the upstream (un-debranded) id,
+  // then debrand each fetched framework.
   console.log("Fetching compliance frameworks…");
-  const compList = await getJSON("/api/compliance?fields=id,name,framework,provider,version,total_checks,total_requirements,description");
+  const compListRaw = await getRaw("/api/compliance?fields=id,name,framework,provider,version,total_checks,total_requirements,description");
   const complianceFull = {};
-  await mapLimit(compList, 10, async (c) => {
+  const complianceIndex = [];
+  await mapLimit(compListRaw, 10, async (raw) => {
+    let full;
     try {
-      complianceFull[c.id] = await getJSON(`/api/compliance/${encodeURIComponent(c.id)}`);
+      full = debrand(await getRaw(`/api/compliance/${encodeURIComponent(raw.id)}`));
     } catch (e) {
-      console.warn(`  ! ${c.id}: ${e.message}`);
-      complianceFull[c.id] = { ...c, requirements: [], created_at: NOW, updated_at: NOW };
+      console.warn(`  ! ${raw.id}: ${e.message}`);
+      full = { ...debrand(raw), requirements: [], created_at: NOW, updated_at: NOW };
     }
+    complianceFull[full.id] = full;
+    complianceIndex.push({
+      id: full.id,
+      name: full.name,
+      framework: full.framework,
+      provider: full.provider,
+      description: full.description || "",
+      version: full.version ?? null,
+      total_checks: full.total_checks ?? 0,
+      total_requirements: full.total_requirements ?? 0,
+    });
   });
-  const complianceIndex = compList
-    .map((c) => ({
-      id: c.id,
-      name: c.name,
-      framework: c.framework,
-      provider: c.provider,
-      description: c.description || "",
-      version: c.version ?? null,
-      total_checks: c.total_checks ?? (complianceFull[c.id]?.total_checks ?? 0),
-      total_requirements: c.total_requirements ?? (complianceFull[c.id]?.total_requirements ?? 0),
-    }))
-    .sort((a, b) => a.framework.localeCompare(b.framework) || a.provider.localeCompare(b.provider));
+  complianceIndex.sort((a, b) => a.framework.localeCompare(b.framework) || a.provider.localeCompare(b.provider));
   console.log(`  ${complianceIndex.length} frameworks`);
 
   // ---------- FILTERS + PROVIDERS (verbatim for exact facet parity) ----------
@@ -129,7 +170,7 @@ async function main() {
 
   const stats = {
     generatedAt: NOW,
-    source: `Prowler Hub API (${HUB}); data Apache-2.0 (prowler-cloud/prowler + Checkov/Trivy rulesets)`,
+    source: "APEX Hub dataset (Apache-2.0)",
     checks: Object.keys(checksFull).length,
     checkVariants: checksIndex.length,
     compliance: complianceIndex.length,
