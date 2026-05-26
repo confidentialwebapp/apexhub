@@ -1,65 +1,106 @@
-import Image from "next/image";
+import Link from "next/link";
+import { stats, complianceIndex } from "@/lib/data";
+
+const PROVIDER_LABELS: Record<string, string> = {
+  aws: "AWS",
+  azure: "Azure",
+  gcp: "GCP",
+  m365: "Microsoft 365",
+  kubernetes: "Kubernetes",
+  github: "GitHub",
+  googleworkspace: "Google Workspace",
+};
 
 export default function Home() {
+  const topProviders = Object.entries(stats.providers).sort((a, b) => b[1] - a[1]);
+  const featured = complianceIndex
+    .filter((c) => /cis|nist|pci|iso|soc|gdpr|hipaa/i.test(c.framework))
+    .slice(0, 8);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="mx-auto max-w-6xl px-5">
+      {/* Hero */}
+      <section className="py-14 sm:py-20">
+        <span className="inline-flex items-center rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
+          {stats.checks.toLocaleString()} checks · {stats.compliance} frameworks · {Object.keys(stats.providers).length} providers
+        </span>
+        <h1 className="mt-5 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
+          The hub for cloud security{" "}
+          <span className="bg-gradient-to-r from-accent to-accent-2 bg-clip-text text-transparent">
+            checks &amp; compliance
+          </span>
+        </h1>
+        <p className="mt-4 max-w-2xl text-muted">
+          Search detection and remediation checks across AWS, Azure, GCP, Kubernetes, M365 and more — and explore the
+          compliance frameworks they map to. Backed by a JSON API.
+        </p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link href="/checks" className="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-background transition hover:opacity-90">
+            Browse checks
+          </Link>
+          <Link href="/compliance" className="rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-medium transition hover:bg-surface-2">
+            Compliance frameworks
+          </Link>
+          <Link href="/api/docs" className="rounded-lg border border-border bg-surface px-5 py-2.5 text-sm font-medium transition hover:bg-surface-2">
+            API docs
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* Stats */}
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Stat label="Checks" value={stats.checks.toLocaleString()} />
+        <Stat label="Frameworks" value={String(stats.compliance)} />
+        <Stat label="Services" value={String(stats.serviceCount)} />
+        <Stat label="Categories" value={String(stats.categoryCount)} />
+      </section>
+
+      {/* Providers */}
+      <section className="mt-12">
+        <h2 className="text-lg font-semibold">Checks by provider</h2>
+        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {topProviders.map(([p, count]) => (
+            <Link
+              key={p}
+              href={`/checks?provider=${p}`}
+              className="flex items-center justify-between rounded-lg border border-border bg-surface px-4 py-3 transition hover:border-accent/60 hover:bg-surface-2"
+            >
+              <span className="font-medium capitalize">{PROVIDER_LABELS[p] ?? p}</span>
+              <span className="text-sm text-muted">{count}</span>
+            </Link>
+          ))}
         </div>
-      </main>
+      </section>
+
+      {/* Featured frameworks */}
+      <section className="mt-12">
+        <h2 className="text-lg font-semibold">Popular compliance frameworks</h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {featured.map((f) => (
+            <Link
+              key={f.id}
+              href={`/compliance/${encodeURIComponent(f.id)}`}
+              className="rounded-lg border border-border bg-surface p-4 transition hover:border-accent/60 hover:bg-surface-2"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-medium">{f.framework}</span>
+                <span className="text-xs uppercase text-muted">{f.provider}</span>
+              </div>
+              <p className="mt-1 line-clamp-2 text-sm text-muted">{f.name}</p>
+              <p className="mt-2 text-xs text-muted">{f.requirementsCount} requirements</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-surface p-5">
+      <div className="text-2xl font-bold">{value}</div>
+      <div className="mt-1 text-sm text-muted">{label}</div>
     </div>
   );
 }
