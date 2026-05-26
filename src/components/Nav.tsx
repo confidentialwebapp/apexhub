@@ -9,10 +9,10 @@ export function Nav() {
           <Image
             src="/apexhub-logo.png"
             alt="APEX Hub"
-            width={384}
-            height={105}
+            width={377}
+            height={99}
             priority
-            className="h-8 w-auto"
+            className="h-9 w-auto"
           />
         </Link>
         <nav className="flex items-center gap-1 text-sm">
