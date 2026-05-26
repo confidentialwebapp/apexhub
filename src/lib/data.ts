@@ -15,7 +15,7 @@ import type {
 
 export const checksIndex = checksIndexRaw as CheckIndexItem[];
 export const complianceIndex = complianceIndexRaw as ComplianceIndexItem[];
-export const filters = filtersRaw as CheckFilters;
+export const filters = filtersRaw as unknown as CheckFilters;
 export const providers = providersRaw as Provider[];
 export const stats = statsRaw as Stats;
 

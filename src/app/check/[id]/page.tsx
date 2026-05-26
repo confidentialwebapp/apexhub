@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const check = await getCheck(decodeURIComponent(id));
   if (!check) return { title: "Check not found" };
-  return { title: check.title, description: check.description.slice(0, 150) };
+  return { title: check.title, description: (check.description ?? "").slice(0, 150) };
 }
 
 export default async function CheckDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -24,7 +24,10 @@ export default async function CheckDetail({ params }: { params: Promise<{ id: st
   const check = await getCheck(decodeURIComponent(id));
   if (!check) notFound();
 
-  const refs = [check.related_url, ...check.additional_urls].filter(Boolean) as string[];
+  const categories = check.categories ?? [];
+  const compliances = check.compliances ?? [];
+  const referenceArr = Array.isArray(check.reference) ? check.reference : [];
+  const refs = [...new Set([check.related_url, ...(check.additional_urls ?? []), ...referenceArr].filter(Boolean))] as string[];
 
   return (
     <div className="mx-auto max-w-4xl px-5 py-10">
@@ -50,22 +53,22 @@ export default async function CheckDetail({ params }: { params: Promise<{ id: st
       {check.risk && <Section title="Risk"><Markdown>{check.risk}</Markdown></Section>}
 
       <Section title="Remediation">
-        {check.remediation.wui.description && (
+        {check.remediation?.wui?.description && (
           <div className="mb-4"><Markdown>{check.remediation.wui.description}</Markdown></div>
         )}
-        <RemediationTabs remediation={check.remediation} />
+        {check.remediation && <RemediationTabs remediation={check.remediation} />}
       </Section>
 
-      {check.categories.length > 0 && (
+      {categories.length > 0 && (
         <Section title="Categories">
-          <div className="flex flex-wrap gap-2">{check.categories.map((c) => <Pill key={c}>{c}</Pill>)}</div>
+          <div className="flex flex-wrap gap-2">{categories.map((c) => <Pill key={c}>{c}</Pill>)}</div>
         </Section>
       )}
 
-      {check.compliances.length > 0 && (
-        <Section title={`Compliance (${check.compliances.length})`}>
+      {compliances.length > 0 && (
+        <Section title={`Compliance (${compliances.length})`}>
           <div className="flex flex-wrap gap-2">
-            {check.compliances.map((f) => (
+            {compliances.map((f) => (
               <Link
                 key={f.id}
                 href={`/compliance/${encodeURIComponent(f.id)}`}

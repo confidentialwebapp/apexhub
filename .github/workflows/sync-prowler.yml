@@ -1,9 +1,11 @@
-name: Daily Prowler data sync
+name: Daily data sync
 
-# Refreshes the build-time data snapshot from the open-source prowler-cloud/prowler
-# repo (Apache-2.0). On change it commits + pushes src/data/*, which the Vercel
-# Git integration auto-deploys. If Vercel secrets are present, it also deploys
-# directly via the Vercel CLI (useful before native Git integration is enabled).
+# Refreshes the build-time data snapshot from the Prowler Hub public API
+# (all data is Apache-2.0; prowler-cloud/prowler + Checkov/Trivy rulesets).
+# This captures every artifact, including iac/llm/image checks that are
+# generated at runtime and are not present in the prowler repo as metadata.
+# On change it commits + pushes src/data/*, which the Vercel Git integration
+# auto-deploys. If Vercel secrets are present, it also deploys via the CLI.
 
 on:
   schedule:
@@ -33,16 +35,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Sparse-clone Prowler data
-        run: |
-          rm -rf prowler-src
-          git clone --depth 1 --filter=blob:none --sparse \
-            https://github.com/prowler-cloud/prowler.git prowler-src
-          cd prowler-src
-          git sparse-checkout set prowler/providers prowler/compliance
-
-      - name: Regenerate datasets
-        run: PROWLER_SRC=./prowler-src node scripts/ingest.mjs
+      - name: Regenerate datasets from Prowler Hub API
+        run: HUB_BASE=https://hub.prowler.com node scripts/ingest.mjs
 
       - name: Commit & push if data changed
         id: commit

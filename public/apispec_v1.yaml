@@ -3,8 +3,9 @@ info:
   title: APEX Hub API
   description: >-
     API providing access to cloud security checks and compliance frameworks.
-    Data is sourced from the open-source Prowler project (Apache-2.0). This is
-    an independent deployment, not affiliated with or endorsed by Prowler.
+    Data originates from the open-source Prowler project (Apache-2.0;
+    prowler-cloud/prowler plus Checkov/Trivy/LLM rulesets). This is an
+    independent deployment, not affiliated with or endorsed by Prowler.
   version: 1.0.0
 servers:
   - url: /api
@@ -17,93 +18,247 @@ components:
         error:
           type: string
           description: Error message
-      required: [error]
+      required:
+        - error
 
     Check:
       type: object
       properties:
-        id: { type: string, description: Unique identifier for the check }
-        title: { type: string, description: Title of the check }
-        description: { type: string, description: Description of the check }
-        provider: { type: string, description: Cloud provider (aws, azure, gcp, …) }
+        id:
+          type: string
+          description: Unique identifier for the check
+        title:
+          type: string
+          description: Title of the check
+        description:
+          type: string
+          description: Description of the check
+        provider:
+          type: string
+          description: Cloud provider (AWS, Azure, GCP, etc.)
         type:
           type: array
-          items: { type: string }
+          items:
+            type: string
           description: Types of the check
-        service: { type: string, description: Cloud service the check applies to }
-        subservice: { type: string, nullable: true }
+        service:
+          type: string
+          description: Cloud service the check applies to
+        subservice:
+          type: string
+          description: Cloud subservice the check applies to
         severity:
           type: string
-          enum: [low, medium, high, critical, informational]
-        risk: { type: string }
-        reference: { type: array, items: { type: string }, nullable: true }
+          enum: [low, medium, high, critical]
+          description: Severity level of the check
+        risk:
+          type: string
+          description: Risk description
+        reference:
+          type: array
+          items:
+            type: string
+          description: Reference links
         additional_urls:
           type: array
-          items: { type: string }
+          items:
+            type: string
+          description: Additional URLs with further context or guidance
         remediation:
           type: object
           properties:
-            cli: { type: object, properties: { description: { type: string } } }
-            terraform: { type: object, properties: { description: { type: string } } }
-            nativeiac: { type: object, properties: { description: { type: string } } }
-            other: { type: object, properties: { description: { type: string } } }
+            cli:
+              type: object
+              properties:
+                description:
+                  type: string
+            terraform:
+              type: object
+              properties:
+                description:
+                  type: string
+            nativeiac:
+              type: object
+              properties:
+                description:
+                  type: string
+            other:
+              type: object
+              properties:
+                description:
+                  type: string
             wui:
               type: object
               properties:
-                description: { type: string }
-                reference: { type: string }
+                description:
+                  type: string
+                reference:
+                  type: string
+          description: Remediation options
         services_required:
           type: array
-          items: { type: string }
-        aws_arn_template: { type: string, nullable: true }
-        notes: { type: string, nullable: true }
+          items:
+            type: string
+          description: Services required for the check
+        aws_arn_template:
+          type: string
+          description: AWS ARN template
+        notes:
+          type: string
+          description: Additional notes
         compliances:
           type: array
           items:
             type: object
             properties:
-              id: { type: string }
-              name: { type: string }
+              name:
+                type: string
+              id:
+                type: string
           description: Associated compliance frameworks
-        rational_estatement: { type: string, nullable: true }
-        remediation_procedure: { type: string, nullable: true }
-        audit_procedure: { type: string, nullable: true }
+        rational_estatement:
+          type: string
+          description: Rational statement
+        remediation_procedure:
+          type: string
+          description: Remediation procedure
+        audit_procedure:
+          type: string
+          description: Audit procedure
         categories:
           type: array
-          items: { type: string }
-        default_value: { type: string, nullable: true }
-        resource_type: { type: string }
-        related_url: { type: string, nullable: true }
-        depends_on: { type: array, items: { type: string } }
-        related_to: { type: array, items: { type: string } }
-        fixer: { type: boolean, description: Whether the check has a fixer }
-      required: [id, severity]
+          items:
+            type: string
+          description: Categories of the check
+        default_value:
+          type: string
+          description: Default value
+        resource_type:
+          type: string
+          description: Resource type
+        related_url:
+          type: string
+          description: Related URL
+        depends_on:
+          type: array
+          items:
+            type: string
+          description: Dependencies
+        related_to:
+          type: array
+          items:
+            type: string
+          description: Related checks
+        fixer:
+          type: boolean
+          description: Whether the check has a fixer
+      required:
+        - id
+        - severity
 
     Compliance:
       type: object
       properties:
-        id: { type: string }
-        name: { type: string }
-        framework: { type: string }
-        provider: { type: string }
-        description: { type: string }
+        id:
+          type: string
+          description: Unique identifier for the compliance framework
+        name:
+          type: string
+          description: Human friendly name of the compliance framework
+        framework:
+          type: string
+          description: Name of the compliance framework
+        provider:
+          type: string
+          description: Cloud provider
+        description:
+          type: string
+          description: Description of the compliance framework
         requirements:
           type: array
-          items: { type: object }
-        version: { type: string, nullable: true }
-        total_checks: { type: integer }
-        total_requirements: { type: integer }
-        created_at: { type: string, format: date-time }
-        updated_at: { type: string, format: date-time }
-      required: [id]
+          items:
+            type: object
+          description: Requirements of the compliance framework
+        version:
+          type: string
+          description: Version of the compliance framework
+        total_checks:
+          type: integer
+          description: Total number of checks in the compliance framework
+        total_requirements:
+          type: integer
+          description: Total number of requirements in the compliance framework
+        created_at:
+          type: string
+          format: date-time
+          description: Creation date
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update date
+      required:
+        - id
 
     Provider:
       type: object
       properties:
-        id: { type: string }
-        name: { type: string }
-        services: { type: array, items: { type: string } }
-      required: [id, name]
+        id:
+          type: string
+          description: Unique identifier for the provider
+        name:
+          type: string
+          description: Name of the provider
+        services:
+          type: array
+          items:
+            type: string
+          description: Services offered by the provider
+      required:
+        - id
+        - name
+
+    Configuration:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the configuration
+        popular_checks:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+          description: Popular checks
+        popular_compliances:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+          description: Popular compliance frameworks
+        news:
+          type: array
+          items:
+            type: string
+          description: News items
+      required:
+        - id
+
+    AdminCredentials:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Admin username
+        password:
+          type: string
+          description: Admin password
+      required:
+        - username
+        - password
 
     CheckFilters:
       type: object
@@ -113,201 +268,732 @@ components:
           items:
             type: object
             properties:
-              providerId: { type: string }
-              count: { type: integer }
-              name: { type: string }
+              providerId:
+                type: string
+              count:
+                type: integer
+              name:
+                type: string
+          description: Available providers with counts
         types:
           type: array
-          items: { type: object, properties: { type: { type: string }, count: { type: integer } } }
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              count:
+                type: integer
+          description: Available check types with counts
         services:
           type: array
-          items: { type: object, properties: { service: { type: string }, count: { type: integer } } }
+          items:
+            type: object
+            properties:
+              service:
+                type: string
+              count:
+                type: integer
+          description: Available services with counts
         severities:
           type: array
-          items: { type: object, properties: { severity: { type: string }, count: { type: integer } } }
+          items:
+            type: object
+            properties:
+              severity:
+                type: string
+              count:
+                type: integer
+          description: Available severities with counts
         categories:
           type: array
-          items: { type: object, properties: { category: { type: string }, count: { type: integer } } }
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+          description: Available categories with counts
         compliances:
           type: array
           items:
             type: object
             properties:
-              id: { type: string }
-              framework: { type: string }
-              version: { type: string, nullable: true }
-              provider: { type: string }
-              count: { type: integer }
+              id:
+                type: string
+              framework:
+                type: string
+              version:
+                type: string
+              provider:
+                type: string
+              count:
+                type: integer
+          description: Available compliance frameworks with counts
 
     ArtifactsCount:
       type: object
       properties:
-        n: { type: integer, description: Total number of artifacts (checks + compliances) }
-      required: [n]
+        n:
+          type: integer
+          description: Total number of artifacts (checks + compliances)
+      required:
+        - n
 
-    Configuration:
+    ScheduleEntry:
       type: object
       properties:
-        id: { type: string }
-        popular_checks:
-          type: array
-          items: { type: object, properties: { id: { type: string } } }
-        popular_compliances:
-          type: array
-          items: { type: object, properties: { id: { type: string } } }
-        news: { type: array, items: { type: string } }
-      required: [id]
+        date:
+          type: string
+          format: date
+          description: Date in YYYY-MM-DD format
+        checkId:
+          type: string
+          description: Check identifier
+        provider:
+          type: string
+          description: Cloud provider
+        isOverride:
+          type: boolean
+          description: Whether this entry was manually overridden
+        overriddenBy:
+          type: string
+          nullable: true
+          description: Username who overrode this entry
+        overriddenAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the entry was overridden
+      required:
+        - date
+        - checkId
+        - provider
+        - isOverride
 
     CheckOfTheDayResponse:
       type: object
       properties:
-        date: { type: string, format: date }
+        date:
+          type: string
+          format: date
+          description: Date in YYYY-MM-DD format
+          example: "2025-11-12"
         check:
           type: object
           properties:
-            id: { type: string }
-            title: { type: string }
-            description: { type: string }
-            provider: { type: string }
-            service: { type: string }
-            severity: { type: string }
-            categories: { type: array, items: { type: string } }
-            fixer: { type: boolean }
-            url: { type: string, format: uri }
-            api_url: { type: string, format: uri }
-          required: [id, url, api_url]
-      required: [date, check]
+            id:
+              type: string
+              example: "repository_secret_scanning_enabled"
+            title:
+              type: string
+              example: "Check if secret scanning is enabled to detect sensitive data in the repository"
+            description:
+              type: string
+              example: "Ensure that scanners are in place to detect and prevent sensitive data, such as confidential ID numbers, passwords, and other sensitive information, from being committed in the source code."
+            provider:
+              type: string
+              example: "github"
+            service:
+              type: string
+              example: "repository"
+            severity:
+              type: string
+              enum: [low, medium, high, critical, informational]
+              example: "high"
+            categories:
+              type: array
+              items:
+                type: string
+              example: ["secrets-management", "data-protection"]
+            fixer:
+              type: boolean
+              example: false
+            url:
+              type: string
+              format: uri
+              description: Complete URL to the check details page (uses NEXT_PUBLIC_BASE_URL env var or request origin)
+              example: "https://hub.prowler.com/check/repository_secret_scanning_enabled"
+            api_url:
+              type: string
+              format: uri
+              description: |-
+                Complete URL to fetch check details via API for automation.
+                Note: API responses are gzip-compressed. Use curl with --compressed flag or HTTP clients that auto-decompress.
+                Example: curl --compressed "https://hub.prowler.com/api/check?ids=repository_secret_scanning_enabled"
+              example: "https://hub.prowler.com/api/check?ids=repository_secret_scanning_enabled"
+          required:
+            - id
+            - url
+            - api_url
+      required:
+        - date
+        - check
+
+    ScheduleMetadata:
+      type: object
+      properties:
+        totalDays:
+          type: integer
+          description: Total number of days in the schedule
+        overrideCount:
+          type: integer
+          description: Number of overridden entries
+        lastGenerated:
+          type: string
+          format: date-time
+          description: When the schedule was last generated
+      required:
+        - totalDays
+        - overrideCount
+        - lastGenerated
+
+    ScheduleResponse:
+      type: object
+      properties:
+        schedule:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleEntry'
+        metadata:
+          $ref: '#/components/schemas/ScheduleMetadata'
+      required:
+        - schedule
+        - metadata
+
+    RegenerateRequest:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date-time
+          description: Start date for the schedule (defaults to now)
+        days:
+          type: integer
+          description: Number of days to generate (defaults to 90)
+          default: 90
+        preserveOverrides:
+          type: boolean
+          description: Whether to preserve existing overrides (defaults to true)
+          default: true
+
+    RegenerateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        scheduleGenerated:
+          type: integer
+          description: Number of schedule entries generated
+        overridesPreserved:
+          type: integer
+          description: Number of overrides preserved
+        lastGenerated:
+          type: string
+          format: date-time
+          description: Timestamp when the schedule was generated
+      required:
+        - success
+        - scheduleGenerated
+        - overridesPreserved
+        - lastGenerated
+
+    OverrideRequest:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: Date to override in YYYY-MM-DD format
+        checkId:
+          type: string
+          description: Check ID to assign to this date
+      required:
+        - date
+        - checkId
+
+    OverrideResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        entry:
+          $ref: '#/components/schemas/ScheduleEntry'
+      required:
+        - success
+        - entry
 
 paths:
   /check:
     get:
       summary: Get checks
-      description: Retrieve checks with optional filtering.
+      description: Retrieve checks with optional filtering
       parameters:
-        - { name: providers, in: query, description: Filter by providers (comma-separated), schema: { type: string } }
-        - { name: types, in: query, description: Filter by types (comma-separated), schema: { type: string } }
-        - { name: services, in: query, description: Filter by services (comma-separated), schema: { type: string } }
-        - { name: severities, in: query, description: Filter by severities (comma-separated), schema: { type: string } }
-        - { name: categories, in: query, description: Filter by categories (comma-separated), schema: { type: string } }
-        - { name: compliances, in: query, description: Filter by compliance IDs (comma-separated), schema: { type: string } }
-        - { name: ids, in: query, description: Filter by check IDs (comma-separated), schema: { type: string } }
-        - { name: fields, in: query, description: Fields to return (comma-separated), schema: { type: string } }
-        - { name: limit, in: query, description: Max number of results, schema: { type: integer } }
+        - name: providers
+          in: query
+          description: Filter by providers (comma-separated)
+          schema:
+            type: string
+        - name: types
+          in: query
+          description: Filter by types (comma-separated)
+          schema:
+            type: string
+        - name: services
+          in: query
+          description: Filter by services (comma-separated)
+          schema:
+            type: string
+        - name: severities
+          in: query
+          description: Filter by severities (comma-separated)
+          schema:
+            type: string
+        - name: categories
+          in: query
+          description: Filter by categories (comma-separated)
+          schema:
+            type: string
+        - name: compliances
+          in: query
+          description: Filter by compliance IDs (comma-separated)
+          schema:
+            type: string
+        - name: ids
+          in: query
+          description: Filter by check IDs (comma-separated)
+          schema:
+            type: string
+        - name: fields
+          in: query
+          description: Specify which fields to return (comma-separated)
+          schema:
+            type: string
       responses:
-        "200":
+        '200':
           description: List of checks
           content:
             application/json:
-              schema: { type: array, items: { $ref: "#/components/schemas/Check" } }
-        "500":
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Check'
+        '500':
           description: Server error
-          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /check/{id}:
     get:
       summary: Get check by ID
+      description: Retrieve a specific check by its ID
       parameters:
-        - { name: id, in: path, required: true, schema: { type: string } }
+        - name: id
+          in: path
+          required: true
+          description: Check ID
+          schema:
+            type: string
       responses:
-        "200":
+        '200':
           description: Check details
-          content: { application/json: { schema: { $ref: "#/components/schemas/Check" } } }
-        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Check'
+        '404':
           description: Check not found
-          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /check/filters:
     get:
       summary: Get check filters
+      description: Retrieve available filters for checks
       responses:
-        "200":
+        '200':
           description: Available filters
-          content: { application/json: { schema: { $ref: "#/components/schemas/CheckFilters" } } }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckFilters'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /check/search:
     get:
       summary: Search checks
+      description: Search for checks by term
       parameters:
-        - { name: term, in: query, required: true, schema: { type: string } }
+        - name: term
+          in: query
+          required: true
+          description: Search term
+          schema:
+            type: string
       responses:
-        "200":
+        '200':
           description: Search results
           content:
             application/json:
-              schema: { type: array, items: { $ref: "#/components/schemas/Check" } }
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Check'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /compliance:
     get:
       summary: Get compliances
+      description: Retrieve compliance frameworks with optional filtering
       parameters:
-        - { name: provider, in: query, schema: { type: string } }
-        - { name: fields, in: query, schema: { type: string } }
+        - name: provider
+          in: query
+          description: Filter by provider
+          schema:
+            type: string
+        - name: fields
+          in: query
+          description: Specify which fields to return (comma-separated)
+          schema:
+            type: string
       responses:
-        "200":
+        '200':
           description: List of compliance frameworks
           content:
             application/json:
-              schema: { type: array, items: { $ref: "#/components/schemas/Compliance" } }
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Compliance'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /compliance/{id}:
     get:
       summary: Get compliance by ID
+      description: Retrieve a specific compliance framework by its ID
       parameters:
-        - { name: id, in: path, required: true, schema: { type: string } }
+        - name: id
+          in: path
+          required: true
+          description: Compliance ID
+          schema:
+            type: string
       responses:
-        "200":
+        '200':
           description: Compliance details
-          content: { application/json: { schema: { $ref: "#/components/schemas/Compliance" } } }
-        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Compliance'
+        '404':
           description: Compliance not found
-          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /compliance/search:
     get:
       summary: Search compliances
+      description: Search for compliance frameworks by term
       parameters:
-        - { name: term, in: query, required: true, schema: { type: string } }
+        - name: term
+          in: query
+          required: true
+          description: Search term
+          schema:
+            type: string
       responses:
-        "200":
+        '200':
           description: Search results
           content:
             application/json:
-              schema: { type: array, items: { $ref: "#/components/schemas/Compliance" } }
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Compliance'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /providers:
     get:
       summary: Get providers
+      description: Retrieve all providers
       responses:
-        "200":
+        '200':
           description: List of providers
           content:
             application/json:
-              schema: { type: array, items: { $ref: "#/components/schemas/Provider" } }
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Provider'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /n_artifacts:
     get:
       summary: Get artifacts count
+      description: Retrieve the total count of artifacts (checks + compliances)
       responses:
-        "200":
+        '200':
           description: Artifacts count
-          content: { application/json: { schema: { $ref: "#/components/schemas/ArtifactsCount" } } }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtifactsCount'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /admin/auth:
+    post:
+      summary: Admin authentication
+      description: Authenticate as an admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminCredentials'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Missing credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /admin/config:
     get:
       summary: Get configuration
+      description: Retrieve the application configuration
       responses:
-        "200":
+        '200':
           description: Configuration
-          content: { application/json: { schema: { $ref: "#/components/schemas/Configuration" } } }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update configuration
+      description: Update the application configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Configuration'
+      responses:
+        '200':
+          description: Updated configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Configuration'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
   /check-of-the-day/today:
     get:
       summary: Get Check of the Day
-      description: Retrieve today's featured security check with complete URLs for automation.
+      description: Retrieve today's featured security check with complete URL for automation
       responses:
-        "200":
-          description: Today's check
-          content: { application/json: { schema: { $ref: "#/components/schemas/CheckOfTheDayResponse" } } }
-        "404":
+        '200':
+          description: Today's check with complete URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckOfTheDayResponse'
+              example:
+                date: "2025-11-12"
+                check:
+                  id: "repository_secret_scanning_enabled"
+                  title: "Check if secret scanning is enabled to detect sensitive data in the repository"
+                  description: "Ensure that scanners are in place to detect and prevent sensitive data..."
+                  provider: "github"
+                  service: "repository"
+                  severity: "high"
+                  categories: []
+                  fixer: false
+                  url: "https://hub.prowler.com/check/repository_secret_scanning_enabled"
+                  api_url: "https://hub.prowler.com/api/check?ids=repository_secret_scanning_enabled"
+        '404':
           description: No check scheduled for today
-          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /check-of-the-day/schedule:
+    get:
+      summary: Get Check of the Day schedule
+      description: Retrieve upcoming Check of the Day schedule (admin only)
+      parameters:
+        - name: days
+          in: query
+          description: Number of days to retrieve (default 90)
+          schema:
+            type: integer
+            default: 90
+      responses:
+        '200':
+          description: Schedule with metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleResponse'
+        '401':
+          description: Unauthorized - admin session required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /check-of-the-day/regenerate:
+    post:
+      summary: Regenerate Check of the Day schedule
+      description: Generate a new Check of the Day schedule (admin only)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegenerateRequest'
+      responses:
+        '200':
+          description: Schedule regenerated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegenerateResponse'
+        '401':
+          description: Unauthorized - admin session required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /check-of-the-day/override:
+    put:
+      summary: Override a date in the schedule
+      description: Manually assign a specific check to a date (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OverrideRequest'
+      responses:
+        '200':
+          description: Date overridden successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverrideResponse'
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - admin session required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

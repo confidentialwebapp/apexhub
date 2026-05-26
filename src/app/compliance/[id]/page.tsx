@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const c = await getCompliance(decodeURIComponent(id));
   if (!c) return { title: "Framework not found" };
-  return { title: c.name, description: c.description.slice(0, 150) };
+  return { title: c.name, description: (c.description ?? "").slice(0, 150) };
 }
 
 export default async function ComplianceDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -41,17 +41,19 @@ export default async function ComplianceDetail({ params }: { params: Promise<{ i
 
       <h2 className="mt-10 mb-4 text-sm font-semibold uppercase tracking-wide text-muted">Requirements</h2>
       <div className="space-y-3">
-        {c.requirements.map((r, i) => (
+        {(c.requirements ?? []).map((r, i) => {
+          const checks = r.checks ?? [];
+          return (
           <details key={`${r.id}-${i}`} className="rounded-lg border border-border bg-surface p-4">
             <summary className="cursor-pointer list-none">
               <span className="font-mono text-xs text-accent">{r.id}</span>
               {r.name && <span className="ml-2 font-medium">{r.name}</span>}
-              {r.checks.length > 0 && <span className="ml-2 text-xs text-muted">({r.checks.length} checks)</span>}
+              {checks.length > 0 && <span className="ml-2 text-xs text-muted">({checks.length} checks)</span>}
             </summary>
             {r.description && <p className="mt-3 whitespace-pre-line text-sm text-foreground/90">{r.description}</p>}
-            {r.checks.length > 0 && (
+            {checks.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
-                {r.checks.map((checkId) => (
+                {checks.map((checkId) => (
                   <Link
                     key={checkId}
                     href={`/check/${encodeURIComponent(checkId)}`}
@@ -63,7 +65,8 @@ export default async function ComplianceDetail({ params }: { params: Promise<{ i
               </div>
             )}
           </details>
-        ))}
+          );
+        })}
       </div>
 
       <div className="mt-10 rounded-lg border border-border bg-surface p-4 text-sm text-muted">

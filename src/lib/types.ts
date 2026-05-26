@@ -101,13 +101,16 @@ export interface Provider {
   services: string[];
 }
 
+// The hub returns most facet counts as strings ("602") and compliance counts as numbers;
+// kept loose to preserve exact parity with the upstream payload.
+type Count = number | string;
 export interface CheckFilters {
-  providers: { providerId: string; count: number; name: string }[];
-  types: { type: string; count: number }[];
-  services: { service: string; count: number }[];
-  severities: { severity: string; count: number }[];
-  categories: { category: string; count: number }[];
-  compliances: { id: string; framework: string; version: string | null; provider: string; count: number }[];
+  providers: { providerId: string; count: Count; name: string }[];
+  types: { type: string; count: Count }[];
+  services: { service: string; count: Count }[];
+  severities: { severity: string; count: Count }[];
+  categories: { category: string; count: Count }[];
+  compliances: { id: string; framework: string; version: string | null; provider: string; count: Count }[];
 }
 
 export interface Stats {
