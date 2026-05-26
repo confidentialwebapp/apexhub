@@ -13,7 +13,7 @@ export function Nav() {
           </span>
         </Link>
         <nav className="flex items-center gap-1 text-sm">
-          <Link href="/checks" className="rounded-md px-3 py-1.5 text-muted transition hover:bg-surface hover:text-foreground">
+          <Link href="/check" className="rounded-md px-3 py-1.5 text-muted transition hover:bg-surface hover:text-foreground">
             Checks
           </Link>
           <Link href="/compliance" className="rounded-md px-3 py-1.5 text-muted transition hover:bg-surface hover:text-foreground">

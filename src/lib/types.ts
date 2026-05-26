@@ -1,67 +1,124 @@
-export interface CheckIndexItem {
-  key: string;
+// Schema mirrors the Prowler Hub API.
+
+export interface RemediationItem {
+  description: string;
+}
+export interface WuiRemediation {
+  reference: string;
+  description: string;
+}
+export interface Remediation {
+  cli: RemediationItem;
+  terraform: RemediationItem;
+  nativeiac: RemediationItem;
+  other: RemediationItem;
+  wui: WuiRemediation;
+}
+export interface ComplianceRef {
+  id: string;
+  name: string;
+}
+
+export interface Check {
   id: string;
   title: string;
   description: string;
   provider: string;
+  type: string[];
   service: string;
   subservice: string | null;
   severity: string;
-  type: string[];
-  categories: string[];
-  resourceType: string;
-}
-
-export interface CheckRemediation {
-  cli: string;
-  nativeIaC: string;
-  terraform: string;
-  other: string;
-  recommendationText: string;
-  recommendationUrl: string;
-}
-
-export interface CheckFull extends CheckIndexItem {
-  resourceGroup: string;
   risk: string;
-  relatedUrl: string;
-  additionalUrls: string[];
-  remediation: CheckRemediation;
-  dependsOn: string[];
-  relatedTo: string[];
-  notes: string;
+  reference: string[] | null;
+  additional_urls: string[];
+  remediation: Remediation;
+  services_required: string[];
+  aws_arn_template: string | null;
+  notes: string | null;
+  compliances: ComplianceRef[];
+  rational_estatement: string | null;
+  remediation_procedure: string | null;
+  audit_procedure: string | null;
+  categories: string[];
+  default_value: string | null;
+  resource_type: string;
+  related_url: string | null;
+  depends_on: string[];
+  related_to: string[];
+  fixer: boolean;
 }
 
-export interface ComplianceRequirement {
+export interface CheckIndexItem {
   id: string;
-  name: string;
+  title: string;
   description: string;
+  provider: string;
+  type: string[];
+  service: string;
+  subservice: string | null;
+  severity: string;
+  categories: string[];
+  fixer: boolean;
+  compliances: string[];
+}
+
+export interface Requirement {
+  id: string;
+  name?: string;
+  description?: string;
   checks: string[];
   attributes: Record<string, unknown>[];
+}
+
+export interface Compliance {
+  id: string;
+  name: string;
+  framework: string;
+  provider: string;
+  description: string;
+  requirements: Requirement[];
+  version: string | null;
+  total_checks: number;
+  total_requirements: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ComplianceIndexItem {
   id: string;
   name: string;
   framework: string;
-  version: string;
   provider: string;
   description: string;
-  requirementsCount: number;
-  checksCount: number;
+  version: string | null;
+  total_checks: number;
+  total_requirements: number;
 }
 
-export interface ComplianceFull extends ComplianceIndexItem {
-  requirements: ComplianceRequirement[];
+export interface Provider {
+  id: string;
+  name: string;
+  services: string[];
+}
+
+export interface CheckFilters {
+  providers: { providerId: string; count: number; name: string }[];
+  types: { type: string; count: number }[];
+  services: { service: string; count: number }[];
+  severities: { severity: string; count: number }[];
+  categories: { category: string; count: number }[];
+  compliances: { id: string; framework: string; version: string | null; provider: string; count: number }[];
 }
 
 export interface Stats {
   generatedAt: string;
   source: string;
   checks: number;
+  checkVariants: number;
   compliance: number;
   providers: Record<string, number>;
   severities: Record<string, number>;
   serviceCount: number;
   categoryCount: number;
+  n_artifacts: number;
 }

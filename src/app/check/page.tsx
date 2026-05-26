@@ -1,32 +1,32 @@
 import type { Metadata } from "next";
 import { CheckSearch } from "@/components/CheckSearch";
-import { checksIndex, stats } from "@/lib/data";
+import { checksIndex, filters, stats } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Checks",
   description: "Browse and search cloud security checks.",
 };
 
-export default async function ChecksPage({
+export default async function CheckPage({
   searchParams,
 }: {
-  searchParams: Promise<{ provider?: string; severity?: string }>;
+  searchParams: Promise<{ providers?: string; severities?: string }>;
 }) {
-  const { provider = "", severity = "" } = await searchParams;
-  const providers = Object.keys(stats.providers).sort();
+  const { providers = "", severities = "" } = await searchParams;
+  const providerOptions = filters.providers.map((p) => p.providerId);
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-10">
       <h1 className="text-2xl font-bold tracking-tight">Security checks</h1>
       <p className="mt-1 text-muted">
-        {stats.checks.toLocaleString()} checks across {providers.length} providers.
+        {stats.checkVariants.toLocaleString()} checks across {providerOptions.length} providers.
       </p>
       <div className="mt-6">
         <CheckSearch
           initial={checksIndex}
-          providers={providers}
-          initialProvider={provider}
-          initialSeverity={severity}
+          providers={providerOptions}
+          initialProvider={providers.split(",")[0] || ""}
+          initialSeverity={severities.split(",")[0] || ""}
           autoFocus
         />
       </div>

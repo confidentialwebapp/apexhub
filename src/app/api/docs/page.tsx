@@ -17,7 +17,7 @@ export default function ApiDocsPage() {
     function render() {
       if (window.Redoc && ref.current) {
         window.Redoc.init(
-          "/api/openapi.json",
+          "/apispec_v1.yaml",
           {
             scrollYOffset: 56,
             hideDownloadButton: false,

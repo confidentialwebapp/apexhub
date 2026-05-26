@@ -1,0 +1,313 @@
+openapi: 3.0.0
+info:
+  title: APEX Hub API
+  description: >-
+    API providing access to cloud security checks and compliance frameworks.
+    Data is sourced from the open-source Prowler project (Apache-2.0). This is
+    an independent deployment, not affiliated with or endorsed by Prowler.
+  version: 1.0.0
+servers:
+  - url: /api
+    description: API base path
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      required: [error]
+
+    Check:
+      type: object
+      properties:
+        id: { type: string, description: Unique identifier for the check }
+        title: { type: string, description: Title of the check }
+        description: { type: string, description: Description of the check }
+        provider: { type: string, description: Cloud provider (aws, azure, gcp, …) }
+        type:
+          type: array
+          items: { type: string }
+          description: Types of the check
+        service: { type: string, description: Cloud service the check applies to }
+        subservice: { type: string, nullable: true }
+        severity:
+          type: string
+          enum: [low, medium, high, critical, informational]
+        risk: { type: string }
+        reference: { type: array, items: { type: string }, nullable: true }
+        additional_urls:
+          type: array
+          items: { type: string }
+        remediation:
+          type: object
+          properties:
+            cli: { type: object, properties: { description: { type: string } } }
+            terraform: { type: object, properties: { description: { type: string } } }
+            nativeiac: { type: object, properties: { description: { type: string } } }
+            other: { type: object, properties: { description: { type: string } } }
+            wui:
+              type: object
+              properties:
+                description: { type: string }
+                reference: { type: string }
+        services_required:
+          type: array
+          items: { type: string }
+        aws_arn_template: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        compliances:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              name: { type: string }
+          description: Associated compliance frameworks
+        rational_estatement: { type: string, nullable: true }
+        remediation_procedure: { type: string, nullable: true }
+        audit_procedure: { type: string, nullable: true }
+        categories:
+          type: array
+          items: { type: string }
+        default_value: { type: string, nullable: true }
+        resource_type: { type: string }
+        related_url: { type: string, nullable: true }
+        depends_on: { type: array, items: { type: string } }
+        related_to: { type: array, items: { type: string } }
+        fixer: { type: boolean, description: Whether the check has a fixer }
+      required: [id, severity]
+
+    Compliance:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        framework: { type: string }
+        provider: { type: string }
+        description: { type: string }
+        requirements:
+          type: array
+          items: { type: object }
+        version: { type: string, nullable: true }
+        total_checks: { type: integer }
+        total_requirements: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+      required: [id]
+
+    Provider:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        services: { type: array, items: { type: string } }
+      required: [id, name]
+
+    CheckFilters:
+      type: object
+      properties:
+        providers:
+          type: array
+          items:
+            type: object
+            properties:
+              providerId: { type: string }
+              count: { type: integer }
+              name: { type: string }
+        types:
+          type: array
+          items: { type: object, properties: { type: { type: string }, count: { type: integer } } }
+        services:
+          type: array
+          items: { type: object, properties: { service: { type: string }, count: { type: integer } } }
+        severities:
+          type: array
+          items: { type: object, properties: { severity: { type: string }, count: { type: integer } } }
+        categories:
+          type: array
+          items: { type: object, properties: { category: { type: string }, count: { type: integer } } }
+        compliances:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              framework: { type: string }
+              version: { type: string, nullable: true }
+              provider: { type: string }
+              count: { type: integer }
+
+    ArtifactsCount:
+      type: object
+      properties:
+        n: { type: integer, description: Total number of artifacts (checks + compliances) }
+      required: [n]
+
+    Configuration:
+      type: object
+      properties:
+        id: { type: string }
+        popular_checks:
+          type: array
+          items: { type: object, properties: { id: { type: string } } }
+        popular_compliances:
+          type: array
+          items: { type: object, properties: { id: { type: string } } }
+        news: { type: array, items: { type: string } }
+      required: [id]
+
+    CheckOfTheDayResponse:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        check:
+          type: object
+          properties:
+            id: { type: string }
+            title: { type: string }
+            description: { type: string }
+            provider: { type: string }
+            service: { type: string }
+            severity: { type: string }
+            categories: { type: array, items: { type: string } }
+            fixer: { type: boolean }
+            url: { type: string, format: uri }
+            api_url: { type: string, format: uri }
+          required: [id, url, api_url]
+      required: [date, check]
+
+paths:
+  /check:
+    get:
+      summary: Get checks
+      description: Retrieve checks with optional filtering.
+      parameters:
+        - { name: providers, in: query, description: Filter by providers (comma-separated), schema: { type: string } }
+        - { name: types, in: query, description: Filter by types (comma-separated), schema: { type: string } }
+        - { name: services, in: query, description: Filter by services (comma-separated), schema: { type: string } }
+        - { name: severities, in: query, description: Filter by severities (comma-separated), schema: { type: string } }
+        - { name: categories, in: query, description: Filter by categories (comma-separated), schema: { type: string } }
+        - { name: compliances, in: query, description: Filter by compliance IDs (comma-separated), schema: { type: string } }
+        - { name: ids, in: query, description: Filter by check IDs (comma-separated), schema: { type: string } }
+        - { name: fields, in: query, description: Fields to return (comma-separated), schema: { type: string } }
+        - { name: limit, in: query, description: Max number of results, schema: { type: integer } }
+      responses:
+        "200":
+          description: List of checks
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Check" } }
+        "500":
+          description: Server error
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+
+  /check/{id}:
+    get:
+      summary: Get check by ID
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Check details
+          content: { application/json: { schema: { $ref: "#/components/schemas/Check" } } }
+        "404":
+          description: Check not found
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+
+  /check/filters:
+    get:
+      summary: Get check filters
+      responses:
+        "200":
+          description: Available filters
+          content: { application/json: { schema: { $ref: "#/components/schemas/CheckFilters" } } }
+
+  /check/search:
+    get:
+      summary: Search checks
+      parameters:
+        - { name: term, in: query, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Check" } }
+
+  /compliance:
+    get:
+      summary: Get compliances
+      parameters:
+        - { name: provider, in: query, schema: { type: string } }
+        - { name: fields, in: query, schema: { type: string } }
+      responses:
+        "200":
+          description: List of compliance frameworks
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Compliance" } }
+
+  /compliance/{id}:
+    get:
+      summary: Get compliance by ID
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Compliance details
+          content: { application/json: { schema: { $ref: "#/components/schemas/Compliance" } } }
+        "404":
+          description: Compliance not found
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+
+  /compliance/search:
+    get:
+      summary: Search compliances
+      parameters:
+        - { name: term, in: query, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Compliance" } }
+
+  /providers:
+    get:
+      summary: Get providers
+      responses:
+        "200":
+          description: List of providers
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Provider" } }
+
+  /n_artifacts:
+    get:
+      summary: Get artifacts count
+      responses:
+        "200":
+          description: Artifacts count
+          content: { application/json: { schema: { $ref: "#/components/schemas/ArtifactsCount" } } }
+
+  /admin/config:
+    get:
+      summary: Get configuration
+      responses:
+        "200":
+          description: Configuration
+          content: { application/json: { schema: { $ref: "#/components/schemas/Configuration" } } }
+
+  /check-of-the-day/today:
+    get:
+      summary: Get Check of the Day
+      description: Retrieve today's featured security check with complete URLs for automation.
+      responses:
+        "200":
+          description: Today's check
+          content: { application/json: { schema: { $ref: "#/components/schemas/CheckOfTheDayResponse" } } }
+        "404":
+          description: No check scheduled for today
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }

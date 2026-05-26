@@ -16,11 +16,14 @@ Data is a build-time snapshot — re-run ingestion and redeploy to refresh.
 ## Architecture
 
 - `scripts/ingest.mjs` — reads a local clone of `prowler-cloud/prowler` and emits normalized
-  JSON datasets into `src/data/` (committed; this is the build-time snapshot).
-- `src/lib/data.ts` — typed data access + search.
-- Pages: `/`, `/checks`, `/check/[key]`, `/compliance`, `/compliance/[id]` (detail pages are SSG).
-- API: `/api/check/search`, `/api/check/[key]`, `/api/compliance/search`, `/api/compliance/[id]`,
-  `/api/admin/config`, `/api/openapi.json`, and Redoc UI at `/api/docs`.
+  JSON datasets into `src/data/` (committed; this is the build-time snapshot). The check and
+  compliance object shapes mirror the Prowler Hub API.
+- `src/lib/data.ts` — typed data access, filtering & search.
+- Pages: `/`, `/check`, `/check/[id]`, `/compliance`, `/compliance/[id]` (detail pages are SSG).
+- API (mirrors the Prowler Hub surface): `/api/check`, `/api/check/{id}`, `/api/check/filters`,
+  `/api/check/search`, `/api/compliance`, `/api/compliance/{id}`, `/api/compliance/search`,
+  `/api/providers`, `/api/n_artifacts`, `/api/admin/config`, `/api/check-of-the-day/today`.
+- OpenAPI spec at `/apispec_v1.yaml`, Redoc UI at `/api/docs`.
 
 ## Refreshing the data
 

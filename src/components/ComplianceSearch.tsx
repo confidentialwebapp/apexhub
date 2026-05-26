@@ -18,8 +18,9 @@ export function ComplianceSearch({
   useEffect(() => {
     const t = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/compliance/search?term=${encodeURIComponent(term)}&limit=500`);
-        setResults(await res.json());
+        const res = await fetch(`/api/compliance/search?term=${encodeURIComponent(term)}`);
+        const data = await res.json();
+        setResults(Array.isArray(data) ? data : []);
       } catch {
         setResults([]);
       }
@@ -41,17 +42,9 @@ export function ComplianceSearch({
           placeholder="Search frameworks — e.g. CIS, NIST, PCI, ISO 27001…"
           className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm outline-none transition focus:border-accent"
         />
-        <select
-          value={provider}
-          onChange={(e) => setProvider(e.target.value)}
-          className="rounded-lg border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:border-accent"
-        >
+        <select value={provider} onChange={(e) => setProvider(e.target.value)} className="rounded-lg border border-border bg-surface px-3 py-2.5 text-sm outline-none focus:border-accent">
           <option value="">All providers</option>
-          {providers.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
+          {providers.map((p) => (<option key={p} value={p}>{p}</option>))}
         </select>
       </div>
 
@@ -70,7 +63,7 @@ export function ComplianceSearch({
             </div>
             <p className="mt-1 line-clamp-2 text-sm text-muted">{c.name}</p>
             <p className="mt-2 text-xs text-muted">
-              {c.requirementsCount} requirements · {c.checksCount} checks
+              {c.total_requirements} requirements · {c.total_checks} checks
             </p>
           </Link>
         ))}
