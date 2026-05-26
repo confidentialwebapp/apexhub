@@ -11,14 +11,16 @@ export function CheckSearch({
   autoFocus = false,
   initialProvider = "",
   initialSeverity = "",
+  initialTerm = "",
 }: {
   initial?: CheckIndexItem[];
   providers?: string[];
   autoFocus?: boolean;
   initialProvider?: string;
   initialSeverity?: string;
+  initialTerm?: string;
 }) {
-  const [term, setTerm] = useState("");
+  const [term, setTerm] = useState(initialTerm);
   const [provider, setProvider] = useState(initialProvider);
   const [severity, setSeverity] = useState(initialSeverity);
   const [results, setResults] = useState<CheckIndexItem[]>(initial);

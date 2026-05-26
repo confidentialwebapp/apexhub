@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 export default async function CheckPage({
   searchParams,
 }: {
-  searchParams: Promise<{ providers?: string; severities?: string }>;
+  searchParams: Promise<{ providers?: string; severities?: string; q?: string }>;
 }) {
-  const { providers = "", severities = "" } = await searchParams;
+  const { providers = "", severities = "", q = "" } = await searchParams;
   const providerOptions = filters.providers.map((p) => p.providerId);
 
   return (
@@ -27,6 +27,7 @@ export default async function CheckPage({
           providers={providerOptions}
           initialProvider={providers.split(",")[0] || ""}
           initialSeverity={severities.split(",")[0] || ""}
+          initialTerm={q}
           autoFocus
         />
       </div>
