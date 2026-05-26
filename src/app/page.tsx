@@ -22,33 +22,34 @@ export default function Home() {
     .filter((c) => /cis|nist|pci|iso|soc|gdpr|hipaa|fedramp/i.test(c.framework))
     .slice(0, 8);
   const artifacts = stats.n_artifacts.toLocaleString();
+  const services = stats.serviceCount;
 
   return (
     <div>
       {/* ---------- HERO ---------- */}
       <section className="relative overflow-hidden border-b border-border">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60rem_30rem_at_70%_-10%,rgba(91,140,255,0.18),transparent)]" />
-        <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] [background-size:40px_40px] [mask-image:radial-gradient(40rem_30rem_at_50%_0%,black,transparent)]" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 lg:grid-cols-[1.15fr_0.85fr] lg:py-24">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60rem_30rem_at_72%_-12%,rgba(168,85,247,0.20),transparent)]" />
+        <NodeGraph className="pointer-events-none absolute right-0 top-0 h-full w-[55%] opacity-[0.5] [mask-image:linear-gradient(to_left,black,transparent)]" />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:py-24">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/70 px-3 py-1 text-xs text-muted backdrop-blur">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              {artifacts} artifacts · {stats.checkVariants.toLocaleString()} checks · {stats.compliance} frameworks
+              <span className="brand-gradient inline-block h-1.5 w-1.5 rounded-full" />
+              {artifacts} artifacts · {stats.checkVariants.toLocaleString()} checks · {stats.compliance} frameworks · {providers.length} providers
             </div>
             <h1 className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              Cloud security{" "}
-              <span className="bg-gradient-to-r from-accent via-accent-2 to-accent bg-clip-text text-transparent">
-                checks &amp; compliance
-              </span>
-              , in one hub.
+              The connected hub for{" "}
+              <span className="brand-text">cloud security</span> checks &amp; compliance.
             </h1>
             <p className="mt-5 max-w-xl text-base text-muted sm:text-lg">
-              Browse detection &amp; remediation checks across AWS, Azure, GCP, Kubernetes, IaC, M365 and
-              more — and the compliance frameworks they map to. Fully searchable, backed by a JSON API.
+              Every detection &amp; remediation check — across AWS, Azure, GCP, Kubernetes, IaC, M365 and
+              more — mapped to the compliance frameworks it satisfies. One searchable graph, backed by a JSON API.
             </p>
             <div className="mt-7">
               <HeroSearch />
             </div>
+            <p className="mt-5 text-sm text-muted">
+              {stats.checkVariants.toLocaleString()} checks · {services} services · {stats.compliance} frameworks · {stats.categoryCount} categories — all cross-linked.
+            </p>
           </div>
           <div className="lg:pl-4">
             <CheckOfTheDay />
@@ -63,7 +64,7 @@ export default function Home() {
           <Stat label="Checks" value={stats.checkVariants.toLocaleString()} />
           <Stat label="Frameworks" value={String(stats.compliance)} />
           <Stat label="Providers" value={String(providers.length)} />
-          <Stat label="Services" value={String(stats.serviceCount)} />
+          <Stat label="Services" value={String(services)} />
         </section>
 
         {/* ---------- BROWSE CARDS ---------- */}
@@ -72,21 +73,17 @@ export default function Home() {
             href="/check"
             eyebrow="Detection & Remediation"
             title="Browse security checks"
-            desc={`${stats.checkVariants.toLocaleString()} checks with severity, risk, remediation code (CLI, Terraform, IaC) and compliance mappings.`}
-            accent="from-accent/20"
-            icon={
-              <path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" strokeLinecap="round" strokeLinejoin="round" />
-            }
+            desc={`${stats.checkVariants.toLocaleString()} checks with severity, risk, remediation code (CLI, Terraform, IaC) and the frameworks each maps to.`}
+            glow="rgba(168,85,247,0.22)"
+            icon={<path d="M9 12l2 2 4-4M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" strokeLinecap="round" strokeLinejoin="round" />}
           />
           <BrowseCard
             href="/compliance"
             eyebrow="Frameworks"
             title="Browse compliance frameworks"
-            desc={`${stats.compliance} frameworks — CIS, NIST, PCI-DSS, ISO 27001, SOC 2, FedRAMP and more — mapped to checks.`}
-            accent="from-accent-2/20"
-            icon={
-              <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
-            }
+            desc={`${stats.compliance} frameworks — CIS, NIST, PCI-DSS, ISO 27001, SOC 2, FedRAMP — each linked to the checks that satisfy its requirements.`}
+            glow="rgba(226,70,110,0.22)"
+            icon={<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />}
           />
         </section>
 
@@ -142,11 +139,11 @@ export default function Home() {
             <div>
               <h2 className="text-xl font-semibold tracking-tight">A JSON API for everything</h2>
               <p className="mt-2 text-muted">
-                Every check and framework is available programmatically. Filter, search, and pull full
-                metadata — documented with OpenAPI.
+                Every check and framework is available programmatically — filter, search, and traverse the
+                check ↔ framework graph. Documented with OpenAPI and an interactive console.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
-                <Link href="/api/docs" className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-background transition hover:opacity-90">
+                <Link href="/api/docs" className="brand-gradient rounded-lg px-4 py-2 text-sm font-medium text-white transition hover:opacity-90">
                   API documentation
                 </Link>
                 <a href="/apispec_v1.yaml" className="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium transition hover:bg-surface-2">
@@ -157,13 +154,13 @@ export default function Home() {
             <pre className="code text-xs leading-relaxed">{`# Search checks
 curl -s "/api/check/search?term=s3+public"
 
-# Get one check
+# Get one check (with its framework mappings)
 curl -s "/api/check/s3_bucket_public_access"
 
 # Filter by provider + severity
 curl -s "/api/check?providers=aws&severities=critical"
 
-# Compliance framework with requirements
+# A framework and the checks that satisfy it
 curl -s "/api/compliance/cis_3.0_aws"`}</pre>
           </div>
         </section>
@@ -175,7 +172,7 @@ curl -s "/api/compliance/cis_3.0_aws"`}</pre>
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-surface p-5 text-center sm:text-left">
-      <div className="text-2xl font-bold tracking-tight sm:text-3xl">{value}</div>
+      <div className="brand-text text-2xl font-bold tracking-tight sm:text-3xl">{value}</div>
       <div className="mt-1 text-xs uppercase tracking-wide text-muted">{label}</div>
     </div>
   );
@@ -187,21 +184,21 @@ function BrowseCard({
   title,
   desc,
   icon,
-  accent,
+  glow,
 }: {
   href: string;
   eyebrow: string;
   title: string;
   desc: string;
   icon: React.ReactNode;
-  accent: string;
+  glow: string;
 }) {
   return (
     <Link
       href={href}
       className="group relative overflow-hidden rounded-2xl border border-border bg-surface p-6 transition hover:-translate-y-0.5 hover:border-accent/60"
     >
-      <div className={`pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-gradient-to-br ${accent} to-transparent blur-2xl`} />
+      <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full blur-2xl" style={{ background: `radial-gradient(circle, ${glow}, transparent 70%)` }} />
       <div className="relative">
         <div className="grid h-11 w-11 place-items-center rounded-xl border border-border bg-surface-2 text-accent">
           <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">{icon}</svg>
@@ -217,5 +214,43 @@ function BrowseCard({
         </span>
       </div>
     </Link>
+  );
+}
+
+/* Decorative connected-node graph echoing the logo mark. */
+function NodeGraph({ className }: { className?: string }) {
+  const edges = [
+    [300, 200, 150, 90],
+    [300, 200, 470, 120],
+    [300, 200, 120, 300],
+    [300, 200, 480, 320],
+    [300, 200, 300, 360],
+    [150, 90, 120, 300],
+    [470, 120, 480, 320],
+  ];
+  const nodes = [
+    [300, 200, 9],
+    [150, 90, 5],
+    [470, 120, 6],
+    [120, 300, 5],
+    [480, 320, 6],
+    [300, 360, 5],
+  ];
+  return (
+    <svg className={className} viewBox="0 0 600 420" fill="none" aria-hidden>
+      <defs>
+        <linearGradient id="ng" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#a855f7" />
+          <stop offset="52%" stopColor="#932e72" />
+          <stop offset="100%" stopColor="#e2466e" />
+        </linearGradient>
+      </defs>
+      {edges.map(([x1, y1, x2, y2], i) => (
+        <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="url(#ng)" strokeOpacity="0.45" strokeWidth="1.5" />
+      ))}
+      {nodes.map(([cx, cy, r], i) => (
+        <circle key={i} cx={cx} cy={cy} r={r} fill="url(#ng)" />
+      ))}
+    </svg>
   );
 }

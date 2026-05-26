@@ -1,14 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b0f17;
-  --surface: #121826;
-  --surface-2: #1a2233;
-  --border: #243049;
-  --foreground: #e6edf7;
-  --muted: #94a3b8;
-  --accent: #5b8cff;
-  --accent-2: #22d3ee;
+  /* Theme derived from the APEX Hub logo gradient: purple → magenta → rose */
+  --background: #0b0710;
+  --surface: #150f1e;
+  --surface-2: #1f1730;
+  --border: #2e2342;
+  --foreground: #efe9f7;
+  --muted: #a193b4;
+  --accent: #a855f7; /* purple */
+  --accent-2: #e2466e; /* rose/red */
+  --brand-mid: #932e72; /* magenta midpoint */
 }
 
 @theme inline {
@@ -20,6 +22,7 @@
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-accent-2: var(--accent-2);
+  --color-brand-mid: var(--brand-mid);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -28,12 +31,23 @@ html { scroll-behavior: smooth; }
 
 body {
   background:
-    radial-gradient(900px 500px at 85% -10%, rgba(91, 140, 255, 0.12), transparent 60%),
-    radial-gradient(700px 400px at 5% 0%, rgba(34, 211, 238, 0.08), transparent 55%),
+    radial-gradient(900px 520px at 82% -12%, rgba(168, 85, 247, 0.16), transparent 60%),
+    radial-gradient(760px 440px at 6% 2%, rgba(226, 70, 110, 0.12), transparent 58%),
     var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   min-height: 100vh;
+}
+
+/* Reusable brand gradient (matches the logo) */
+.brand-gradient {
+  background-image: linear-gradient(115deg, var(--accent) 0%, var(--brand-mid) 52%, var(--accent-2) 100%);
+}
+.brand-text {
+  background-image: linear-gradient(115deg, var(--accent) 0%, var(--brand-mid) 50%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 a { color: inherit; }

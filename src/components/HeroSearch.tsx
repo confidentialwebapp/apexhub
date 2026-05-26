@@ -36,7 +36,7 @@ export function HeroSearch() {
         />
         <button
           type="submit"
-          className="shrink-0 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-background transition hover:opacity-90"
+          className="brand-gradient shrink-0 rounded-lg px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
         >
           Search
         </button>
