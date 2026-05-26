@@ -48,9 +48,6 @@ export default function Home() {
             <div className="mt-7">
               <HeroSearch />
             </div>
-            <p className="mt-5 text-sm text-muted">
-              {stats.checkVariants.toLocaleString()} checks · {services} services · {stats.compliance} frameworks · {stats.categoryCount} categories — all cross-linked.
-            </p>
           </div>
           <div className="lg:pl-4">
             <CheckOfTheDay />
