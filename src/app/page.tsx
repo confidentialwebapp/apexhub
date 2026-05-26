@@ -38,7 +38,8 @@ export default function Home() {
             </div>
             <h1 className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
               The connected hub for{" "}
-              <span className="brand-text">cloud security</span> checks &amp; compliance.
+              <span className="brand-text">cloud security</span>{" "}
+              checks &amp; compliance.
             </h1>
             <p className="mt-5 max-w-xl text-base text-muted sm:text-lg">
               Every detection &amp; remediation check — across AWS, Azure, GCP, Kubernetes, IaC, M365 and
