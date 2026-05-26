@@ -55,7 +55,7 @@ export default async function CheckDetail({ params }: { params: Promise<{ id: st
           {check.service && <Pill>{check.service}</Pill>}
           {check.resource_type && <Pill>{check.resource_type}</Pill>}
           {check.fixer && (
-            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 text-xs text-emerald-300">
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-700 dark:text-emerald-300">
               <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               automated fixer
             </span>

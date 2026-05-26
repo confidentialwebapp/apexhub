@@ -116,7 +116,7 @@ export function CheckSearch({
                 <ProviderBadge provider={c.provider} />
                 <span className="text-xs text-muted">{c.service}</span>
                 {c.fixer && (
-                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 text-xs text-emerald-300">fixer</span>
+                  <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-700 dark:text-emerald-300">fixer</span>
                 )}
               </div>
               <h3 className="mt-2 font-medium">{c.title}</h3>

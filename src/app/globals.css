@@ -1,16 +1,40 @@
 @import "tailwindcss";
 
+/* Bind Tailwind's dark: variant to a .dark class (class-based theme switching). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Light theme (default, Apple-style) ---------- */
 :root {
-  /* Theme derived from the APEX Hub logo gradient: purple → magenta → rose */
-  --background: #0b0710;
-  --surface: #150f1e;
-  --surface-2: #1f1730;
-  --border: #2e2342;
-  --foreground: #efe9f7;
-  --muted: #a193b4;
-  --accent: #a855f7; /* purple */
-  --accent-2: #e2466e; /* rose/red */
-  --brand-mid: #932e72; /* magenta midpoint */
+  --background: #ffffff;
+  --surface: #f5f5f7;
+  --surface-2: #ececef;
+  --border: #d2d2d7;
+  --foreground: #1d1d1f;
+  --muted: #6e6e73;
+  --accent: #7c3aed; /* purple (brand) */
+  --accent-2: #e2466e; /* rose (brand) */
+  --brand-mid: #b5318a; /* magenta midpoint */
+  --code-bg: #1d1d1f;
+  --code-fg: #f5f5f7;
+  --glow-1: rgba(124, 58, 237, 0.10);
+  --glow-2: rgba(226, 70, 110, 0.08);
+}
+
+/* ---------- Dark theme (clean near-black) ---------- */
+.dark {
+  --background: #000000;
+  --surface: #111113;
+  --surface-2: #1c1c1f;
+  --border: #2a2a2e;
+  --foreground: #f5f5f7;
+  --muted: #98989d;
+  --accent: #a855f7;
+  --accent-2: #e2466e;
+  --brand-mid: #b5318a;
+  --code-bg: #0c0c0e;
+  --code-fg: #e8e8ea;
+  --glow-1: rgba(168, 85, 247, 0.14);
+  --glow-2: rgba(226, 70, 110, 0.10);
 }
 
 @theme inline {
@@ -27,16 +51,21 @@
   --font-mono: var(--font-geist-mono);
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+}
 
 body {
-  background:
-    radial-gradient(900px 520px at 82% -12%, rgba(168, 85, 247, 0.16), transparent 60%),
-    radial-gradient(760px 440px at 6% 2%, rgba(226, 70, 110, 0.12), transparent 58%),
-    var(--background);
+  background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+a {
+  color: inherit;
 }
 
 /* Reusable brand gradient (matches the logo) */
@@ -50,9 +79,9 @@ body {
   color: transparent;
 }
 
-a { color: inherit; }
-
-.prose-block { line-height: 1.7; }
+.prose-block {
+  line-height: 1.7;
+}
 .prose-block code {
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -61,10 +90,14 @@ a { color: inherit; }
   font-size: 0.85em;
   font-family: var(--font-mono), monospace;
 }
-.prose-block strong { color: #fff; font-weight: 600; }
+.prose-block strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
 
 pre.code {
-  background: #0d1320;
+  background: var(--code-bg);
+  color: var(--code-fg);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1rem;
@@ -76,5 +109,11 @@ pre.code {
   word-break: break-word;
 }
 
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 6px;
+}

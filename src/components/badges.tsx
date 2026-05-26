@@ -7,11 +7,11 @@ export const SEVERITY_ACCENT: Record<string, string> = {
 };
 
 const SEVERITY_STYLES: Record<string, string> = {
-  critical: "bg-red-500/15 text-red-300 border-red-500/30",
-  high: "bg-orange-500/15 text-orange-300 border-orange-500/30",
-  medium: "bg-amber-500/15 text-amber-300 border-amber-500/30",
-  low: "bg-sky-500/15 text-sky-300 border-sky-500/30",
-  informational: "bg-slate-500/15 text-slate-300 border-slate-500/30",
+  critical: "bg-red-500/10 text-red-700 dark:text-red-300 border-red-500/25 dark:border-red-500/30",
+  high: "bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/25 dark:border-orange-500/30",
+  medium: "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 dark:border-amber-500/30",
+  low: "bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/25 dark:border-sky-500/30",
+  informational: "bg-slate-500/10 text-slate-600 dark:text-slate-300 border-slate-500/25 dark:border-slate-500/30",
 };
 
 export function SeverityBadge({ severity }: { severity: string }) {
