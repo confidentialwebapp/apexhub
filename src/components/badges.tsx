@@ -1,3 +1,11 @@
+export const SEVERITY_ACCENT: Record<string, string> = {
+  critical: "bg-red-500",
+  high: "bg-orange-500",
+  medium: "bg-amber-500",
+  low: "bg-sky-500",
+  informational: "bg-slate-500",
+};
+
 const SEVERITY_STYLES: Record<string, string> = {
   critical: "bg-red-500/15 text-red-300 border-red-500/30",
   high: "bg-orange-500/15 text-orange-300 border-orange-500/30",

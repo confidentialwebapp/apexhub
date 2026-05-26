@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { Remediation } from "@/lib/types";
+import { CopyButton } from "./CopyButton";
 
 const TABS: { key: keyof Remediation; label: string }[] = [
   { key: "cli", label: "CLI" },
@@ -25,23 +26,28 @@ export function RemediationTabs({ remediation }: { remediation: Remediation }) {
   if (available.length === 0) return <p className="text-sm text-muted">No remediation code provided.</p>;
 
   const current = remediation[active] as { description?: string };
+  const code = clean(current?.description || "");
 
   return (
-    <div>
-      <div className="flex flex-wrap gap-1 border-b border-border">
-        {available.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setActive(t.key)}
-            className={`-mb-px rounded-t-md border-b-2 px-3 py-1.5 text-sm transition ${
-              active === t.key ? "border-accent text-foreground" : "border-transparent text-muted hover:text-foreground"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+    <div className="overflow-hidden rounded-xl border border-border">
+      <div className="flex items-center justify-between gap-2 border-b border-border bg-surface-2/50 px-2">
+        <div className="flex flex-wrap">
+          {available.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setActive(t.key)}
+              className={`relative px-3 py-2.5 text-sm transition ${
+                active === t.key ? "text-foreground" : "text-muted hover:text-foreground"
+              }`}
+            >
+              {t.label}
+              {active === t.key && <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-accent" />}
+            </button>
+          ))}
+        </div>
+        <CopyButton text={code} className="mr-1 shrink-0" />
       </div>
-      <pre className="code mt-3">{clean(current?.description || "")}</pre>
+      <pre className="code !rounded-none !border-0">{code}</pre>
     </div>
   );
 }

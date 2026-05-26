@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { complianceIndex, getCompliance } from "@/lib/data";
 import { Markdown } from "@/components/Markdown";
-import { Pill } from "@/components/badges";
+import { CopyButton } from "@/components/CopyButton";
+import { RequirementsList } from "@/components/RequirementsList";
 
 export const dynamicParams = false;
 
@@ -22,56 +23,63 @@ export default async function ComplianceDetail({ params }: { params: Promise<{ i
   const { id } = await params;
   const c = await getCompliance(decodeURIComponent(id));
   if (!c) notFound();
+  const requirements = c.requirements ?? [];
 
   return (
-    <div className="mx-auto max-w-4xl px-5 py-10">
-      <Link href="/compliance" className="text-sm text-accent hover:underline">← All frameworks</Link>
+    <div className="mx-auto max-w-5xl px-5 py-8">
+      {/* breadcrumb */}
+      <nav className="flex items-center gap-1.5 text-xs text-muted">
+        <Link href="/" className="hover:text-foreground">Home</Link>
+        <span>/</span>
+        <Link href="/compliance" className="hover:text-foreground">Compliance</Link>
+        <span>/</span>
+        <span className="truncate font-mono text-foreground/70">{c.id}</span>
+      </nav>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <Pill>{c.provider}</Pill>
-        {c.version && <Pill>v{c.version}</Pill>}
-        <Pill>{c.total_requirements} requirements</Pill>
-        <Pill>{c.total_checks} checks</Pill>
+      {/* header card */}
+      <div className="relative mt-4 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-surface to-surface-2 p-6">
+        <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-accent/10 blur-3xl" />
+        <div className="relative">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-md border border-accent/30 bg-accent/10 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-accent">{c.framework}</span>
+            <span className="rounded-md border border-border bg-surface px-2 py-0.5 text-xs uppercase text-muted">{c.provider}</span>
+            {c.version && <span className="rounded-md border border-border bg-surface px-2 py-0.5 text-xs text-muted">v{c.version}</span>}
+          </div>
+          <h1 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">{c.name}</h1>
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Metric value={c.total_requirements} label="Requirements" />
+            <Metric value={c.total_checks} label="Checks" />
+            <Metric value={c.provider} label="Provider" />
+          </div>
+        </div>
       </div>
 
-      <h1 className="mt-3 text-2xl font-bold tracking-tight">{c.name}</h1>
-      <p className="mt-1 text-sm text-muted">{c.framework}</p>
+      {c.description && (
+        <div className="mt-6 rounded-xl border border-border bg-surface p-5">
+          <Markdown>{c.description}</Markdown>
+        </div>
+      )}
 
-      {c.description && <div className="mt-4"><Markdown>{c.description}</Markdown></div>}
-
-      <h2 className="mt-10 mb-4 text-sm font-semibold uppercase tracking-wide text-muted">Requirements</h2>
-      <div className="space-y-3">
-        {(c.requirements ?? []).map((r, i) => {
-          const checks = r.checks ?? [];
-          return (
-          <details key={`${r.id}-${i}`} className="rounded-lg border border-border bg-surface p-4">
-            <summary className="cursor-pointer list-none">
-              <span className="font-mono text-xs text-accent">{r.id}</span>
-              {r.name && <span className="ml-2 font-medium">{r.name}</span>}
-              {checks.length > 0 && <span className="ml-2 text-xs text-muted">({checks.length} checks)</span>}
-            </summary>
-            {r.description && <p className="mt-3 whitespace-pre-line text-sm text-foreground/90">{r.description}</p>}
-            {checks.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {checks.map((checkId) => (
-                  <Link
-                    key={checkId}
-                    href={`/check/${encodeURIComponent(checkId)}`}
-                    className="rounded-md border border-border bg-surface-2 px-2 py-1 font-mono text-xs transition hover:border-accent/60 hover:text-accent"
-                  >
-                    {checkId}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </details>
-          );
-        })}
+      <div className="mt-8 flex items-center justify-between">
+        <h2 className="text-lg font-semibold tracking-tight">Requirements</h2>
+        <div className="flex items-center gap-2 text-xs text-muted">
+          <span>API</span>
+          <CopyButton text={`/api/compliance/${c.id}`} label="" />
+        </div>
       </div>
-
-      <div className="mt-10 rounded-lg border border-border bg-surface p-4 text-sm text-muted">
-        API: <a className="font-mono text-accent hover:underline" href={`/api/compliance/${encodeURIComponent(c.id)}`}>/api/compliance/{c.id}</a>
+      <div className="mt-4">
+        <RequirementsList requirements={requirements} />
       </div>
+    </div>
+  );
+}
+
+function Metric({ value, label }: { value: React.ReactNode; label: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-surface/60 px-4 py-2.5">
+      <div className="text-xl font-bold tracking-tight">{value}</div>
+      <div className="text-xs uppercase tracking-wide text-muted">{label}</div>
     </div>
   );
 }
