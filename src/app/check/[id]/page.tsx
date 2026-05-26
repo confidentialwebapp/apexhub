@@ -5,6 +5,7 @@ import { checksIndex, getCheck } from "@/lib/data";
 import { SeverityBadge, ProviderBadge, Pill, SEVERITY_ACCENT } from "@/components/badges";
 import { Markdown } from "@/components/Markdown";
 import { RemediationTabs } from "@/components/RemediationTabs";
+import { SourceCode } from "@/components/SourceCode";
 import { CopyButton } from "@/components/CopyButton";
 
 export const dynamicParams = false;
@@ -85,6 +86,9 @@ export default async function CheckDetail({ params }: { params: Promise<{ id: st
             )}
             {check.remediation && <RemediationTabs remediation={check.remediation} />}
           </Section>
+          <Section title="Source code">
+            <SourceCode provider={check.provider} service={check.service} id={check.id} fixer={check.fixer} />
+          </Section>
           {refs.length > 0 && (
             <Section title="References">
               <ul className="space-y-2">
@@ -106,9 +110,9 @@ export default async function CheckDetail({ params }: { params: Promise<{ id: st
           <Card title="Details">
             <dl className="space-y-2.5 text-sm">
               <Row k="Provider" v={check.provider} />
-              {check.service && <Row k="Service" v={check.service} />}
+              <Row k="Service" v={check.service || "—"} />
               {check.subservice && <Row k="Subservice" v={check.subservice} />}
-              {check.resource_type && <Row k="Resource type" v={check.resource_type} />}
+              <Row k="Resource type" v={check.resource_type ? <code className="font-mono text-xs">{check.resource_type}</code> : "—"} />
               <Row k="Severity" v={<span className="capitalize">{check.severity}</span>} />
               <Row k="Fixer" v={check.fixer ? "Available" : "—"} />
             </dl>
