@@ -1,0 +1,39 @@
+{
+  "Provider": "atlassian",
+  "CheckID": "atlassian_organization_authentication_policy_enforces_sso",
+  "CheckTitle": "Atlassian organizations enforce SSO through an authentication policy",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Atlassian::Organization::AuthenticationPolicy",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that the organization has verified at least one domain and that its **default authentication policy** enforces SSO, so every managed account signs in through the corporate identity provider.",
+  "Risk": "Atlassian authentication policies only apply to **managed accounts on verified domains** — accounts outside that boundary keep signing in with Atlassian passwords no matter what the policy says. Since Jira and Confluence hold vulnerability tickets, incident records, runbooks and architecture documentation, an account outside the policy is an unmonitored route into the organisation's internal knowledge base.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/security-and-access-policies/docs/understand-authentication-policies/",
+    "https://developer.atlassian.com/cloud/admin/organization/rest/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -H \"Authorization: Bearer $ATLASSIAN_TOKEN\" \\\n  \"https://api.atlassian.com/admin/v1/orgs/$ATLASSIAN_ORG_ID/policies?type=authentication-policy\"",
+      "NativeIaC": "",
+      "Other": "1. In Atlassian Administration, go to **Security > Domains** and verify every domain your organisation uses\n2. Claim the accounts on those domains so they become managed\n3. Go to **Security > Authentication policies**\n4. Edit the default policy and enable **Enforce single sign-on**\n5. Verify that no members are left in a non-enforcing policy\n6. Configure SCIM user provisioning so deactivation in the IdP removes Atlassian access automatically",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Verify all your domains, claim the accounts on them, enforce SSO in the default authentication policy, and add SCIM provisioning so deprovisioning is automatic.",
+      "Url": "https://apexhub-lime.vercel.app/check/atlassian_organization_authentication_policy_enforces_sso"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "atlassian_organization_two_step_verification_required"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "Provider": "slack",
+  "CheckID": "slack_workspace_sso_required",
+  "CheckTitle": "Slack workspaces require SSO for member sign-in",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Slack::Workspace",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that the workspace requires **single sign-on**, so membership and session control follow the corporate identity provider rather than Slack-local passwords.",
+  "Risk": "Slack accumulates an organisation's most sensitive informal record: **credentials pasted into DMs, incident detail, contract discussion and internal architecture**. Without enforced SSO there is no conditional access and no central session revocation, so a leaver or a phished account retains a searchable archive of all of it until someone manually intervenes.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://slack.com/help/articles/203772216-SAML-single-sign-on",
+    "https://api.slack.com/methods/team.info"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Sign in to Slack as a workspace or org owner\n2. Go to **Settings & administration > Workspace settings > Authentication**\n3. Configure the SAML connection to your identity provider\n4. Set SSO to **Required** for all members\n5. Enable SCIM provisioning so deactivation in the IdP removes Slack access automatically\n6. Decide explicitly whether guests are exempt, and document the exception",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Require SAML SSO for all members and enable SCIM provisioning so deprovisioning is automatic rather than dependent on manual offboarding steps.",
+      "Url": "https://apexhub-lime.vercel.app/check/slack_workspace_sso_required"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "slack_workspace_two_factor_required"
+  ],
+  "Notes": ""
+}

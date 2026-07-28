@@ -1,0 +1,39 @@
+{
+  "Provider": "vault",
+  "CheckID": "vault_system_listener_tls_enabled",
+  "CheckTitle": "Vault listeners require TLS",
+  "CheckType": [],
+  "ServiceName": "system",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Vault::Listener",
+  "ResourceGroup": "network",
+  "Description": "This check reports Vault listeners configured with `tls_disable`, and confirms the cluster address itself uses HTTPS.",
+  "Risk": "Vault tokens and secret values travel in the **request and response bodies**, so a listener without TLS publishes every credential the cluster serves to anyone on the network path. Because a captured token is immediately replayable, one intercepted request is enough to reach every secret that token's policy allows — the entire purpose of the system defeated at the transport layer.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/vault/docs/configuration/listener/tcp",
+    "https://developer.hashicorp.com/vault/tutorials/operations/production-hardening"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "# In the Vault server configuration:\n#   listener \"tcp\" {\n#     address       = \"0.0.0.0:8200\"\n#     tls_cert_file = \"/etc/vault/tls/vault.crt\"\n#     tls_key_file  = \"/etc/vault/tls/vault.key\"\n#     tls_min_version = \"tls12\"\n#   }\nsudo systemctl restart vault",
+      "NativeIaC": "",
+      "Other": "1. Provision a certificate for the Vault cluster's DNS name\n2. Set `tls_cert_file` and `tls_key_file` on every listener and remove `tls_disable`\n3. Set `tls_min_version = \"tls12\"` or higher\n4. Restart Vault and confirm `VAULT_ADDR` uses `https://`\n5. Enable `tls_require_and_verify_client_cert` where mutual TLS is practical\n6. Rotate every token and secret that was served over a plaintext listener — treat them as intercepted",
+      "Terraform": "# Vault Helm chart values\nserver:\n  standalone:\n    config: |\n      listener \"tcp\" {\n        address       = \"0.0.0.0:8200\"\n        tls_cert_file = \"/vault/userconfig/tls/tls.crt\"\n        tls_key_file  = \"/vault/userconfig/tls/tls.key\"\n        tls_min_version = \"tls12\"\n      }"
+    },
+    "Recommendation": {
+      "Text": "Enable TLS on every listener with a minimum version of 1.2, remove tls_disable, and rotate all tokens and secrets that were previously served over plaintext.",
+      "Url": "https://apexhub-lime.vercel.app/check/vault_system_listener_tls_enabled"
+    }
+  },
+  "Categories": [
+    "encryption"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "vault_system_auto_unseal_configured"
+  ],
+  "Notes": ""
+}

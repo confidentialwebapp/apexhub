@@ -1,0 +1,39 @@
+{
+  "Provider": "databricks",
+  "CheckID": "databricks_unitycatalog_metastore_assigned",
+  "CheckTitle": "Databricks workspaces are assigned to a Unity Catalog metastore",
+  "CheckType": [],
+  "ServiceName": "unitycatalog",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Databricks::UnityCatalog::Metastore",
+  "ResourceGroup": "iam",
+  "Description": "**Unity Catalog** provides centralised access control, lineage and audit for data across workspaces. This check verifies that the workspace has a metastore assignment, without which governance falls back to legacy per-workspace table ACLs.",
+  "Risk": "Outside Unity Catalog, data access is governed by **legacy table ACLs that only some cluster modes enforce**, and there is no lineage or centralised grant audit. Permissions drift independently in each workspace, so an access review in one place gives no assurance about the same data reached from another.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.databricks.com/en/data-governance/unity-catalog/index.html",
+    "https://docs.databricks.com/api/workspace/metastores"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "databricks metastores assign <workspace-id> <metastore-id> <default-catalog>",
+      "NativeIaC": "",
+      "Other": "1. Create a Unity Catalog metastore in the account console for the workspace's region\n2. Assign the workspace to it and set a default catalog\n3. Migrate existing Hive metastore tables using the upgrade wizard or `SYNC`\n4. Move clusters to a Unity Catalog access mode so grants are enforced\n5. Review and re-apply grants in Unity Catalog — legacy ACLs are not carried over automatically",
+      "Terraform": "resource \"databricks_metastore_assignment\" \"this\" {\n  workspace_id         = var.workspace_id\n  metastore_id         = databricks_metastore.primary.id\n  default_catalog_name = \"main\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Assign each workspace to a Unity Catalog metastore, migrate legacy Hive tables, and move clusters to a governed access mode so grants are enforced consistently.",
+      "Url": "https://apexhub-lime.vercel.app/check/databricks_unitycatalog_metastore_assigned"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "databricks_unitycatalog_external_location_not_broadly_granted"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,37 @@
+{
+  "Provider": "slack",
+  "CheckID": "slack_workspace_audit_logs_accessible",
+  "CheckTitle": "Slack organizations have audit logs available for export",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Slack::Workspace::AuditLog",
+  "ResourceGroup": "logging",
+  "Description": "This check verifies that the **Audit Logs API** is readable for the organization, indicating that administrative and access events can be exported to a SIEM.",
+  "Risk": "Without audit log access there is **no record of app installations, permission changes, file downloads or Slack Connect invitations**. Those are exactly the events that distinguish an account compromise from normal use, so their absence means an intrusion is typically discovered only when its effects surface elsewhere.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://api.slack.com/admins/audit-logs",
+    "https://slack.com/help/articles/360002079527-Slack-Enterprise-Grid-audit-logs"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl 'https://api.slack.com/audit/v1/logs?limit=100' \\\n  -H \"Authorization: Bearer $SLACK_TOKEN\"",
+      "NativeIaC": "",
+      "Other": "1. Confirm the organization is on a plan that includes the Audit Logs API\n2. Create an app with the `auditlogs:read` scope and install it at the org level\n3. Build or enable a scheduled pull of `/audit/v1/logs` into your SIEM\n4. Alert on `app_installed`, `app_scopes_expanded`, `file_downloaded` in bulk, `user_channel_join` to sensitive channels and Slack Connect invitations\n5. Retain the exported events for at least your investigation window",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Enable the Audit Logs API, pull events into your SIEM on a schedule, and alert on app installations, scope expansions, bulk downloads and Slack Connect invitations.",
+      "Url": "https://apexhub-lime.vercel.app/check/slack_workspace_audit_logs_accessible"
+    }
+  },
+  "Categories": [
+    "logging"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

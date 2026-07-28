@@ -1,0 +1,40 @@
+{
+  "Provider": "vercel",
+  "CheckID": "project_firewall_enabled",
+  "CheckTitle": "Vercel projects have the firewall enabled",
+  "CheckType": [],
+  "ServiceName": "project",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Vercel::Project::Firewall",
+  "ResourceGroup": "network",
+  "Description": "This check verifies that each project has the **Vercel Firewall** enabled, which is the prerequisite for custom rules, managed rulesets, IP blocking and rate limiting to take effect.",
+  "Risk": "With the firewall disabled, every request reaches the application's serverless functions directly, so **abusive traffic is billed and executed rather than dropped at the edge**. Application-layer attacks — credential stuffing against a login route, scraping, or a request flood — become both a security incident and an uncapped cost event, and the WAF rules configured at team level do nothing for that project.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://vercel.com/docs/security/vercel-firewall",
+    "https://vercel.com/docs/security/vercel-waf"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Open the project in the Vercel dashboard\n2. Go to **Settings > Firewall**\n3. Enable the firewall for the project\n4. Enable the **managed rulesets** appropriate to the application\n5. Add rate limiting on authentication and other expensive routes\n6. Review the firewall observability page after enabling to confirm legitimate traffic is not being blocked\n7. Enable **Attack Challenge Mode** as a documented response for an active incident",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Enable the firewall on every project, turn on the relevant managed rulesets, rate-limit authentication routes, and verify legitimate traffic is unaffected before relying on it.",
+      "Url": "https://apexhub-lime.vercel.app/check/project_firewall_enabled"
+    }
+  },
+  "Categories": [
+    "trust-boundaries",
+    "resilience"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "project_bot_protection_enabled"
+  ],
+  "Notes": ""
+}

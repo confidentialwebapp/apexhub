@@ -1,0 +1,40 @@
+{
+  "Provider": "openai",
+  "CheckID": "openai_apikey_no_stale_keys",
+  "CheckTitle": "OpenAI API keys are rotated and unused keys are removed",
+  "CheckType": [],
+  "ServiceName": "apikey",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "OpenAI::ApiKey",
+  "ResourceGroup": "iam",
+  "Description": "This check reports API keys that have never been used, or whose last use predates the configured staleness threshold (90 days by default), and keys older than the configured maximum age.",
+  "Risk": "OpenAI API keys **do not expire**, so a key pasted into a notebook, a container image or a chat message stays valid until someone deletes it. Unused keys are the ones nobody will notice being used, and because billing is per-token, a stolen key produces cost and data exposure long before anyone connects the spend to a leak.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://platform.openai.com/docs/guides/production-best-practices",
+    "https://platform.openai.com/docs/api-reference/administration"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl https://api.openai.com/v1/organization/projects/<project-id>/api_keys \\\n  -H \"Authorization: Bearer $OPENAI_ADMIN_KEY\"",
+      "NativeIaC": "",
+      "Other": "1. List the keys in each project and identify those with no recent use\n2. Confirm with the owning team, then delete them\n3. Rotate keys still in use on a fixed schedule: create the replacement, deploy it, verify traffic moved, then delete the old key\n4. Store keys in a secrets manager rather than in environment files committed to source control\n5. Enable spend alerts so anomalous usage on a leaked key surfaces quickly",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Delete unused keys, rotate active ones on a fixed schedule with an overlap window, store them in a secrets manager, and enable spend alerts so misuse is detected by cost anomaly.",
+      "Url": "https://apexhub-lime.vercel.app/check/openai_apikey_no_stale_keys"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "openai_apikey_scoped_to_project"
+  ],
+  "Notes": ""
+}

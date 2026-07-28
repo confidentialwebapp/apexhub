@@ -1,0 +1,40 @@
+{
+  "Provider": "jenkins",
+  "CheckID": "jenkins_plugin_no_known_vulnerabilities",
+  "CheckTitle": "Jenkins plugins have no known security advisories",
+  "CheckType": [],
+  "ServiceName": "plugin",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Jenkins::Plugin",
+  "ResourceGroup": "compute",
+  "Description": "The Jenkins update centre publishes **security warnings** for plugin versions with known vulnerabilities. This check reports installed plugins that carry an advisory for the version in use.",
+  "Risk": "Plugins execute inside the controller JVM with **full controller privileges**, so a vulnerable plugin is not a peripheral concern — advisories routinely describe unauthenticated remote code execution or credential disclosure. Jenkins plugin CVEs are widely weaponised within days of publication, and an exposed controller running a flagged plugin is a standard mass-scanning target.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://www.jenkins.io/security/advisories/",
+    "https://www.jenkins.io/doc/book/managing/plugins/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "java -jar jenkins-cli.jar -s \"$JENKINS_URL\" -auth @token install-plugin <plugin>:<fixed-version> -restart",
+      "NativeIaC": "",
+      "Other": "1. Sign in to Jenkins as an administrator\n2. Go to **Manage Jenkins > Plugins > Updates**\n3. Update every plugin listed with a security warning to the fixed version\n4. Where no fix exists, uninstall the plugin and remove the jobs that depend on it\n5. Restart the controller to load the updated plugins\n6. Subscribe to the Jenkins security advisory mailing list so future advisories are seen promptly",
+      "Terraform": "# plugins.txt consumed by the jenkins/jenkins image plugin installer\n# Pin fixed versions and update them through your normal change process.\ngit:5.2.2\ncredentials:1337.v60b_d7b_c7b_c9d\nworkflow-cps:3908.vd6b_b_5a_a_74b_45"
+    },
+    "Recommendation": {
+      "Text": "Update or remove every plugin carrying a security advisory, restart the controller, and pin plugin versions in a managed manifest so updates go through change control instead of ad-hoc clicks.",
+      "Url": "https://apexhub-lime.vercel.app/check/jenkins_plugin_no_known_vulnerabilities"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "vulnerability-management"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "jenkins_plugin_no_deprecated_or_unmaintained"
+  ],
+  "Notes": ""
+}

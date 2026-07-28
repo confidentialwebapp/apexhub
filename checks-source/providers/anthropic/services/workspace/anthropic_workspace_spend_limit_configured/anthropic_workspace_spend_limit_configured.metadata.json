@@ -1,0 +1,39 @@
+{
+  "Provider": "anthropic",
+  "CheckID": "anthropic_workspace_spend_limit_configured",
+  "CheckTitle": "Anthropic workspaces define a spend limit",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Anthropic::Workspace",
+  "ResourceGroup": "compute",
+  "Description": "A workspace **spend limit** caps how much a workspace's keys may consume. This check reports active workspaces with no limit configured, which leaves a single leaked key able to draw against the whole organization's budget.",
+  "Risk": "An uncapped workspace turns a leaked API key directly into **unbounded financial loss**, and heavy abuse traffic also consumes the rate capacity your production workloads depend on. A per-workspace limit converts both into a bounded, self-announcing failure: spend stops and the anomaly becomes visible.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.claude.com/en/api/rate-limits",
+    "https://docs.claude.com/en/api/administration-api"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl https://api.anthropic.com/v1/organizations/workspaces \\\n  -H \"x-api-key: $ANTHROPIC_ADMIN_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\"",
+      "NativeIaC": "",
+      "Other": "1. Open the workspace in the Anthropic Console\n2. Set a monthly spend limit sized to the workload's expected usage plus headroom\n3. Configure notification thresholds below the hard limit so the team is warned before traffic stops\n4. Give each workload its own workspace so limits are meaningful\n5. Review limits when traffic patterns change rather than raising them reactively during an incident",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Set a monthly spend limit and warning threshold on every active workspace, sized per workload, so a leaked key produces a bounded and visible failure.",
+      "Url": "https://apexhub-lime.vercel.app/check/anthropic_workspace_spend_limit_configured"
+    }
+  },
+  "Categories": [
+    "resilience"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "anthropic_apikey_scoped_to_workspace"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,37 @@
+{
+  "Provider": "auth0",
+  "CheckID": "auth0_tenant_log_streaming_configured",
+  "CheckTitle": "Auth0 tenants stream logs to an external system",
+  "CheckType": [],
+  "ServiceName": "tenant",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Auth0::Tenant::LogStream",
+  "ResourceGroup": "logging",
+  "Description": "Auth0 retains tenant logs for a limited period that varies by plan. This check verifies that at least one **active log stream** delivers events to an external system such as a SIEM.",
+  "Risk": "Auth0 log retention is measured in **days on most plans**, so by the time an account compromise is detected the authentication events that would explain it have often already aged out. Streamed logs are also the only source that shows failed login patterns, MFA enrolment changes and token exchanges — the primary indicators of an identity attack in progress.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://auth0.com/docs/customize/log-streams",
+    "https://auth0.com/docs/deploy-monitor/logs/log-event-type-codes"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X POST \"https://$AUTH0_DOMAIN/api/v2/log-streams\" \\\n  -H \"Authorization: Bearer $AUTH0_TOKEN\" \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"siem\",\"type\":\"http\",\"sink\":{\"httpEndpoint\":\"https://siem.example.com/auth0\",\"httpContentType\":\"application/json\",\"httpAuthorization\":\"Bearer <token>\"}}'",
+      "NativeIaC": "",
+      "Other": "1. In the Auth0 Dashboard, go to **Monitoring > Streams**\n2. Create a stream to your SIEM (HTTP endpoint, Datadog, Splunk or an event bus)\n3. Verify the stream status is **Active** and that events are arriving\n4. Alert on `f` (failed login), `gd_*` (MFA), `sapi`/`fapi` (Management API) and `limit_*` (rate limiting) event codes\n5. Retain streamed events for at least your incident investigation window\n6. Monitor stream health — a paused or failing stream is a silent gap",
+      "Terraform": "resource \"auth0_log_stream\" \"siem\" {\n  name   = \"siem\"\n  type   = \"http\"\n  status = \"active\"\n\n  sink {\n    http_endpoint     = \"https://siem.example.com/auth0\"\n    http_content_type = \"application/json\"\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Stream tenant logs to a SIEM, confirm the stream stays active, alert on failed logins, MFA changes and Management API calls, and monitor stream health so a paused stream is noticed.",
+      "Url": "https://apexhub-lime.vercel.app/check/auth0_tenant_log_streaming_configured"
+    }
+  },
+  "Categories": [
+    "logging"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

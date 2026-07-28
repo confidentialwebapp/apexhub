@@ -1,0 +1,40 @@
+{
+  "Provider": "jenkins",
+  "CheckID": "jenkins_controller_authorization_strategy_not_permissive",
+  "CheckTitle": "Jenkins controllers do not use a permissive authorization strategy",
+  "CheckType": [],
+  "ServiceName": "controller",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Jenkins::Controller",
+  "ResourceGroup": "iam",
+  "Description": "The Jenkins **authorization strategy** decides what an authenticated user may do. `AuthorizationStrategy$Unsecured` grants everyone full control, and `FullControlOnceLoggedInAuthorizationStrategy` grants every logged-in user administrator rights. This check requires a granular strategy such as matrix or project-based matrix authorization.",
+  "Risk": "Administrator rights on a Jenkins controller are equivalent to **arbitrary code execution on every agent**, plus read access to every stored credential. With a permissive strategy, any user who can authenticate — including through an open signup realm — can reach the Groovy script console, decrypt stored deployment credentials and push code to production. Internet-exposed Jenkins instances left in this state are routinely mass-exploited.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://www.jenkins.io/doc/book/security/managing-security/",
+    "https://www.jenkins.io/doc/book/security/access-control/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Sign in to Jenkins as an administrator\n2. Go to **Manage Jenkins > Security**\n3. Under **Authorization**, select `Matrix-based security` or `Project-based Matrix Authorization Strategy`\n4. Grant `Overall/Administer` only to the platform team\n5. Grant `Overall/Read` plus per-job permissions to everyone else, and remove all permissions from `Anonymous`\n6. Save, then confirm from a non-admin session that the script console is unreachable",
+      "Terraform": "# Jenkins Configuration as Code (jenkins.yaml)\njenkins:\n  authorizationStrategy:\n    projectMatrix:\n      entries:\n        - group:\n            name: \"platform-admins\"\n            permissions: [\"Overall/Administer\"]\n        - group:\n            name: \"developers\"\n            permissions: [\"Overall/Read\", \"Job/Build\"]"
+    },
+    "Recommendation": {
+      "Text": "Use matrix or project-based matrix authorization, grant Overall/Administer to a named platform group only, and strip all permissions from the anonymous user. Manage the strategy through Configuration as Code so it cannot drift.",
+      "Url": "https://apexhub-lime.vercel.app/check/jenkins_controller_authorization_strategy_not_permissive"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "jenkins_controller_security_realm_configured"
+  ],
+  "Notes": ""
+}

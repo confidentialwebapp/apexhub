@@ -1,0 +1,39 @@
+{
+  "Provider": "openai",
+  "CheckID": "openai_project_rate_limits_configured",
+  "CheckTitle": "OpenAI projects define per-project rate limits",
+  "CheckType": [],
+  "ServiceName": "project",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "OpenAI::Project::RateLimit",
+  "ResourceGroup": "compute",
+  "Description": "Per-project **rate limits** cap the request and token throughput a project may consume. This check reports active projects with no rate limit override, which leaves them able to consume the whole organization's capacity and budget.",
+  "Risk": "Without per-project limits, a leaked key or a runaway retry loop consumes the **entire organization's quota and budget**, taking every other project down with it — a denial of service against your own production traffic. Uncapped spend on a stolen key also converts a credential leak directly into unbounded financial loss.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://platform.openai.com/docs/guides/rate-limits",
+    "https://platform.openai.com/docs/api-reference/project-rate-limits"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X POST https://api.openai.com/v1/organization/projects/<project-id>/rate_limits/<limit-id> \\\n  -H \"Authorization: Bearer $OPENAI_ADMIN_KEY\" \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"max_requests_per_1_minute\":500}'",
+      "NativeIaC": "",
+      "Other": "1. Open the project in **Settings > Projects > Limits**\n2. Set request and token per-minute limits sized to the workload's actual peak plus headroom\n3. Set a monthly budget for the project and enable notification thresholds\n4. Handle 429 responses in the client with exponential backoff rather than raising the limit\n5. Review limits when traffic patterns change",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Set per-project request, token and budget limits sized to each workload's real peak, and handle rate limit responses with backoff so a single project cannot exhaust organization capacity.",
+      "Url": "https://apexhub-lime.vercel.app/check/openai_project_rate_limits_configured"
+    }
+  },
+  "Categories": [
+    "resilience"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "openai_apikey_no_stale_keys"
+  ],
+  "Notes": ""
+}

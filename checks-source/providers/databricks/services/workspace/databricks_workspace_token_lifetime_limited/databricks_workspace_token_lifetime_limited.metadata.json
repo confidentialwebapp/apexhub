@@ -1,0 +1,40 @@
+{
+  "Provider": "databricks",
+  "CheckID": "databricks_workspace_token_lifetime_limited",
+  "CheckTitle": "Databricks personal access tokens have a bounded lifetime",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Databricks::Workspace::Token",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that the workspace caps personal access token lifetime through `maxTokenLifetimeDays`, and reports individual tokens issued with no expiry at all.",
+  "Risk": "A personal access token with no expiry is a **permanent credential carrying its owner's full workspace privileges**, and it keeps working after that person changes role or leaves the company. These tokens accumulate in notebooks, CI configuration and local files, so an old leak stays exploitable indefinitely and its use is attributed to the original user rather than the attacker.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.databricks.com/en/admin/access-control/tokens.html",
+    "https://docs.databricks.com/api/workspace/tokenmanagement"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "databricks workspace-conf set-status --json '{\"maxTokenLifetimeDays\":\"90\"}'\ndatabricks token-management delete <token-id>",
+      "NativeIaC": "",
+      "Other": "1. Set `maxTokenLifetimeDays` to 90 or less in the workspace configuration\n2. List existing tokens and revoke any with no expiry\n3. Move automation to **service principals with OAuth (M2M)**, which issue short-lived tokens rather than static ones\n4. Restrict who may create personal access tokens through the token permissions API\n5. Rotate any token that has appeared in a notebook, log or repository",
+      "Terraform": "resource \"databricks_workspace_conf\" \"this\" {\n  custom_config = {\n    \"enableTokensConfig\"   = true\n    \"maxTokenLifetimeDays\" = \"90\"\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Cap token lifetime at 90 days or less, revoke non-expiring tokens, and move automation to service principal OAuth so credentials are short-lived and not tied to a person.",
+      "Url": "https://apexhub-lime.vercel.app/check/databricks_workspace_token_lifetime_limited"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "databricks_workspace_ip_access_list_enabled"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "Provider": "vault",
+  "CheckID": "vault_auth_identity_backed_methods_enabled",
+  "CheckTitle": "Vault clusters authenticate through identity-backed methods",
+  "CheckType": [],
+  "ServiceName": "auth",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Vault::AuthMethod",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that the cluster enables at least one **identity-backed auth method** — OIDC, JWT, Kubernetes, AWS/Azure/GCP IAM, LDAP or cert — rather than relying solely on the built-in token method.",
+  "Risk": "With only the token auth method available, every consumer holds a **static secret that was issued once and copied wherever it was needed**. There is no upstream identity to revoke, no attestation of what the caller actually is, and offboarding a person or decommissioning a workload leaves working tokens behind. Identity-backed methods let Vault verify the caller against a source of truth on every login.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/vault/docs/auth",
+    "https://developer.hashicorp.com/vault/docs/auth/jwt"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "vault auth enable oidc\nvault auth enable kubernetes\nvault auth list",
+      "NativeIaC": "",
+      "Other": "1. Enable an auth method backed by your workload identity: Kubernetes for pods, JWT/OIDC for CI, cloud IAM for VMs\n2. Enable OIDC against your corporate identity provider for human operators\n3. Bind roles to specific service accounts, repositories or instance profiles rather than broad wildcards\n4. Migrate applications off static tokens one at a time, confirming each works before removing the old token\n5. Revoke the static tokens once migration completes",
+      "Terraform": "resource \"vault_jwt_auth_backend\" \"ci\" {\n  path               = \"jwt\"\n  oidc_discovery_url = \"https://token.actions.githubusercontent.com\"\n  bound_issuer       = \"https://token.actions.githubusercontent.com\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Enable identity-backed auth methods for both workloads and operators, bind roles narrowly to specific identities, and revoke static tokens once each consumer has migrated.",
+      "Url": "https://apexhub-lime.vercel.app/check/vault_auth_identity_backed_methods_enabled"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "vault_auth_no_active_root_tokens"
+  ],
+  "Notes": ""
+}

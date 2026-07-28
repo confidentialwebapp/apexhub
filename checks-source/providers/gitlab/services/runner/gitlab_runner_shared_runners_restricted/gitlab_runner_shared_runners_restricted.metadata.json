@@ -1,0 +1,40 @@
+{
+  "Provider": "gitlab",
+  "CheckID": "gitlab_runner_shared_runners_restricted",
+  "CheckTitle": "GitLab shared runners are locked and do not run untagged jobs",
+  "CheckType": [],
+  "ServiceName": "runner",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "GitLab::Runner",
+  "ResourceGroup": "compute",
+  "Description": "A **shared runner** that accepts untagged jobs will pick up work from any project in its scope, and an **unlocked** runner can be assigned to further projects after registration. This check verifies that shared runners are locked to their current projects and require an explicit tag, so pipeline placement is deliberate.",
+  "Risk": "When a runner accepts untagged jobs from any project, an attacker who can open a merge request in the **least protected project** in the group can land a job on the same executor used by production pipelines. Build caches, mounted volumes and leftover credentials on that host then become reachable across trust boundaries that the project permissions imply are separate.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.gitlab.com/ee/ci/runners/configure_runners.html",
+    "https://docs.gitlab.com/runner/security/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl --request PUT --header \"PRIVATE-TOKEN: $GITLAB_TOKEN\" \"https://gitlab.com/api/v4/runners/<runner-id>?locked=true&run_untagged=false&access_level=ref_protected\"",
+      "NativeIaC": "",
+      "Other": "1. Go to **Admin area > CI/CD > Runners** (or the group's **Runners** page)\n2. Select the shared runner\n3. Enable **Lock to current projects**\n4. Disable **Run untagged jobs**\n5. Set **Protected** so the runner only picks up jobs on protected branches and tags\n6. Tag production pipelines explicitly in `.gitlab-ci.yml`",
+      "Terraform": "resource \"gitlab_user_runner\" \"build\" {\n  runner_type = \"group_type\"\n  group_id    = gitlab_group.example.id\n  tag_list    = [\"build\"]\n  untagged    = false\n  locked      = true\n  access_level = \"ref_protected\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Lock shared runners to their intended projects, require explicit tags, and set runners that hold deployment credentials to protected so they only serve protected branches and tags.",
+      "Url": "https://apexhub-lime.vercel.app/check/gitlab_runner_shared_runners_restricted"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "gitlab_runner_not_privileged"
+  ],
+  "Notes": ""
+}

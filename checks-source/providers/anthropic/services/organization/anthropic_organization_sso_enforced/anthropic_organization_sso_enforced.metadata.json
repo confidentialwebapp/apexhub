@@ -1,0 +1,39 @@
+{
+  "Provider": "anthropic",
+  "CheckID": "anthropic_organization_sso_enforced",
+  "CheckTitle": "Anthropic organizations enforce SSO with a verified domain",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Anthropic::Organization",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that the Anthropic organization enforces **single sign-on** against a verified domain, so console membership is governed by the corporate identity provider and removed automatically when someone leaves.",
+  "Risk": "Console access is what creates and reads **API keys**, so a member signing in with a personal credential holds an unmanaged path to your model capacity. Without federation there is no conditional access, no central session revocation and no automatic deprovisioning, so a departing employee's access persists until a manual step nobody owns is completed.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.anthropic.com/en/collections/4078531-claude-for-work",
+    "https://docs.claude.com/en/api/administration-api"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Sign in to the Anthropic Console as an organization admin\n2. Go to **Settings > Security**\n3. Verify your email domain using the supplied DNS record\n4. Configure the SAML connection to your identity provider\n5. Enable SCIM provisioning so membership follows the IdP automatically\n6. Test with a pilot user, then enforce SSO for all members\n7. Remove accounts using personal email addresses once federation is proven",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Verify your domain, federate console sign-in through SAML, and enable SCIM so membership and deprovisioning follow your identity provider rather than manual review.",
+      "Url": "https://apexhub-lime.vercel.app/check/anthropic_organization_sso_enforced"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "anthropic_organization_mfa_required"
+  ],
+  "Notes": ""
+}

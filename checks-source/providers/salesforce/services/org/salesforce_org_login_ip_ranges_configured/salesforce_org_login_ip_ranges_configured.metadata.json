@@ -1,0 +1,39 @@
+{
+  "Provider": "salesforce",
+  "CheckID": "salesforce_org_login_ip_ranges_configured",
+  "CheckTitle": "Salesforce orgs restrict login to trusted IP ranges",
+  "CheckType": [],
+  "ServiceName": "org",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Salesforce::Org::IpRange",
+  "ResourceGroup": "network",
+  "Description": "This check verifies that the org defines **trusted login IP ranges**, and reports ranges so wide that they provide no meaningful restriction.",
+  "Risk": "Without login IP ranges, a phished credential is usable **immediately from the attacker's own infrastructure**, and the identity verification challenge that would otherwise fire for an unrecognised address can be satisfied by the same phishing proxy that captured the password. Network scoping breaks that chain at a layer the phishing kit cannot relay.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://help.salesforce.com/s/articleView?id=sf.admin_loginrestrict.htm",
+    "https://help.salesforce.com/s/articleView?id=sf.security_networkaccess.htm"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. In Setup, go to **Security > Network Access**\n2. Add the egress ranges for your offices, VPN and integration middleware as trusted IP ranges\n3. For stricter control, set **Login IP Ranges** on individual profiles, which blocks login outright rather than only skipping verification\n4. Verify integration users are covered before enforcing, or scheduled jobs will fail\n5. Keep the ranges as narrow as your network allows and review them when egress changes",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Define trusted IP ranges for the org and profile-level login IP ranges for privileged profiles, keeping them narrow and confirming integration egress is covered first.",
+      "Url": "https://apexhub-lime.vercel.app/check/salesforce_org_login_ip_ranges_configured"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "salesforce_org_session_settings_hardened"
+  ],
+  "Notes": ""
+}

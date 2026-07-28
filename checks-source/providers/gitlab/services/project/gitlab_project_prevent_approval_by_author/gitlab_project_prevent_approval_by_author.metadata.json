@@ -1,0 +1,40 @@
+{
+  "Provider": "gitlab",
+  "CheckID": "gitlab_project_prevent_approval_by_author",
+  "CheckTitle": "GitLab projects prevent merge request authors from approving their own changes",
+  "CheckType": [],
+  "ServiceName": "project",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "GitLab::Project::ApprovalRule",
+  "ResourceGroup": "iam",
+  "Description": "GitLab can prevent the **author of a merge request** — and optionally anyone who added commits to it — from satisfying its approval requirement. This check verifies that self-approval is disabled so the required approval represents genuine independent review.",
+  "Risk": "If authors may approve their own merge requests, a required-approvals rule becomes **decorative**: one account both writes and admits the change, and the audit trail shows a satisfied review that never happened. An attacker holding a single developer credential can push code to production unreviewed while appearing compliant.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.gitlab.com/ee/user/project/merge_requests/approvals/settings.html",
+    "https://docs.gitlab.com/ee/api/merge_request_approvals.html"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl --request POST --header \"PRIVATE-TOKEN: $GITLAB_TOKEN\" \"https://gitlab.com/api/v4/projects/<project-id>/approvals?merge_requests_author_approval=false&merge_requests_disable_committers_approval=true\"",
+      "NativeIaC": "",
+      "Other": "1. Open the project in GitLab\n2. Go to **Settings > Merge requests**\n3. Under **Approval settings**, enable **Prevent approval by author**\n4. Enable **Prevent approvals by users who add commits**\n5. Enable **Remove all approvals when commits are added to the source branch**\n6. Click **Save changes**",
+      "Terraform": "resource \"gitlab_project\" \"example\" {\n  name                                          = \"example\"\n  merge_requests_author_approval                = false\n  merge_requests_disable_committers_approval    = true\n}"
+    },
+    "Recommendation": {
+      "Text": "Disable approval by the merge request author and by users who add commits to it, and reset approvals when new commits are pushed, so an approval always reflects review of the final diff by an independent party.",
+      "Url": "https://apexhub-lime.vercel.app/check/gitlab_project_prevent_approval_by_author"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "gitlab_project_merge_request_approvals_required"
+  ],
+  "Notes": ""
+}

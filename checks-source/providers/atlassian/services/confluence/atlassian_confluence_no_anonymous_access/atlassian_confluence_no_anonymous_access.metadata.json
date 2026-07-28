@@ -1,0 +1,39 @@
+{
+  "Provider": "atlassian",
+  "CheckID": "atlassian_confluence_no_anonymous_access",
+  "CheckTitle": "Confluence spaces grant no permissions to anonymous users",
+  "CheckType": [],
+  "ServiceName": "confluence",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Atlassian::Confluence::Space",
+  "ResourceGroup": "iam",
+  "Description": "This check reports Confluence spaces that grant any permission to the **anonymous** principal, making their pages readable without authentication.",
+  "Risk": "Confluence is where organisations keep **runbooks, architecture diagrams, onboarding guides and credentials pasted 'temporarily' into a setup page**. An anonymously readable space therefore hands an attacker a curated map of your systems and, frequently, working credentials — with no exploitation required and no authentication event to detect.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/confluence-cloud/docs/assign-space-permissions/",
+    "https://support.atlassian.com/confluence-cloud/docs/set-up-public-access/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. In Confluence, go to **Space settings > Permissions** for each space\n2. Remove all permissions granted to **Anonymous**\n3. Disable anonymous access globally under **Settings > Security > Anonymous access** unless a public space is genuinely required\n4. Search the exposed spaces for credentials, tokens and internal hostnames\n5. Rotate anything found — treat it as public regardless of how briefly the space was exposed\n6. Where public documentation is needed, publish it from a separate site rather than the internal instance",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Remove anonymous permissions from every space, disable anonymous access globally, search exposed spaces for credentials and rotate what you find, and publish public docs from a separate site.",
+      "Url": "https://apexhub-lime.vercel.app/check/atlassian_confluence_no_anonymous_access"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "atlassian_jira_no_anonymous_access"
+  ],
+  "Notes": ""
+}

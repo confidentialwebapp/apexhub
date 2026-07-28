@@ -1,0 +1,40 @@
+{
+  "Provider": "mongodbatlas",
+  "CheckID": "access_database_user_no_admin_roles",
+  "CheckTitle": "Atlas database users do not hold cluster-wide administrative roles",
+  "CheckType": [],
+  "ServiceName": "access",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "MongoDBAtlas::DatabaseUser",
+  "ResourceGroup": "iam",
+  "Description": "This check reports database users granted `atlasAdmin`, `dbAdminAnyDatabase`, `readWriteAnyDatabase` or `root`, which apply across every database in the cluster rather than to the one an application needs.",
+  "Risk": "An application credential holding `readWriteAnyDatabase` can read and modify **every database on the cluster**, so a single SQL-injection-equivalent flaw or a leaked connection string exposes unrelated tenants and services sharing that cluster. `atlasAdmin` goes further, allowing the user to alter the cluster itself — including disabling the auditing that would record what happened.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://www.mongodb.com/docs/atlas/security-add-mongodb-users/",
+    "https://www.mongodb.com/docs/atlas/mongodb-users-roles-and-privileges/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "atlas dbusers update <username> --projectId <project-id> \\\n  --role readWrite@appdb",
+      "NativeIaC": "",
+      "Other": "1. In the Atlas UI, go to **Database Access**\n2. Edit each user holding an `*AnyDatabase` or `atlasAdmin` role\n3. Replace it with a role scoped to the specific database the application uses, such as `readWrite@appdb`\n4. Create a **custom role** where the built-in roles are still broader than needed\n5. Restart the application and confirm it operates correctly on the narrowed role\n6. Keep `atlasAdmin` for a small number of named human administrators only",
+      "Terraform": "resource \"mongodbatlas_database_user\" \"app\" {\n  project_id         = var.project_id\n  username           = \"app\"\n  auth_database_name = \"admin\"\n\n  roles {\n    role_name     = \"readWrite\"\n    database_name = \"appdb\"\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Replace cluster-wide roles with database-scoped ones or custom roles, and reserve atlasAdmin for a small named set of human administrators.",
+      "Url": "https://apexhub-lime.vercel.app/check/access_database_user_no_admin_roles"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "access_database_user_scoped_to_clusters"
+  ],
+  "Notes": ""
+}

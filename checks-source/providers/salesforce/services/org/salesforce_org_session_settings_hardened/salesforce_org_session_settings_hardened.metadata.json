@@ -1,0 +1,39 @@
+{
+  "Provider": "salesforce",
+  "CheckID": "salesforce_org_session_settings_hardened",
+  "CheckTitle": "Salesforce orgs harden session settings",
+  "CheckType": [],
+  "ServiceName": "org",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Salesforce::Org::SessionSettings",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that the org locks sessions to the originating IP address and applies a session timeout no longer than the configured maximum (two hours by default).",
+  "Risk": "A Salesforce session ID that is not bound to its originating address can be **replayed from anywhere** once stolen through a malicious browser extension, an XSS flaw in a Visualforce page, or a phishing proxy. Long timeouts widen that replay window considerably, and because sessions survive password changes, revocation during an incident is slower than administrators expect.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://help.salesforce.com/s/articleView?id=sf.admin_sessions.htm",
+    "https://help.salesforce.com/s/articleView?id=sf.security_overview_sessions.htm"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. In Setup, go to **Security > Session Settings**\n2. Set **Timeout value** to 2 hours or less and enable **Force logout on session timeout**\n3. Enable **Lock sessions to the IP address from which they originated**\n4. Enable **Require secure connections (HTTPS)**\n5. Enable **Force relogin after Login-As-User**\n6. Test with users behind rotating egress addresses before enforcing IP locking — some VPN configurations break it",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Lock sessions to their originating IP, cap the session timeout at two hours with forced logout, and require HTTPS — testing IP locking against rotating VPN egress before enforcement.",
+      "Url": "https://apexhub-lime.vercel.app/check/salesforce_org_session_settings_hardened"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "salesforce_org_login_ip_ranges_configured"
+  ],
+  "Notes": ""
+}

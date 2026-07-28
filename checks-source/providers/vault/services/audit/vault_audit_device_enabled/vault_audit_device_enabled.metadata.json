@@ -1,0 +1,39 @@
+{
+  "Provider": "vault",
+  "CheckID": "vault_audit_device_enabled",
+  "CheckTitle": "Vault clusters have at least one audit device enabled",
+  "CheckType": [],
+  "ServiceName": "audit",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Vault::AuditDevice",
+  "ResourceGroup": "logging",
+  "Description": "Vault **audit devices** record every request and response, including the requesting token's accessor. This check verifies that at least one audit device is enabled on the cluster.",
+  "Risk": "With no audit device, Vault keeps **no record of which secrets were read or by whom**, so a compromised token can drain the entire store leaving nothing to investigate. This is the single most consequential logging gap in a secrets platform: without it, an incident response cannot determine which credentials need rotating, forcing a rotation of everything.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/vault/docs/audit",
+    "https://developer.hashicorp.com/vault/tutorials/monitoring/blocked-audit-devices"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "vault audit enable file file_path=/var/log/vault/audit.log\nvault audit enable -path=syslog syslog tag=\"vault\" facility=\"AUTH\"\nvault audit list -detailed",
+      "NativeIaC": "",
+      "Other": "1. Enable a file audit device writing to a path with restrictive permissions\n2. Ship the file to your SIEM with a log agent, or enable a syslog device in addition\n3. Leave `hmac_accessor` at its default and `log_raw` disabled so secret values are not written in cleartext\n4. Configure log rotation, and confirm Vault reopens the file afterwards with `vault audit`\n5. Alert on the absence of audit events — a blocked audit device stops Vault from serving requests, which is by design",
+      "Terraform": "resource \"vault_audit\" \"file\" {\n  type = \"file\"\n\n  options = {\n    file_path = \"/var/log/vault/audit.log\"\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Enable at least one audit device with log_raw disabled, ship the events to a SIEM outside the Vault administrators' control, and alert when audit events stop arriving.",
+      "Url": "https://apexhub-lime.vercel.app/check/vault_audit_device_enabled"
+    }
+  },
+  "Categories": [
+    "logging"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "vault_audit_device_redundant"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,40 @@
+{
+  "Provider": "mongodbatlas",
+  "CheckID": "access_database_user_scoped_to_clusters",
+  "CheckTitle": "Atlas database users are scoped to specific clusters",
+  "CheckType": [],
+  "ServiceName": "access",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "MongoDBAtlas::DatabaseUser",
+  "ResourceGroup": "iam",
+  "Description": "Atlas lets a database user be **restricted to named clusters or data lakes** within the project. This check reports users with no scope set, which grants them access to every cluster in the project including ones created later.",
+  "Risk": "An unscoped user automatically gains access to **clusters created after the credential was issued**, so a project's blast radius grows silently as new environments are added. Where production and non-production clusters share a project, an unscoped development credential is a working production credential.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://www.mongodb.com/docs/atlas/security-add-mongodb-users/#std-label-database-users",
+    "https://www.mongodb.com/docs/atlas/reference/api-resources-spec/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "atlas dbusers update <username> --projectId <project-id> \\\n  --scope <cluster-name>:CLUSTER",
+      "NativeIaC": "",
+      "Other": "1. In the Atlas UI, go to **Database Access** and edit the user\n2. Under **Restrict Access to Specific Clusters/Federated Database Instances**, select only the clusters the credential needs\n3. Separate production and non-production workloads into **different projects** rather than relying on scope alone\n4. Re-test the application after scoping\n5. Review scopes when a new cluster is added to the project",
+      "Terraform": "resource \"mongodbatlas_database_user\" \"app\" {\n  project_id         = var.project_id\n  username           = \"app\"\n  auth_database_name = \"admin\"\n\n  scopes {\n    name = mongodbatlas_cluster.app.name\n    type = \"CLUSTER\"\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Scope each database user to the clusters it needs, and put production in a separate project from non-production rather than relying on scoping alone.",
+      "Url": "https://apexhub-lime.vercel.app/check/access_database_user_scoped_to_clusters"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "access_database_user_no_admin_roles"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,38 @@
+{
+  "Provider": "slack",
+  "CheckID": "slack_workspace_retention_policy_configured",
+  "CheckTitle": "Slack workspaces configure message and file retention",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Slack::Workspace",
+  "ResourceGroup": "storage",
+  "Description": "This check verifies that the workspace sets an explicit **message and file retention** period rather than retaining everything indefinitely by default.",
+  "Risk": "Slack's default is to keep messages and files **forever**, so the workspace accumulates years of pasted credentials, customer data and confidential discussion that no policy ever authorised retaining. A single account compromise then exposes the organisation's entire history rather than its recent activity, and the archive becomes discoverable in litigation regardless of business need.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://slack.com/help/articles/203457187-Customize-message-and-file-retention-policies",
+    "https://slack.com/help/articles/115002579323-Understand-data-retention-in-Slack"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Sign in to Slack as a workspace owner\n2. Go to **Settings & administration > Workspace settings > Message retention & deletion**\n3. Set a retention period that matches your records policy — commonly 1 to 2 years for general channels\n4. Set file retention separately; files are often the higher exposure\n5. Decide whether channel owners may override the default, and restrict it if not\n6. Where regulation requires longer retention, export to a governed archive rather than leaving data in Slack indefinitely",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Set explicit message and file retention matching your records policy, restrict per-channel overrides, and export to a governed archive where regulation requires longer retention.",
+      "Url": "https://apexhub-lime.vercel.app/check/slack_workspace_retention_policy_configured"
+    }
+  },
+  "Categories": [
+    "logging",
+    "data-protection"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

@@ -1,0 +1,40 @@
+{
+  "Provider": "github",
+  "CheckID": "security_dependabot_alerts_enabled_by_default",
+  "CheckTitle": "GitHub organizations enable Dependabot alerts for new repositories",
+  "CheckType": [],
+  "ServiceName": "security",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Github::Organization",
+  "ResourceGroup": "compute",
+  "Description": "This check verifies that **Dependabot alerts** are enabled by default for new repositories, so dependency vulnerabilities are surfaced without each team opting in individually.",
+  "Risk": "Vulnerable transitive dependencies are the **most common route into an application's supply chain**, and they are invisible without automated alerting because nobody reads a lockfile. Where alerting is opt-in per repository, coverage decays as new repositories are created, so the repositories least likely to be monitored are the newest and least reviewed ones.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.github.com/en/code-security/dependabot/dependabot-alerts/about-dependabot-alerts",
+    "https://docs.github.com/en/code-security/supply-chain-security/end-to-end-supply-chain/end-to-end-supply-chain-overview"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "gh api -X PATCH /orgs/<org> \\\n  -F dependabot_alerts_enabled_for_new_repositories=true \\\n  -F dependabot_security_updates_enabled_for_new_repositories=true",
+      "NativeIaC": "",
+      "Other": "1. Go to the organization's **Settings > Code security and analysis**\n2. Enable **Dependabot alerts** and **Dependabot security updates** for new repositories\n3. Click **Enable all** to cover existing repositories\n4. Enable the **dependency graph** so transitive dependencies are resolved\n5. Route alerts to the owning team rather than only to repository admins\n6. Set an internal SLA for remediating critical dependency alerts, since alerting without a response process changes nothing",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Enable Dependabot alerts and security updates for new and existing repositories, route alerts to owning teams, and set a remediation SLA so alerts translate into fixes.",
+      "Url": "https://apexhub-lime.vercel.app/check/security_dependabot_alerts_enabled_by_default"
+    }
+  },
+  "Categories": [
+    "vulnerability-management",
+    "ci-cd"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "security_secret_scanning_push_protection_enabled"
+  ],
+  "Notes": ""
+}

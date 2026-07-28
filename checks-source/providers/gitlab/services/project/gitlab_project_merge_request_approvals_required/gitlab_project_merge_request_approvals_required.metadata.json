@@ -1,0 +1,41 @@
+{
+  "Provider": "gitlab",
+  "CheckID": "gitlab_project_merge_request_approvals_required",
+  "CheckTitle": "GitLab projects require merge request approvals",
+  "CheckType": [],
+  "ServiceName": "project",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "GitLab::Project::ApprovalRule",
+  "ResourceGroup": "iam",
+  "Description": "**Merge request approval rules** require a minimum number of reviewers to approve a change before it can be merged. This check verifies that each project requires at least one approval, establishing the four-eyes control that separates authoring a change from admitting it into the mainline.",
+  "Risk": "Without a required approval, a single compromised or malicious account can author and merge a change on its own, introducing a **backdoor** or an exfiltrating build step into the pipeline with no second party ever seeing the diff. This removes the primary detective control over source code changes.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.gitlab.com/ee/user/project/merge_requests/approvals/",
+    "https://docs.gitlab.com/ee/api/merge_request_approvals.html"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl --request POST --header \"PRIVATE-TOKEN: $GITLAB_TOKEN\" --header 'Content-Type: application/json' --data '{\"name\":\"default\",\"approvals_required\":2}' \"https://gitlab.com/api/v4/projects/<project-id>/approval_rules\"",
+      "NativeIaC": "",
+      "Other": "1. Open the project in GitLab\n2. Go to **Settings > Merge requests**\n3. Under **Merge request approvals**, click **Add approval rule**\n4. Set **Approvals required** to `1` or higher (`2` for production-facing projects)\n5. Add the approver group or users\n6. Click **Save changes**",
+      "Terraform": "resource \"gitlab_project_approval_rule\" \"default\" {\n  project            = gitlab_project.example.id\n  name               = \"default\"\n  approvals_required = 2\n  group_ids          = [gitlab_group.reviewers.id]\n}"
+    },
+    "Recommendation": {
+      "Text": "Require at least one approval on every merge request, and two for projects that deploy to production. Back the rule with a CODEOWNERS file so the right reviewers are pulled in automatically.",
+      "Url": "https://apexhub-lime.vercel.app/check/gitlab_project_merge_request_approvals_required"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "gitlab_project_default_branch_protected",
+    "gitlab_project_prevent_approval_by_author"
+  ],
+  "Notes": ""
+}

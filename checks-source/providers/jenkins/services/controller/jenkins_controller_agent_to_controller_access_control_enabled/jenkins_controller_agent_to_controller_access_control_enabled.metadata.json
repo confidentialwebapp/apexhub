@@ -1,0 +1,40 @@
+{
+  "Provider": "jenkins",
+  "CheckID": "jenkins_controller_agent_to_controller_access_control_enabled",
+  "CheckTitle": "Jenkins controllers enforce agent-to-controller access control",
+  "CheckType": [],
+  "ServiceName": "controller",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Jenkins::Controller",
+  "ResourceGroup": "compute",
+  "Description": "**Agent-to-controller access control** restricts which commands and file paths a build agent may invoke on the controller. This check verifies that the protection is enabled rather than disabled by the master kill switch.",
+  "Risk": "Build agents run **untrusted code by design** — every merge request compiles on them. With agent-to-controller access control disabled, a build can read and write arbitrary files on the controller, including the `secrets/` directory holding the master key used to encrypt every stored credential. One malicious pull request then yields the entire credential store.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://www.jenkins.io/doc/book/security/controller-isolation/",
+    "https://www.jenkins.io/doc/book/security/services/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Sign in to Jenkins as an administrator\n2. Go to **Manage Jenkins > Security**\n3. Under **Agent → Controller Security**, ensure the access control is **enabled**\n4. Review the file access rules and command allowlist, removing entries that are no longer needed\n5. Save, then run a representative build to confirm nothing legitimate was relying on the bypass\n6. Do not run builds on the built-in node: set its executor count to `0`",
+      "Terraform": "# Jenkins Configuration as Code (jenkins.yaml)\njenkins:\n  numExecutors: 0\n  remotingSecurity:\n    enabled: true"
+    },
+    "Recommendation": {
+      "Text": "Enable agent-to-controller access control, set the built-in node's executor count to zero so no build runs on the controller, and keep the file access rules as narrow as the builds allow.",
+      "Url": "https://apexhub-lime.vercel.app/check/jenkins_controller_agent_to_controller_access_control_enabled"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "jenkins_controller_authorization_strategy_not_permissive"
+  ],
+  "Notes": ""
+}

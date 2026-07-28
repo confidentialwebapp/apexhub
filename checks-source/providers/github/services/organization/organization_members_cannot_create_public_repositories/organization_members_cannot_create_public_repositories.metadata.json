@@ -1,0 +1,39 @@
+{
+  "Provider": "github",
+  "CheckID": "organization_members_cannot_create_public_repositories",
+  "CheckTitle": "GitHub organization members cannot create public repositories",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Github::Organization",
+  "ResourceGroup": "network",
+  "Description": "This check verifies that ordinary organization members are not permitted to create **public** repositories, so publishing code is a deliberate decision made by someone accountable for it.",
+  "Risk": "When any member can create a public repository, internal code reaches the internet through **ordinary mistakes rather than deliberate publication** — a repository created public by default, or a prototype that was never meant to leave. Automated scrapers index new public repositories within minutes, so the exposure window is effectively zero and any credential inside must be treated as compromised.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.github.com/en/organizations/managing-organization-settings/restricting-repository-creation-in-your-organization",
+    "https://docs.github.com/en/rest/orgs/orgs"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "gh api -X PATCH /orgs/<org> \\\n  -F members_can_create_public_repositories=false \\\n  -F members_can_create_private_repositories=true",
+      "NativeIaC": "",
+      "Other": "1. Go to the organization's **Settings > Member privileges**\n2. Under **Repository creation**, clear **Public**\n3. Leave **Private** and **Internal** enabled so teams are not blocked from ordinary work\n4. Define a review path for publishing a repository publicly, including a scan of the full history for credentials\n5. Audit the existing public repositories and confirm each is intentionally public",
+      "Terraform": "resource \"github_organization_settings\" \"this\" {\n  billing_email                        = \"billing@example.com\"\n  members_can_create_public_repositories = false\n  members_can_create_private_repositories = true\n}"
+    },
+    "Recommendation": {
+      "Text": "Disallow member-created public repositories while leaving private and internal creation open, and require a history scan before any repository is published.",
+      "Url": "https://apexhub-lime.vercel.app/check/organization_members_cannot_create_public_repositories"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "security_secret_scanning_push_protection_enabled"
+  ],
+  "Notes": ""
+}

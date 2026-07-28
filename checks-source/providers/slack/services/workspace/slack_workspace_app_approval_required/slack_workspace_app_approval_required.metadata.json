@@ -1,0 +1,39 @@
+{
+  "Provider": "slack",
+  "CheckID": "slack_workspace_app_approval_required",
+  "CheckTitle": "Slack workspaces require admin approval before app installation",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Slack::Workspace",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that **app approval** is enabled and that app management is restricted to admins, so third-party integrations cannot be installed by any member without review.",
+  "Risk": "A Slack app authorised by an ordinary member can hold scopes that read **every message in every channel it is added to**, and that access continues silently long after whoever installed it has forgotten about it. Malicious and abandoned apps in the directory are a recurring problem, and without approval gating your review happens after the data has already left.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://slack.com/help/articles/222386767-Manage-app-installation-settings-for-your-workspace",
+    "https://api.slack.com/methods/admin.apps.approved.list"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Sign in to Slack as a workspace owner or admin\n2. Go to **Settings & administration > Manage apps > App management settings**\n3. Enable **Require App Approval**\n4. Restrict app installation to admins\n5. Review the apps already installed and restrict any that are unrecognised or no longer used\n6. Maintain an allowlist of reviewed apps so approval does not become a bottleneck",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Require admin approval for app installation, restrict app management to admins, and audit the apps already installed — an approval gate does not retroactively review them.",
+      "Url": "https://apexhub-lime.vercel.app/check/slack_workspace_app_approval_required"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "slack_app_oauth_scopes_least_privilege"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,38 @@
+{
+  "Provider": "jenkins",
+  "CheckID": "jenkins_job_build_log_retention_configured",
+  "CheckTitle": "Jenkins jobs have a build log retention policy",
+  "CheckType": [],
+  "ServiceName": "job",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "low",
+  "ResourceType": "Jenkins::Job",
+  "ResourceGroup": "logging",
+  "Description": "This check verifies that each job defines a **build discarder**, setting how many builds and logs are kept. A defined policy makes retention an explicit decision rather than an accident of disk space.",
+  "Risk": "With no discarder, build history grows without bound until the controller **runs out of disk** and stops scheduling, and administrators then delete history in bulk under pressure — destroying the record needed to determine what a compromised pipeline actually built. Conversely, indefinite retention keeps build logs containing internal hostnames and occasionally leaked secrets available far longer than any policy intends.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://www.jenkins.io/doc/book/pipeline/syntax/#options",
+    "https://www.jenkins.io/doc/book/managing/system-configuration/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Open the job in Jenkins\n2. Click **Configure**\n3. Enable **Discard old builds**\n4. Set **Max # of builds to keep** and **Days to keep builds** to match your retention policy\n5. Use **Advanced** to keep artifacts for a shorter window than logs\n6. For pipelines, declare it in the Jenkinsfile so the policy is version controlled\n7. Ship build logs to a central log store if you need retention beyond the controller",
+      "Terraform": "// Jenkinsfile\noptions {\n  buildDiscarder(logRotator(numToKeepStr: '50', daysToKeepStr: '90', artifactNumToKeepStr: '5'))\n}"
+    },
+    "Recommendation": {
+      "Text": "Declare a build discarder in the Jenkinsfile so retention is version controlled, keep artifacts for a shorter window than logs, and forward logs to a central store when longer retention is required for investigations.",
+      "Url": "https://apexhub-lime.vercel.app/check/jenkins_job_build_log_retention_configured"
+    }
+  },
+  "Categories": [
+    "logging",
+    "ci-cd"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

@@ -1,0 +1,40 @@
+{
+  "Provider": "terraformcloud",
+  "CheckID": "terraformcloud_workspace_health_assessments_enabled",
+  "CheckTitle": "HCP Terraform workspaces enable health assessments and drift detection",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "low",
+  "ResourceType": "TerraformCloud::Workspace",
+  "ResourceGroup": "compute",
+  "Description": "**Health assessments** periodically re-plan a workspace to detect drift between the configuration and the real infrastructure. This check reports workspaces with assessments disabled.",
+  "Risk": "Without drift detection, an **out-of-band change to production goes unnoticed** until the next apply, which then silently reverts or compounds it. From a security standpoint drift is often the signal itself: a security group opened by hand, a policy loosened during an incident, or an attacker's modification all appear as drift, and detecting them at the next scheduled assessment is far faster than at the next release.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/terraform/cloud-docs/workspaces/health",
+    "https://developer.hashicorp.com/terraform/cloud-docs/workspaces/settings"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X PATCH \"https://app.terraform.io/api/v2/workspaces/<workspace-id>\" \\\n  -H \"Authorization: Bearer $TFC_TOKEN\" \\\n  -H 'Content-Type: application/vnd.api+json' \\\n  -d '{\"data\":{\"type\":\"workspaces\",\"attributes\":{\"assessments-enabled\":true}}}'",
+      "NativeIaC": "",
+      "Other": "1. Open the workspace and go to **Settings > Health**\n2. Enable **Health assessments**\n3. Confirm the workspace's credentials permit a read-only plan on a schedule\n4. Route drift notifications to the owning team, not just to the workspace page\n5. Treat unexplained drift on security-relevant resources as a potential incident rather than a cleanup task\n6. Note that assessments require a paid tier and a remote execution mode",
+      "Terraform": "resource \"tfe_workspace\" \"prod\" {\n  name                = \"prod\"\n  organization        = var.organization\n  assessments_enabled = true\n}"
+    },
+    "Recommendation": {
+      "Text": "Enable health assessments so drift is detected on a schedule, route notifications to the owning team, and treat unexplained drift on security-relevant resources as a potential incident.",
+      "Url": "https://apexhub-lime.vercel.app/check/terraformcloud_workspace_health_assessments_enabled"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "resilience"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "terraformcloud_workspace_auto_apply_disabled"
+  ],
+  "Notes": ""
+}

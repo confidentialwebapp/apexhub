@@ -1,0 +1,37 @@
+{
+  "Provider": "bitbucket",
+  "CheckID": "bitbucket_workspace_no_inactive_admins",
+  "CheckTitle": "Bitbucket workspaces have no inactive administrator accounts",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Bitbucket::Workspace::Member",
+  "ResourceGroup": "iam",
+  "Description": "Workspace members holding the `owner` permission can change access controls, delete repositories and manage every pipeline. This check reports owner accounts whose Atlassian account status is not active, which indicates a deactivated or unverified identity still holding administrative rights.",
+  "Risk": "An inactive account retaining owner permission is an **orphaned administrative path**: nobody monitors it, its password may never be rotated, and reactivating it — through account recovery or an IdP mistake — silently restores full workspace control. Offboarding processes that only disable the identity provider entry frequently leave this Bitbucket-side grant in place.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/bitbucket-cloud/docs/grant-access-to-a-workspace/",
+    "https://developer.atlassian.com/cloud/bitbucket/rest/api-group-workspaces/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -H \"Authorization: Bearer $BITBUCKET_TOKEN\" \"https://api.bitbucket.org/2.0/workspaces/<workspace>/permissions\"",
+      "NativeIaC": "",
+      "Other": "1. Open the workspace in Bitbucket\n2. Go to **Settings > User groups** and the workspace members list\n3. Review every member holding **Admin**\n4. Remove members whose Atlassian account is inactive or no longer employed\n5. Reduce remaining owners to the minimum, and record who is expected to hold the role\n6. Add a recurring access review so the list is re-confirmed each quarter",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Remove workspace admin permission from inactive accounts, keep the owner set as small as practical, and review it on a recurring schedule tied to your joiner-mover-leaver process.",
+      "Url": "https://apexhub-lime.vercel.app/check/bitbucket_workspace_no_inactive_admins"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

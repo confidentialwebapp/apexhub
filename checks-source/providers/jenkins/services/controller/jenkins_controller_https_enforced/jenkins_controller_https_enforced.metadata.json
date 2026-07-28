@@ -1,0 +1,37 @@
+{
+  "Provider": "jenkins",
+  "CheckID": "jenkins_controller_https_enforced",
+  "CheckTitle": "Jenkins controllers are served over HTTPS",
+  "CheckType": [],
+  "ServiceName": "controller",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Jenkins::Controller",
+  "ResourceGroup": "network",
+  "Description": "This check verifies that the Jenkins root URL uses `https`, so session cookies, API tokens and build output are encrypted in transit between users and the controller.",
+  "Risk": "Over plain HTTP, the Jenkins **session cookie and API token travel in cleartext** and can be captured by anyone positioned on the network path, including on a shared office or VPN segment. Because a captured administrator session grants script console access, this escalates directly to code execution on every build agent.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://www.jenkins.io/doc/book/system-administration/security/",
+    "https://www.jenkins.io/doc/book/installing/initial-settings/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Terminate TLS at a reverse proxy (nginx, Apache, or a cloud load balancer) in front of Jenkins, or configure the built-in Jetty listener with a keystore\n2. Redirect all HTTP traffic to HTTPS at the proxy\n3. Go to **Manage Jenkins > System** and set the **Jenkins URL** to the `https://` address\n4. Enable HSTS at the proxy\n5. Bind the Jenkins HTTP listener to `127.0.0.1` so it is reachable only through the proxy",
+      "Terraform": "# Jenkins Configuration as Code (jenkins.yaml)\nunclassified:\n  location:\n    url: \"https://jenkins.example.com/\"\n    adminAddress: \"platform@example.com\""
+    },
+    "Recommendation": {
+      "Text": "Serve Jenkins over HTTPS with a valid certificate, redirect HTTP to HTTPS, set the Jenkins URL to the https address, and bind the plain HTTP listener to localhost only.",
+      "Url": "https://apexhub-lime.vercel.app/check/jenkins_controller_https_enforced"
+    }
+  },
+  "Categories": [
+    "encryption"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

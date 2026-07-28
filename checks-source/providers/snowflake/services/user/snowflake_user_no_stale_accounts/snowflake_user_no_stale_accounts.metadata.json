@@ -1,0 +1,37 @@
+{
+  "Provider": "snowflake",
+  "CheckID": "snowflake_user_no_stale_accounts",
+  "CheckTitle": "Snowflake has no enabled users that are dormant or never used",
+  "CheckType": [],
+  "ServiceName": "user",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Snowflake::User",
+  "ResourceGroup": "iam",
+  "Description": "This check reports enabled Snowflake users that have never logged in, or whose last successful login predates the configured dormancy threshold (90 days by default).",
+  "Risk": "A dormant but enabled account is a **credential nobody is watching**: its password is rarely rotated, its owner may have left, and unusual activity on it raises no expectation of being noticed. Because Snowflake roles are typically granted at onboarding and rarely revisited, stale accounts often retain access to data the person or system no longer has any business reason to read.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.snowflake.com/en/sql-reference/account-usage/users",
+    "https://docs.snowflake.com/en/user-guide/admin-user-management"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "SELECT name, last_success_login FROM SNOWFLAKE.ACCOUNT_USAGE.USERS\n  WHERE deleted_on IS NULL AND NOT disabled\n    AND (last_success_login IS NULL OR last_success_login < DATEADD(day, -90, CURRENT_TIMESTAMP()));\nALTER USER <name> SET DISABLED = TRUE;",
+      "NativeIaC": "",
+      "Other": "1. Run the dormancy query against `SNOWFLAKE.ACCOUNT_USAGE.USERS`\n2. Confirm with the owning team whether each account is still needed\n3. Disable rather than drop first, so any dependency surfaces safely\n4. Drop accounts that remain unclaimed after the grace period\n5. Connect Snowflake to your identity provider with SCIM so deprovisioning becomes automatic\n6. Schedule the review as a recurring task",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Disable then remove dormant accounts, and connect Snowflake to your IdP with SCIM so joiner-mover-leaver events deprovision users automatically instead of relying on periodic review.",
+      "Url": "https://apexhub-lime.vercel.app/check/snowflake_user_no_stale_accounts"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

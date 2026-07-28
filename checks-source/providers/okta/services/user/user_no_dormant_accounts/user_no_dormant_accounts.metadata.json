@@ -1,0 +1,39 @@
+{
+  "Provider": "okta",
+  "CheckID": "user_no_dormant_accounts",
+  "CheckTitle": "Okta has no active users that are dormant or have never signed in",
+  "CheckType": [],
+  "ServiceName": "user",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Okta::User",
+  "ResourceGroup": "iam",
+  "Description": "This check reports active Okta users who have never signed in, or whose last sign-in predates the configured dormancy threshold (90 days by default).",
+  "Risk": "A dormant Okta account still **federates into every application assigned to it**, and because nobody uses it legitimately, nobody notices when someone else does. These accounts also tend to have older passwords and outdated factor enrolments, making them the easiest targets in the directory and the least likely compromise to be reported by the account's owner.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://help.okta.com/en-us/content/topics/users-groups-profiles/usgp-deactivate-user-account.htm",
+    "https://developer.okta.com/docs/reference/api/users/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Run the **Okta user activity** report filtered on last sign-in\n2. Confirm with the owning manager whether each account is still needed\n3. Suspend rather than deactivate first, so any dependency surfaces safely\n4. Deactivate accounts that remain unclaimed after the grace period\n5. Connect Okta to your HR system so joiner-mover-leaver events deprovision automatically\n6. Check service accounts separately: they may legitimately never sign in interactively",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Suspend then deactivate dormant accounts, and drive lifecycle from your HR system so deprovisioning is automatic rather than dependent on periodic review.",
+      "Url": "https://apexhub-lime.vercel.app/check/user_no_dormant_accounts"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "user_mfa_factor_enrolled"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "Provider": "mongodbatlas",
+  "CheckID": "access_private_endpoint_configured",
+  "CheckTitle": "Atlas projects reach clusters over a private endpoint",
+  "CheckType": [],
+  "ServiceName": "access",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "MongoDBAtlas::PrivateEndpoint",
+  "ResourceGroup": "network",
+  "Description": "A **private endpoint** connects Atlas clusters to your VPC over the cloud provider's private link, removing the need to expose them to public internet addresses. This check reports projects with no available private endpoint service.",
+  "Risk": "Without a private endpoint, cluster connections traverse the **public internet** and access depends entirely on the IP access list — which breaks the moment an application's egress address changes and is routinely widened under operational pressure. Private endpoints make the cluster unreachable from the internet regardless of what the access list says, which is a materially stronger control.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://www.mongodb.com/docs/atlas/security-private-endpoint/",
+    "https://www.mongodb.com/docs/atlas/setup-cluster-security/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "atlas privateEndpoints aws create --region us-east-1 --projectId <project-id>",
+      "NativeIaC": "",
+      "Other": "1. In Atlas, go to **Network Access > Private Endpoint**\n2. Create a private endpoint service for the cloud provider and region your workloads run in\n3. Create the corresponding VPC endpoint (AWS PrivateLink, Azure Private Link, GCP Private Service Connect) in your own account\n4. Update application connection strings to the private endpoint SRV address\n5. Once traffic is confirmed flowing privately, remove the public entries from the IP access list\n6. Enable the private endpoint **regional mode** where you have workloads in multiple regions",
+      "Terraform": "resource \"mongodbatlas_privatelink_endpoint\" \"this\" {\n  project_id    = var.project_id\n  provider_name = \"AWS\"\n  region        = \"US_EAST_1\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Create a private endpoint for each region your workloads run in, move connection strings to the private SRV address, and then remove public entries from the IP access list.",
+      "Url": "https://apexhub-lime.vercel.app/check/access_private_endpoint_configured"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "access_api_key_least_privilege"
+  ],
+  "Notes": ""
+}

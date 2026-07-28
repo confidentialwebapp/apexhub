@@ -1,0 +1,39 @@
+{
+  "Provider": "bitbucket",
+  "CheckID": "bitbucket_workspace_two_factor_enforced",
+  "CheckTitle": "Bitbucket workspaces enforce two-step verification",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Bitbucket::Workspace",
+  "ResourceGroup": "iam",
+  "Description": "Bitbucket workspaces can require every member to enable **two-step verification** before accessing workspace content. This check verifies that the enforcement setting is on.",
+  "Risk": "Bitbucket credentials unlock source code and the pipelines that deploy it, making them a high-value target for **credential stuffing** against reused passwords. Without enforced two-step verification a single leaked password grants an attacker repository write access, and from there the ability to alter build definitions that run with production credentials.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/bitbucket-cloud/docs/enforce-two-step-verification/",
+    "https://developer.atlassian.com/cloud/bitbucket/rest/api-group-workspaces/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Open the workspace in Bitbucket\n2. Go to **Settings > Access controls**\n3. Enable **Enforce two-step verification**\n4. Notify members before enabling: those without 2SV configured lose access until they enrol\n5. Where the workspace is governed by an Atlassian organization, enforce it centrally through **Atlassian Administration > Security > Authentication policies** instead",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Enforce two-step verification for the workspace, or govern it centrally with an Atlassian authentication policy so the requirement applies across Jira, Confluence and Bitbucket together.",
+      "Url": "https://apexhub-lime.vercel.app/check/bitbucket_workspace_two_factor_enforced"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "bitbucket_workspace_ip_allowlist_enabled"
+  ],
+  "Notes": ""
+}

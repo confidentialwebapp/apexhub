@@ -1,0 +1,37 @@
+{
+  "Provider": "atlassian",
+  "CheckID": "atlassian_organization_audit_log_accessible",
+  "CheckTitle": "Atlassian organizations have an accessible audit log",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Atlassian::Organization::AuditLog",
+  "ResourceGroup": "logging",
+  "Description": "This check verifies that the organization's **events API** is readable, indicating that administrative and product access events can be exported to a SIEM.",
+  "Risk": "Without exported organization events there is **no durable record of policy changes, product access grants, API token creation or account claims**. Those are the actions an attacker takes to establish persistence in Atlassian Cloud, and the in-product view is both time-limited and visible only to the same administrators whose actions it records.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/organization-administration/docs/track-organization-activities-from-the-audit-log/",
+    "https://developer.atlassian.com/cloud/admin/organization/rest/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -H \"Authorization: Bearer $ATLASSIAN_TOKEN\" \\\n  \"https://api.atlassian.com/admin/v1/orgs/$ATLASSIAN_ORG_ID/events?limit=100\"",
+      "NativeIaC": "",
+      "Other": "1. Confirm your plan includes the organization audit log\n2. Create an organization API key with the scope to read events\n3. Build a scheduled pull of `/admin/v1/orgs/{orgId}/events` into your SIEM\n4. Alert on authentication policy changes, API token creation, product access grants and domain claim events\n5. Retain exported events for at least your investigation window\n6. Review the product-level audit logs in Jira and Confluence as well, which record different events",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Export organization events into your SIEM on a schedule, alert on policy changes and token creation, and remember the product-level Jira and Confluence audit logs record separate events.",
+      "Url": "https://apexhub-lime.vercel.app/check/atlassian_organization_audit_log_accessible"
+    }
+  },
+  "Categories": [
+    "logging"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

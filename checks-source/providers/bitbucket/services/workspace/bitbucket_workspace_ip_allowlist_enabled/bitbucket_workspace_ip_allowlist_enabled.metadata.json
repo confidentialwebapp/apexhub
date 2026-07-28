@@ -1,0 +1,39 @@
+{
+  "Provider": "bitbucket",
+  "CheckID": "bitbucket_workspace_ip_allowlist_enabled",
+  "CheckTitle": "Bitbucket workspaces restrict access with an IP allowlist",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Bitbucket::Workspace",
+  "ResourceGroup": "network",
+  "Description": "Bitbucket premium workspaces can limit access to a set of approved IP addresses and CIDR ranges. This check verifies that an IP allowlist is in force for the workspace.",
+  "Risk": "App passwords and access tokens are **bearer credentials** that work from any network, and their theft produces no failed-login signal to alert on. An IP allowlist forces a stolen token to be replayed from inside an approved range, which both blocks opportunistic use and narrows the set of hosts an investigation must consider.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/bitbucket-cloud/docs/control-access-to-your-workspace-with-an-ip-allowlist/",
+    "https://developer.atlassian.com/cloud/bitbucket/rest/api-group-workspaces/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Open the workspace in Bitbucket\n2. Go to **Settings > IP allowlist**\n3. Add the CIDR ranges for your corporate egress, VPN and CI runners\n4. Verify your own address is covered before enabling, or you will lock yourself out\n5. Enable the allowlist and confirm pipelines still run",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Restrict workspace access to the CIDR ranges of your corporate egress, VPN and CI runners, and include pipeline egress ranges before enabling so automation is not cut off.",
+      "Url": "https://apexhub-lime.vercel.app/check/bitbucket_workspace_ip_allowlist_enabled"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "bitbucket_workspace_two_factor_enforced"
+  ],
+  "Notes": ""
+}

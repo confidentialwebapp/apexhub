@@ -1,0 +1,39 @@
+{
+  "Provider": "gitlab",
+  "CheckID": "gitlab_group_two_factor_authentication_required",
+  "CheckTitle": "GitLab groups require two-factor authentication",
+  "CheckType": [],
+  "ServiceName": "group",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "GitLab::Group",
+  "ResourceGroup": "iam",
+  "Description": "GitLab groups can require every member to enrol in **two-factor authentication** before accessing group resources. This check verifies that the requirement is enabled and that any grace period is short, so a stolen password alone is not sufficient to reach source code and pipelines.",
+  "Risk": "Source control is a **primary target for credential stuffing**, because a single valid password grants the ability to modify code that is automatically built and deployed. Without enforced 2FA, one reused developer password compromises the group's repositories, CI variables and package registry, and the attacker's activity is indistinguishable from the legitimate user's.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.gitlab.com/ee/security/two_factor_authentication.html",
+    "https://docs.gitlab.com/ee/api/groups.html"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl --request PUT --header \"PRIVATE-TOKEN: $GITLAB_TOKEN\" \"https://gitlab.com/api/v4/groups/<group-id>?require_two_factor_authentication=true&two_factor_grace_period=24\"",
+      "NativeIaC": "",
+      "Other": "1. Open the group in GitLab\n2. Go to **Settings > General > Permissions and group features**\n3. Enable **Require all users in this group to set up two-factor authentication**\n4. Set the grace period to `24` hours or less\n5. Click **Save changes**",
+      "Terraform": "resource \"gitlab_group\" \"example\" {\n  name                                 = \"example\"\n  path                                 = \"example\"\n  require_two_factor_authentication    = true\n  two_factor_grace_period              = 24\n}"
+    },
+    "Recommendation": {
+      "Text": "Require two-factor authentication for all group members with a grace period of 24 hours or less. Prefer WebAuthn hardware keys over TOTP where the plan allows, since they resist phishing relay.",
+      "Url": "https://apexhub-lime.vercel.app/check/gitlab_group_two_factor_authentication_required"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "gitlab_group_ip_restriction_enabled"
+  ],
+  "Notes": ""
+}

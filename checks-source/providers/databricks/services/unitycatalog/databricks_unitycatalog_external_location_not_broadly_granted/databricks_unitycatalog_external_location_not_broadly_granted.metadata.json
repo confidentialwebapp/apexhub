@@ -1,0 +1,39 @@
+{
+  "Provider": "databricks",
+  "CheckID": "databricks_unitycatalog_external_location_not_broadly_granted",
+  "CheckTitle": "Unity Catalog external locations are not granted to all account users",
+  "CheckType": [],
+  "ServiceName": "unitycatalog",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Databricks::UnityCatalog::ExternalLocation",
+  "ResourceGroup": "iam",
+  "Description": "This check reports Unity Catalog **external locations** that grant privileges to the built-in `account users` group, or that grant `CREATE EXTERNAL TABLE` or `WRITE FILES` broadly.",
+  "Risk": "An external location maps to a **cloud storage prefix**, so a grant on it bypasses table-level controls entirely — the holder can read the underlying files directly regardless of column masks or row filters applied to the tables above them. Granting to `account users` extends that raw storage access to everyone in the account, including service principals created for unrelated purposes.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.databricks.com/en/connect/unity-catalog/external-locations.html",
+    "https://docs.databricks.com/en/data-governance/unity-catalog/manage-privileges/index.html"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "databricks grants update external_location <name> --json '{\"changes\":[{\"principal\":\"account users\",\"remove\":[\"READ_FILES\",\"WRITE_FILES\",\"CREATE_EXTERNAL_TABLE\"]}]}'",
+      "NativeIaC": "",
+      "Other": "1. Review grants with `SHOW GRANTS ON EXTERNAL LOCATION <name>`\n2. Remove privileges held by `account users`\n3. Grant `READ_FILES` and `WRITE_FILES` only to the specific groups that need raw storage access\n4. Prefer granting on catalogs, schemas and tables so column masks and row filters apply\n5. Mark locations that should never be written to as `read_only`\n6. Scope each external location to the narrowest storage prefix that works",
+      "Terraform": "resource \"databricks_grants\" \"curated\" {\n  external_location = databricks_external_location.curated.id\n\n  grant {\n    principal  = \"data-engineering\"\n    privileges = [\"READ_FILES\"]\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Remove broad grants from external locations, give raw storage access only to named engineering groups, and prefer table-level grants so masking and row filters remain effective.",
+      "Url": "https://apexhub-lime.vercel.app/check/databricks_unitycatalog_external_location_not_broadly_granted"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "databricks_unitycatalog_metastore_assigned"
+  ],
+  "Notes": ""
+}

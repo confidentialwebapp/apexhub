@@ -1,0 +1,37 @@
+{
+  "Provider": "bitbucket",
+  "CheckID": "bitbucket_repository_not_public",
+  "CheckTitle": "Bitbucket repositories are private",
+  "CheckType": [],
+  "ServiceName": "repository",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Bitbucket::Repository",
+  "ResourceGroup": "network",
+  "Description": "A public Bitbucket repository is readable by anonymous users, including its source, wiki, downloads and pull request history. This check reports repositories whose `is_private` flag is false.",
+  "Risk": "Public repositories are continuously indexed by **automated credential scanners**, so a key committed to one is typically harvested within minutes of the push. Beyond source, the exposed pull request and issue history reveals internal service names, infrastructure detail and contributor identities that support **targeted phishing**.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/bitbucket-cloud/docs/set-repository-privacy-and-forking-options/",
+    "https://developer.atlassian.com/cloud/bitbucket/rest/api-group-repositories/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X PUT -H \"Authorization: Bearer $BITBUCKET_TOKEN\" -H 'Content-Type: application/json' -d '{\"is_private\":true}' \"https://api.bitbucket.org/2.0/repositories/<workspace>/<repo>\"",
+      "NativeIaC": "",
+      "Other": "1. Open the repository in Bitbucket\n2. Go to **Repository settings > Repository details**\n3. Tick **Private repository**\n4. Set **Forking** to `No forks` or `Allow only private forks`\n5. Click **Save repository details**\n6. Treat every credential in the repository history as compromised and rotate it",
+      "Terraform": "resource \"bitbucket_repository\" \"example\" {\n  owner       = var.workspace\n  name        = \"example\"\n  is_private  = true\n  fork_policy = \"no_public_forks\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Keep repositories private unless publication is intentional, and set the fork policy to disallow public forks so a private repository cannot be re-exposed through a fork.",
+      "Url": "https://apexhub-lime.vercel.app/check/bitbucket_repository_not_public"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

@@ -42,3 +42,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python bytecode from the vendored check source
+__pycache__/
+*.pyc
+
+# Machine-local Claude Code permissions
+.claude/settings.local.json

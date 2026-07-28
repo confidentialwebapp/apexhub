@@ -1,0 +1,40 @@
+{
+  "Provider": "gitlab",
+  "CheckID": "gitlab_project_pipeline_job_token_scope_restricted",
+  "CheckTitle": "GitLab CI job token scope is restricted to an allowlist",
+  "CheckType": [],
+  "ServiceName": "project",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "GitLab::Project::JobTokenScope",
+  "ResourceGroup": "iam",
+  "Description": "The **CI job token** (`CI_JOB_TOKEN`) is minted automatically for every pipeline job and carries the permissions of the user who triggered it. **Inbound token scope** limits which other projects may use their job token to reach this project. This check verifies that the restriction is enabled rather than left open to every project the token's user can see.",
+  "Risk": "With job token scope unrestricted, a pipeline in **any** project can present its `CI_JOB_TOKEN` to this project's API and read its repository, packages and registry. A single low-value project with a permissive `.gitlab-ci.yml` becomes a pivot into every other repository its members can access — a well-worn **lateral movement** path in CI supply chain attacks.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.gitlab.com/ee/ci/jobs/ci_job_token.html",
+    "https://docs.gitlab.com/ee/api/project_job_token_scopes.html"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl --request PATCH --header \"PRIVATE-TOKEN: $GITLAB_TOKEN\" --header 'Content-Type: application/json' --data '{\"inbound_enabled\":true}' \"https://gitlab.com/api/v4/projects/<project-id>/job_token_scope\"",
+      "NativeIaC": "",
+      "Other": "1. Open the project in GitLab\n2. Go to **Settings > CI/CD > Job token permissions**\n3. Enable **Limit access _to_ this project**\n4. Add only the projects whose pipelines legitimately need access\n5. Click **Save changes**",
+      "Terraform": "resource \"gitlab_project\" \"example\" {\n  name                                = \"example\"\n  ci_restrict_pipeline_cancellation_role = \"maintainer\"\n}\n\nresource \"gitlab_project_job_token_scopes\" \"example\" {\n  project_id           = gitlab_project.example.id\n  target_project_ids   = [gitlab_project.trusted_builder.id]\n}"
+    },
+    "Recommendation": {
+      "Text": "Enable inbound job token scope on every project and allowlist only the pipelines that genuinely need cross-project access. Review the allowlist whenever a project is archived or changes ownership.",
+      "Url": "https://apexhub-lime.vercel.app/check/gitlab_project_pipeline_job_token_scope_restricted"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "gitlab_project_ci_variables_masked_and_protected"
+  ],
+  "Notes": ""
+}

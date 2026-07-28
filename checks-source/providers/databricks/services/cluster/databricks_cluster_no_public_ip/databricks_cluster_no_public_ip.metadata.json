@@ -1,0 +1,37 @@
+{
+  "Provider": "databricks",
+  "CheckID": "databricks_cluster_no_public_ip",
+  "CheckTitle": "Databricks clusters run without public IP addresses",
+  "CheckType": [],
+  "ServiceName": "cluster",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Databricks::Cluster",
+  "ResourceGroup": "network",
+  "Description": "**Secure cluster connectivity** provisions cluster nodes without public IP addresses, so all communication with the control plane is outbound only. This check reports clusters whose cloud attributes still assign a public IP.",
+  "Risk": "Cluster nodes with public IPs are **directly addressable from the internet**, exposing any service that binds to a routable interface — Spark UI ports, debugging endpoints and anything an init script starts. Because nodes carry the instance profile or managed identity used to read the data lake, a reachable node is a direct route to the underlying storage.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.databricks.com/en/security/network/classic/secure-cluster-connectivity.html",
+    "https://docs.databricks.com/en/security/network/index.html"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "databricks clusters edit --json '{\"cluster_id\":\"<id>\",\"aws_attributes\":{\"no_public_ip\":true}}'",
+      "NativeIaC": "",
+      "Other": "1. Enable secure cluster connectivity on the workspace (it is the default for workspaces created recently; older workspaces may need recreation)\n2. Provision a NAT gateway so nodes retain outbound internet access for library installs\n3. Set `no_public_ip: true` in the cluster's cloud attributes\n4. Enforce it through a cluster policy so new clusters inherit it\n5. Restrict the workspace VPC/VNet security groups to the documented Databricks control plane ranges",
+      "Terraform": "resource \"databricks_cluster\" \"etl\" {\n  cluster_name = \"etl\"\n\n  aws_attributes {\n    no_public_ip = true\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Enable secure cluster connectivity so nodes have no public IPs, provide outbound access through a NAT gateway, and pin no_public_ip in a cluster policy.",
+      "Url": "https://apexhub-lime.vercel.app/check/databricks_cluster_no_public_ip"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

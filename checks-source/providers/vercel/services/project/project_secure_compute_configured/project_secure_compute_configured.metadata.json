@@ -1,0 +1,39 @@
+{
+  "Provider": "vercel",
+  "CheckID": "project_secure_compute_configured",
+  "CheckTitle": "Vercel projects reaching private backends use Secure Compute",
+  "CheckType": [],
+  "ServiceName": "project",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Vercel::Project",
+  "ResourceGroup": "network",
+  "Description": "**Secure Compute** places a project's functions in a dedicated VPC with static egress IPs, so a private backend can allowlist Vercel traffic precisely. This check reports projects with no Secure Compute configuration.",
+  "Risk": "Without dedicated egress, functions leave through a **shared, rotating pool of addresses**, so any database or internal API they reach must either be internet-exposed or allowlist a broad range that other Vercel customers also use. Both outcomes weaken the network boundary around the backend, and the second means an allowlist entry does not actually identify your application.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://vercel.com/docs/security/secure-compute",
+    "https://vercel.com/docs/security/secure-compute/connect-to-private-backend"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Confirm the team's plan includes Secure Compute\n2. In the team settings, create a Secure Compute network in the region closest to the backend\n3. Assign the project's production and preview environments to that network\n4. Note the static egress IP addresses\n5. Restrict the backend's firewall or database access list to those addresses and remove the broad ranges\n6. Where a private connection is needed, peer the Secure Compute VPC with your own\n7. Verify preview deployments still reach the backend — they use a separate egress range",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Assign projects that reach private backends to a Secure Compute network, restrict the backend allowlist to the resulting static egress IPs, and confirm preview environments are covered too.",
+      "Url": "https://apexhub-lime.vercel.app/check/project_secure_compute_configured"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "project_firewall_enabled"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "Provider": "terraformcloud",
+  "CheckID": "terraformcloud_organization_two_factor_conformant",
+  "CheckTitle": "HCP Terraform organization members are two-factor conformant",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "TerraformCloud::Organization",
+  "ResourceGroup": "iam",
+  "Description": "The `two-factor-conformant` attribute reports whether **every member** of the organization has two-factor authentication enabled. This check reports organizations with any non-conformant member.",
+  "Risk": "A single member without two-factor authentication is enough to compromise the organization, because Terraform permissions are typically **broad by necessity** — the tooling must be able to create and destroy the resources it manages. An attacker holding one such account can read state containing production credentials and queue applies against live infrastructure.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/terraform/cloud-docs/users-teams-organizations/users",
+    "https://developer.hashicorp.com/terraform/cloud-docs/api-docs/organizations"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -H \"Authorization: Bearer $TFC_TOKEN\" \\\n  \"https://app.terraform.io/api/v2/organizations/<organization>/organization-memberships\"",
+      "NativeIaC": "",
+      "Other": "1. List organization memberships and identify members without two-factor authentication\n2. Ask them to enable it under **User Settings > Two-factor authentication**\n3. Remove members who no longer need access rather than chasing enrolment\n4. Where SSO is enforced, apply the requirement in the identity provider's conditional access policy so it covers everyone uniformly\n5. Review team API tokens separately — they authenticate without a second factor",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Bring every member into two-factor conformance or remove their access, and enforce the requirement in your IdP where SSO is used so it applies uniformly.",
+      "Url": "https://apexhub-lime.vercel.app/check/terraformcloud_organization_two_factor_conformant"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "terraformcloud_organization_sso_enforced"
+  ],
+  "Notes": ""
+}

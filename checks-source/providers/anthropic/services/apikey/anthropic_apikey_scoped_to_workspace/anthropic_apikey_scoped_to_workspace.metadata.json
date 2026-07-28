@@ -1,0 +1,41 @@
+{
+  "Provider": "anthropic",
+  "CheckID": "anthropic_apikey_scoped_to_workspace",
+  "CheckTitle": "Anthropic API keys are scoped to a workspace",
+  "CheckType": [],
+  "ServiceName": "apikey",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Anthropic::ApiKey",
+  "ResourceGroup": "iam",
+  "Description": "Workspace-scoped API keys inherit that workspace's spend limit, rate limit and member boundary. This check reports active keys attached to the **default workspace** or to no workspace at all, which places them outside those controls.",
+  "Risk": "A key that is not workspace-scoped draws against the **organization's shared limits**, so its compromise degrades every other workload rather than only its own. It also loses the isolation that makes revocation safe: without a workspace boundary, there is no way to disable one workload's access without assessing the impact on all of them.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.claude.com/en/api/administration-api",
+    "https://docs.claude.com/en/api/rate-limits"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl https://api.anthropic.com/v1/organizations/api_keys \\\n  -H \"x-api-key: $ANTHROPIC_ADMIN_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\"",
+      "NativeIaC": "",
+      "Other": "1. Create a workspace for each workload in the Anthropic Console\n2. Issue a new API key inside that workspace\n3. Deploy the new key and verify traffic has moved\n4. Deactivate the unscoped key it replaced\n5. Set spend and rate limits on each workspace so the scope carries a real boundary\n6. Keep the default workspace empty so anything appearing in it is visibly an exception",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Give each workload its own workspace and issue keys inside it, keeping the default workspace empty so unscoped keys stand out as exceptions.",
+      "Url": "https://apexhub-lime.vercel.app/check/anthropic_apikey_scoped_to_workspace"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "anthropic_workspace_spend_limit_configured",
+    "anthropic_apikey_rotated"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,40 @@
+{
+  "Provider": "vercel",
+  "CheckID": "project_bot_protection_enabled",
+  "CheckTitle": "Vercel projects enable bot protection",
+  "CheckType": [],
+  "ServiceName": "project",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Vercel::Project",
+  "ResourceGroup": "network",
+  "Description": "**BotID** distinguishes automated clients from real browsers at the edge, before a request reaches a function. This check reports projects with bot protection disabled.",
+  "Risk": "Without bot filtering, automated traffic reaches **the routes that cost the most to serve**: login endpoints for credential stuffing, signup forms for fake account creation, and any AI or database-backed route where each request has real compute cost. Because Vercel bills on execution, unfiltered bot traffic is simultaneously a security and a billing exposure, and it obscures genuine user metrics.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://vercel.com/docs/botid",
+    "https://vercel.com/docs/security/vercel-waf/managed-rulesets"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Open the project in the Vercel dashboard\n2. Go to **Settings > Security** and enable **BotID**\n3. Protect the specific routes that matter — authentication, signup, checkout, and any AI-backed endpoint\n4. Add the client-side integration so classification has browser signals to work with\n5. Verify legitimate integrations and monitoring probes are not being classified as bots\n6. Combine with rate limiting rather than relying on bot detection alone",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Enable BotID and protect authentication, signup and compute-expensive routes, wiring in the client integration and pairing it with rate limiting.",
+      "Url": "https://apexhub-lime.vercel.app/check/project_bot_protection_enabled"
+    }
+  },
+  "Categories": [
+    "trust-boundaries",
+    "resilience"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "project_firewall_enabled"
+  ],
+  "Notes": ""
+}

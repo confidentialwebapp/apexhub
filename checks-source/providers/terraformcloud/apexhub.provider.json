@@ -1,0 +1,7 @@
+{
+  "id": "terraformcloud",
+  "name": "HCP Terraform",
+  "origin": "apexhub-first-party",
+  "license": "Apache-2.0",
+  "generated_by": "scripts/build-custom.mjs"
+}

@@ -1,0 +1,41 @@
+{
+  "Provider": "gitlab",
+  "CheckID": "gitlab_project_default_branch_protected",
+  "CheckTitle": "GitLab project default branches are protected",
+  "CheckType": [],
+  "ServiceName": "project",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "GitLab::Project::ProtectedBranch",
+  "ResourceGroup": "iam",
+  "Description": "**GitLab protected branches** restrict who may push to and merge into a branch, and whether history may be rewritten. This check verifies that each project's **default branch** carries a protection rule, so that code reaching the branch that feeds production pipelines has passed the project's review controls.",
+  "Risk": "An unprotected default branch lets any project member push directly to the branch that triggers **production pipelines**, bypassing merge request review entirely. It also permits **force pushes** that rewrite history, which can quietly remove a malicious commit from the log after it has already been built and deployed.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.gitlab.com/ee/user/project/repository/branches/protected.html",
+    "https://docs.gitlab.com/ee/api/protected_branches.html"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl --request POST --header \"PRIVATE-TOKEN: $GITLAB_TOKEN\" \"https://gitlab.com/api/v4/projects/<project-id>/protected_branches?name=main&push_access_level=0&merge_access_level=30&allow_force_push=false\"",
+      "NativeIaC": "",
+      "Other": "1. Open the project in GitLab\n2. Go to **Settings > Repository > Protected branches**\n3. Select the default branch\n4. Set **Allowed to push and merge** to `No one`\n5. Set **Allowed to merge** to `Maintainers` or a narrower role\n6. Leave **Allow force push** disabled\n7. Click **Protect**",
+      "Terraform": "resource \"gitlab_branch_protection\" \"main\" {\n  project                = gitlab_project.example.id\n  branch                 = \"main\"\n  push_access_level      = \"no one\"\n  merge_access_level     = \"maintainer\"\n  allow_force_push       = false\n  code_owner_approval_required = true\n}"
+    },
+    "Recommendation": {
+      "Text": "Protect the default branch of every project: disallow direct pushes, restrict merge rights to maintainers, and keep force push disabled so history cannot be rewritten after review.",
+      "Url": "https://apexhub-lime.vercel.app/check/gitlab_project_default_branch_protected"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "gitlab_project_merge_request_approvals_required",
+    "gitlab_project_prevent_approval_by_author"
+  ],
+  "Notes": ""
+}

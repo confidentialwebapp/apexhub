@@ -1,0 +1,7 @@
+{
+  "id": "snowflake",
+  "name": "Snowflake",
+  "origin": "apexhub-first-party",
+  "license": "Apache-2.0",
+  "generated_by": "scripts/build-custom.mjs"
+}

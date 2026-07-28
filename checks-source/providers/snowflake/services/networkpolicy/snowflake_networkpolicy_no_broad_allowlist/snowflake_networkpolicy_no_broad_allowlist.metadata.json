@@ -1,0 +1,39 @@
+{
+  "Provider": "snowflake",
+  "CheckID": "snowflake_networkpolicy_no_broad_allowlist",
+  "CheckTitle": "Snowflake network policies do not allow the entire internet",
+  "CheckType": [],
+  "ServiceName": "networkpolicy",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Snowflake::NetworkPolicy",
+  "ResourceGroup": "network",
+  "Description": "This check inspects each network policy's `ALLOWED_IP_LIST` for entries that permit the whole address space (`0.0.0.0/0`, `::/0`) or an excessively wide range, which would make the policy ineffective.",
+  "Risk": "A network policy containing `0.0.0.0/0` **satisfies configuration checks while enforcing nothing**, which is worse than having no policy at all because it creates the appearance of a control. These entries are usually added temporarily to unblock a client and then never removed, leaving the account open to authentication attempts from anywhere.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.snowflake.com/en/user-guide/network-policies",
+    "https://docs.snowflake.com/en/sql-reference/sql/create-network-policy"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "ALTER NETWORK POLICY corporate_access SET\n  ALLOWED_IP_LIST = ('203.0.113.0/24', '198.51.100.0/24');\nDESC NETWORK POLICY corporate_access;",
+      "NativeIaC": "",
+      "Other": "1. Run `DESC NETWORK POLICY <name>` and review the allowed list\n2. Replace `0.0.0.0/0` and other wide ranges with the specific CIDRs your clients use\n3. Where a partner or SaaS tool needs access, use its documented static egress ranges rather than opening the policy\n4. For cloud-hosted clients, move to PrivateLink and restrict the policy to the private endpoint\n5. Re-test connectivity from each client after narrowing",
+      "Terraform": "resource \"snowflake_network_policy\" \"corporate\" {\n  name            = \"CORPORATE_ACCESS\"\n  allowed_ip_list = [\"203.0.113.0/24\", \"198.51.100.0/24\"]\n  blocked_ip_list = []\n}"
+    },
+    "Recommendation": {
+      "Text": "Remove open ranges from the allowed IP list and replace them with the specific egress CIDRs of each client, preferring PrivateLink for workloads running in cloud accounts.",
+      "Url": "https://apexhub-lime.vercel.app/check/snowflake_networkpolicy_no_broad_allowlist"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "snowflake_account_network_policy_enforced"
+  ],
+  "Notes": ""
+}

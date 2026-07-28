@@ -1,0 +1,40 @@
+{
+  "Provider": "jenkins",
+  "CheckID": "jenkins_plugin_no_deprecated_or_unmaintained",
+  "CheckTitle": "Jenkins plugins are not deprecated and are up to date",
+  "CheckType": [],
+  "ServiceName": "plugin",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Jenkins::Plugin",
+  "ResourceGroup": "compute",
+  "Description": "This check reports installed plugins marked **deprecated** by the update centre, and enabled plugins with a pending update, both of which indicate that the controller is drifting away from a supportable configuration.",
+  "Risk": "A deprecated plugin receives **no security fixes**, so any vulnerability found in it stays permanently unpatched inside the controller JVM. Accumulated pending updates also make emergency patching slower: when an advisory lands, a controller many versions behind cannot take the fix without a risky bulk upgrade, extending the exposure window.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://www.jenkins.io/doc/book/managing/plugins/",
+    "https://www.jenkins.io/doc/developer/plugin-governance/deprecating-plugins/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "java -jar jenkins-cli.jar -s \"$JENKINS_URL\" -auth @token list-plugins | grep -e ')$'",
+      "NativeIaC": "",
+      "Other": "1. Sign in to Jenkins as an administrator\n2. Go to **Manage Jenkins > Plugins > Installed plugins**\n3. Identify plugins flagged as deprecated and find the documented replacement\n4. Migrate the affected jobs, then uninstall the deprecated plugin\n5. Apply pending updates on a regular cadence rather than only when an advisory forces it\n6. Uninstall plugins that no job actually uses — the smallest plugin set is the easiest to keep current",
+      "Terraform": "# Track the intended plugin set in version control and apply it on rebuild:\n#   docker build --build-arg PLUGINS_FILE=plugins.txt .\n# Review plugins.txt each release for deprecated entries."
+    },
+    "Recommendation": {
+      "Text": "Replace deprecated plugins with their documented successors, keep the remainder current on a regular cadence, and uninstall plugins no job uses so the update surface stays small.",
+      "Url": "https://apexhub-lime.vercel.app/check/jenkins_plugin_no_deprecated_or_unmaintained"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "vulnerability-management"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "jenkins_plugin_no_known_vulnerabilities"
+  ],
+  "Notes": ""
+}

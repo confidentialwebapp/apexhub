@@ -1,0 +1,40 @@
+{
+  "Provider": "terraformcloud",
+  "CheckID": "terraformcloud_workspace_sensitive_variables_marked",
+  "CheckTitle": "HCP Terraform workspace variables holding credentials are marked sensitive",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "TerraformCloud::Workspace::Variable",
+  "ResourceGroup": "secrets",
+  "Description": "A **sensitive** workspace variable is write-only: its value cannot be read back through the API or UI and is redacted from run output. This check reports variables whose names indicate a credential but that are not marked sensitive.",
+  "Risk": "A non-sensitive variable's value is **readable by every user with workspace read access and returned by the API**, and it appears in plan output where it is retained in run history indefinitely. Because these variables typically hold the cloud credentials Terraform provisions with, one exposed value grants the same access Terraform itself has — which is usually administrative.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/terraform/cloud-docs/workspaces/variables/managing-variables",
+    "https://developer.hashicorp.com/terraform/cloud-docs/api-docs/workspace-variables"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X PATCH \"https://app.terraform.io/api/v2/workspaces/<workspace-id>/vars/<var-id>\" \\\n  -H \"Authorization: Bearer $TFC_TOKEN\" \\\n  -H 'Content-Type: application/vnd.api+json' \\\n  -d '{\"data\":{\"type\":\"vars\",\"attributes\":{\"sensitive\":true}}}'",
+      "NativeIaC": "",
+      "Other": "1. Open the workspace and go to **Variables**\n2. For each credential variable, edit it and tick **Sensitive**\n3. Rotate the credential — its value has been readable through the API and may appear in retained plan output\n4. Move shared credentials into a **variable set** so they are managed in one place\n5. Better still, replace static credentials with dynamic provider credentials so no long-lived secret is stored at all",
+      "Terraform": "resource \"tfe_variable\" \"aws_secret\" {\n  key          = \"AWS_SECRET_ACCESS_KEY\"\n  value        = var.aws_secret\n  category     = \"env\"\n  sensitive    = true\n  workspace_id = tfe_workspace.prod.id\n}"
+    },
+    "Recommendation": {
+      "Text": "Mark every credential-bearing variable sensitive, rotate anything previously stored in the clear, and migrate to dynamic provider credentials so no static secret is stored.",
+      "Url": "https://apexhub-lime.vercel.app/check/terraformcloud_workspace_sensitive_variables_marked"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "terraformcloud_workspace_dynamic_credentials_configured"
+  ],
+  "Notes": ""
+}

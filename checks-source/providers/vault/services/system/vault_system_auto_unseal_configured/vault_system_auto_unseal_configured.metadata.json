@@ -1,0 +1,40 @@
+{
+  "Provider": "vault",
+  "CheckID": "vault_system_auto_unseal_configured",
+  "CheckTitle": "Vault clusters use auto-unseal or a quorum Shamir threshold",
+  "CheckType": [],
+  "ServiceName": "system",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Vault::Seal",
+  "ResourceGroup": "storage",
+  "Description": "This check verifies that the cluster uses an **auto-unseal seal** backed by a cloud KMS or HSM, or — where Shamir key sharing is used — that the unseal threshold is at least three of five shares.",
+  "Risk": "With Shamir unsealing and a low threshold, **one or two key holders can unseal Vault alone**, removing the quorum control that protects the master key; and every restart requires humans to assemble, which pressures operators into storing shares together and defeating the split entirely. Auto-unseal moves the trust to a KMS key you can audit and revoke, and removes the temptation to hoard shares.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/vault/docs/concepts/seal",
+    "https://developer.hashicorp.com/vault/tutorials/auto-unseal"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "# In the Vault server configuration:\n#   seal \"awskms\" {\n#     region     = \"us-east-1\"\n#     kms_key_id = \"alias/vault-unseal\"\n#   }\nvault operator migrate -config=migrate.hcl",
+      "NativeIaC": "",
+      "Other": "1. Create a KMS key (AWS KMS, Azure Key Vault, GCP KMS) or provision an HSM\n2. Add the corresponding `seal` stanza to the Vault configuration\n3. Migrate the existing seal with `vault operator unseal -migrate`\n4. Distribute the resulting recovery keys to separate holders using a threshold of at least 3 of 5\n5. Store recovery key shares in physically separate locations — never together\n6. Restrict and monitor the KMS key policy: whoever can use that key can unseal Vault",
+      "Terraform": "# Vault server configuration\nseal \"awskms\" {\n  region     = \"us-east-1\"\n  kms_key_id = \"alias/vault-unseal\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Use KMS or HSM auto-unseal with recovery keys split 3-of-5 across separate holders, and tightly restrict and monitor the unseal key's policy since it is equivalent to the seal itself.",
+      "Url": "https://apexhub-lime.vercel.app/check/vault_system_auto_unseal_configured"
+    }
+  },
+  "Categories": [
+    "encryption",
+    "resilience"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "vault_system_listener_tls_enabled"
+  ],
+  "Notes": ""
+}

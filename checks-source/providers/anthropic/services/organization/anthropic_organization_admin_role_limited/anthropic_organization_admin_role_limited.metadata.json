@@ -1,0 +1,38 @@
+{
+  "Provider": "anthropic",
+  "CheckID": "anthropic_organization_admin_role_limited",
+  "CheckTitle": "Anthropic organizations limit the number of admin members",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Anthropic::Organization::Member",
+  "ResourceGroup": "iam",
+  "Description": "Organization **admins** can create API keys, manage workspaces and change billing. This check reports organizations where the admin count exceeds the configured threshold, or where more than half of all members hold the role.",
+  "Risk": "Every additional admin is another account whose compromise yields **full control of the organization**, including the ability to issue keys that outlive the intrusion. Admin roles granted for a one-off task and never revoked are the usual cause, and because the console is used infrequently, the excess grants are rarely noticed.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.claude.com/en/api/administration-api",
+    "https://support.anthropic.com/en/collections/4078531-claude-for-work"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl https://api.anthropic.com/v1/organizations/users \\\n  -H \"x-api-key: $ANTHROPIC_ADMIN_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\"",
+      "NativeIaC": "",
+      "Other": "1. List organization members and their roles\n2. Identify who genuinely needs to manage keys, workspaces and billing\n3. Demote the rest to the developer or user role\n4. Use **workspace-scoped roles** to grant project-level control without organization-wide admin\n5. Record the expected admin set and review it on a recurring schedule\n6. Ensure every remaining admin is covered by SSO and MFA",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Keep organization admin to a small named set, use workspace-scoped roles for project-level control, and review the admin list on a recurring schedule.",
+      "Url": "https://apexhub-lime.vercel.app/check/anthropic_organization_admin_role_limited"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

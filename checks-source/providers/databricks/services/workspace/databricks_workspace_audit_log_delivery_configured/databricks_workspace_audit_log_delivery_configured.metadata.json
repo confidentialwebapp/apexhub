@@ -1,0 +1,37 @@
+{
+  "Provider": "databricks",
+  "CheckID": "databricks_workspace_audit_log_delivery_configured",
+  "CheckTitle": "Databricks accounts deliver audit logs to external storage",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Databricks::Account::LogDelivery",
+  "ResourceGroup": "logging",
+  "Description": "Databricks **audit log delivery** writes account and workspace audit events to a cloud storage bucket you control. This check verifies that at least one enabled log delivery configuration exists.",
+  "Risk": "Without log delivery, audit events are only queryable through the platform's own retention window, so there is **no independent record** of who launched compute, who queried which table, or who changed permissions. An attacker with workspace admin rights can alter configuration knowing the evidence expires, and incident responders lose the timeline needed to scope the breach.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.databricks.com/en/admin/account-settings/audit-logs.html",
+    "https://docs.databricks.com/api/account/logdelivery"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "databricks account log-delivery create --json '{\"config_name\":\"audit-logs\",\"log_type\":\"AUDIT_LOGS\",\"output_format\":\"JSON\",\"credentials_id\":\"<id>\",\"storage_configuration_id\":\"<id>\"}'",
+      "NativeIaC": "",
+      "Other": "1. Create a storage bucket in your own cloud account for the logs\n2. Register a storage configuration and credential in the Databricks account console\n3. Create a log delivery configuration with `log_type = AUDIT_LOGS`\n4. Apply object-lock or equivalent immutability on the bucket so logs cannot be altered\n5. Forward the delivered logs into your SIEM and alert on metastore, permission and token events\n6. Confirm delivery is producing files before relying on it",
+      "Terraform": "resource \"databricks_mws_log_delivery\" \"audit\" {\n  account_id               = var.databricks_account_id\n  credentials_id           = databricks_mws_credentials.log_writer.credentials_id\n  storage_configuration_id = databricks_mws_storage_configurations.logs.storage_configuration_id\n  log_type                 = \"AUDIT_LOGS\"\n  output_format            = \"JSON\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Deliver audit logs to a bucket in your own cloud account with immutability enabled, forward them to your SIEM, and alert on permission, metastore and token events.",
+      "Url": "https://apexhub-lime.vercel.app/check/databricks_workspace_audit_log_delivery_configured"
+    }
+  },
+  "Categories": [
+    "logging"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

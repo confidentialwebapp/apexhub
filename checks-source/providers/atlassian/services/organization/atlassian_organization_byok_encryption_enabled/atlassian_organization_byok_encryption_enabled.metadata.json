@@ -1,0 +1,38 @@
+{
+  "Provider": "atlassian",
+  "CheckID": "atlassian_organization_byok_encryption_enabled",
+  "CheckTitle": "Atlassian organizations use bring-your-own-key encryption",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "low",
+  "ResourceType": "Atlassian::Organization",
+  "ResourceGroup": "storage",
+  "Description": "**Bring Your Own Key** encrypts Atlassian product data with a key held in your own AWS KMS. This check verifies that BYOK is enabled, and reports organizations with no configured data residency region.",
+  "Risk": "With provider-managed keys only, you have **no independent means of revoking access to your Jira and Confluence data** during a suspected platform compromise — containment depends entirely on the provider. An unset residency region additionally means data may be stored outside the jurisdiction your regulatory commitments assume.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/security-and-access-policies/docs/manage-your-own-encryption-keys/",
+    "https://support.atlassian.com/security-and-access-policies/docs/understand-data-residency/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Confirm your plan includes BYOK (Atlassian Cloud Enterprise)\n2. Create a KMS key in your own AWS account in a supported region\n3. Grant Atlassian the minimum key usage permissions required\n4. Enable BYOK in Atlassian Administration under **Security > Data encryption**\n5. Set the **data residency** region for each product to match your regulatory commitments\n6. Enable key rotation and monitor key usage in CloudTrail\n7. Document the revocation runbook, including what becomes inaccessible and to whom",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Enable BYOK with a key in your own KMS, pin the data residency region to your regulatory jurisdiction, monitor key usage in CloudTrail, and document a revocation runbook.",
+      "Url": "https://apexhub-lime.vercel.app/check/atlassian_organization_byok_encryption_enabled"
+    }
+  },
+  "Categories": [
+    "encryption",
+    "data-protection"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

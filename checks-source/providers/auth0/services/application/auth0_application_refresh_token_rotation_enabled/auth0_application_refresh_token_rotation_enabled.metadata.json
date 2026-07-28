@@ -1,0 +1,39 @@
+{
+  "Provider": "auth0",
+  "CheckID": "auth0_application_refresh_token_rotation_enabled",
+  "CheckTitle": "Auth0 public applications rotate and expire refresh tokens",
+  "CheckType": [],
+  "ServiceName": "application",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Auth0::Application",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that single-page and native applications issuing refresh tokens have **rotation** enabled and an **expiring** refresh token policy, so a stolen token is single-use and time-bounded.",
+  "Risk": "A non-rotating refresh token held by a browser or mobile application is a **long-lived credential stored on the client**, reachable through XSS, a malicious dependency or device compromise, and it grants indefinite re-authentication as the user. Rotation converts theft into a detectable event: reuse of a consumed token signals compromise and revokes the whole family.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://auth0.com/docs/secure/tokens/refresh-tokens/refresh-token-rotation",
+    "https://auth0.com/docs/secure/tokens/refresh-tokens/configure-refresh-token-rotation"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X PATCH \"https://$AUTH0_DOMAIN/api/v2/clients/<client-id>\" \\\n  -H \"Authorization: Bearer $AUTH0_TOKEN\" \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"refresh_token\":{\"rotation_type\":\"rotating\",\"expiration_type\":\"expiring\",\"token_lifetime\":2592000,\"leeway\":30}}'",
+      "NativeIaC": "",
+      "Other": "1. Open the application in the Auth0 Dashboard\n2. Go to **Settings > Refresh Token Rotation**\n3. Enable **Rotation** and set a short reuse interval (leeway)\n4. Enable **Absolute Expiration** and set a lifetime appropriate to the application\n5. Update the client SDK to store the newly issued refresh token on each exchange\n6. Monitor for automatic reuse detection events in the tenant logs — they indicate a stolen token",
+      "Terraform": "resource \"auth0_client\" \"spa\" {\n  name     = \"spa\"\n  app_type = \"spa\"\n\n  refresh_token {\n    rotation_type   = \"rotating\"\n    expiration_type = \"expiring\"\n    token_lifetime  = 2592000\n    leeway          = 30\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Enable refresh token rotation with absolute expiration for public clients, and alert on reuse-detection events, which indicate a token was stolen.",
+      "Url": "https://apexhub-lime.vercel.app/check/auth0_application_refresh_token_rotation_enabled"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "auth0_application_no_wildcard_callback_urls"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "Provider": "auth0",
+  "CheckID": "auth0_application_confidential_client_authentication",
+  "CheckTitle": "Auth0 confidential applications authenticate at the token endpoint",
+  "CheckType": [],
+  "ServiceName": "application",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Auth0::Application",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that regular web and machine-to-machine applications set a **token endpoint authentication method** other than `none`, and reports single-page applications that hold a client secret they cannot protect.",
+  "Risk": "A confidential client with `token_endpoint_auth_method` set to `none` will exchange an authorization code **without proving its identity**, so any party holding a stolen code can complete the exchange. Conversely, a browser-based application configured as confidential ships a client secret that is trivially extractable from its bundle, giving that secret away to every visitor.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://auth0.com/docs/get-started/applications/confidential-and-public-applications",
+    "https://auth0.com/docs/get-started/applications/set-up-client-authentication"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X PATCH \"https://$AUTH0_DOMAIN/api/v2/clients/<client-id>\" \\\n  -H \"Authorization: Bearer $AUTH0_TOKEN\" \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"token_endpoint_auth_method\":\"client_secret_post\"}'",
+      "NativeIaC": "",
+      "Other": "1. Open the application in the Auth0 Dashboard\n2. Confirm the **Application Type** matches how the application actually runs\n3. For regular web and M2M applications, set **Token Endpoint Authentication Method** to `Post` or `Basic`, or use Private Key JWT for stronger assurance\n4. For single-page applications, set the type to `SPA` so no secret is issued, and use Authorization Code with PKCE\n5. Rotate any client secret that has been embedded in browser or mobile code — treat it as public",
+      "Terraform": "resource \"auth0_client\" \"backend\" {\n  name                       = \"backend\"\n  app_type                   = \"regular_web\"\n  token_endpoint_auth_method = \"client_secret_post\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Match the application type to how the app runs, require token endpoint authentication for confidential clients, use PKCE without a secret for SPAs, and rotate secrets that were shipped to browsers.",
+      "Url": "https://apexhub-lime.vercel.app/check/auth0_application_confidential_client_authentication"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "auth0_application_no_wildcard_callback_urls"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,37 @@
+{
+  "Provider": "vercel",
+  "CheckID": "project_node_version_supported",
+  "CheckTitle": "Vercel projects run a supported Node.js version",
+  "CheckType": [],
+  "ServiceName": "project",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Vercel::Project",
+  "ResourceGroup": "compute",
+  "Description": "This check reports projects pinned to a Node.js version that has reached end of life and therefore no longer receives security patches from either the Node.js project or Vercel.",
+  "Risk": "An end-of-life runtime accumulates **unpatched vulnerabilities in the JavaScript engine and the standard library**, including HTTP request parsing and TLS handling that process untrusted input on every request. Because the runtime sits underneath the application, no amount of application-level review addresses those flaws, and Vercel eventually stops building projects pinned to retired versions.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://vercel.com/docs/functions/runtimes/node-js",
+    "https://vercel.com/docs/functions/runtimes/node-js/node-js-versions"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Open the project in the Vercel dashboard\n2. Go to **Settings > General > Node.js Version**\n3. Select the current LTS release\n4. Update the `engines.node` field in `package.json` to match, so local and CI builds agree\n5. Run the test suite against the new version before promoting to production\n6. Deploy to a preview environment first and confirm behaviour, particularly around any native dependencies",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Move projects to the current Node.js LTS release, align the engines field in package.json, and validate on a preview deployment before promoting.",
+      "Url": "https://apexhub-lime.vercel.app/check/project_node_version_supported"
+    }
+  },
+  "Categories": [
+    "vulnerability-management"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

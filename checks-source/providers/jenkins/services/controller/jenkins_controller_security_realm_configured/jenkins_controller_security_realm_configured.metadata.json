@@ -1,0 +1,40 @@
+{
+  "Provider": "jenkins",
+  "CheckID": "jenkins_controller_security_realm_configured",
+  "CheckTitle": "Jenkins controllers use a managed security realm",
+  "CheckType": [],
+  "ServiceName": "controller",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Jenkins::Controller",
+  "ResourceGroup": "iam",
+  "Description": "The **security realm** determines how Jenkins authenticates users. `SecurityRealm$None` disables authentication, and the built-in database with signup enabled lets anyone create an account. This check requires a managed realm — LDAP, SAML, OIDC or the built-in database with signup disabled.",
+  "Risk": "With authentication disabled or open signup enabled, **anyone who can reach the controller** becomes a user, and combined with a permissive authorization strategy that means immediate administrative access. Because Jenkins holds the credentials used to deploy, this is one of the shortest paths from network exposure to full production compromise.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://www.jenkins.io/doc/book/security/managing-security/#access-control",
+    "https://www.jenkins.io/doc/book/security/securing-jenkins/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Sign in to Jenkins as an administrator\n2. Go to **Manage Jenkins > Security**\n3. Under **Security Realm**, select your identity provider (SAML, OpenID Connect or LDAP)\n4. If using the built-in database, clear **Allow users to sign up**\n5. Save and verify that an unauthenticated session is redirected to the login page\n6. Disable any local accounts that duplicate identities now managed by the IdP",
+      "Terraform": "# Jenkins Configuration as Code (jenkins.yaml)\njenkins:\n  securityRealm:\n    oic:\n      clientId: \"${JENKINS_OIDC_CLIENT_ID}\"\n      wellKnownOpenIDConfigurationUrl: \"https://idp.example.com/.well-known/openid-configuration\"\n  # or, for the built-in database:\n  # local:\n  #   allowsSignup: false"
+    },
+    "Recommendation": {
+      "Text": "Authenticate Jenkins against your corporate identity provider so joiner-mover-leaver processes apply, and never leave signup enabled on the built-in user database.",
+      "Url": "https://apexhub-lime.vercel.app/check/jenkins_controller_security_realm_configured"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "jenkins_controller_authorization_strategy_not_permissive"
+  ],
+  "Notes": ""
+}

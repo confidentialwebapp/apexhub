@@ -8,11 +8,18 @@
  * HUB_BASE env var. Brand references in the fetched data are normalized to
  * APEX Hub via debrand().
  *
+ * First-party checks and providers (scripts/custom/) are overlaid on top of the
+ * fetched snapshot, so the daily sync refreshes upstream data without dropping
+ * them. See scripts/build-custom.mjs to regenerate that layer on its own.
+ *
  * Usage: HUB_BASE="<data-source-base-url>" node scripts/ingest.mjs
  */
 import { writeFileSync, mkdirSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadDefinitions, assertNoUpstreamCollision } from "./custom/index.mjs";
+import { emitProvider } from "./custom/lib/emit.mjs";
+import { mergeCustom } from "./custom/lib/merge.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = join(__dirname, "..", "src", "data");
@@ -181,16 +188,29 @@ async function main() {
     n_artifacts,
   };
 
-  write("checks.index.json", checksIndex);
-  write("checks.full.json", checksFull);
-  write("compliance.index.json", complianceIndex);
-  write("compliance.full.json", complianceFull);
-  write("filters.json", filters);
-  write("providers.json", providers);
-  write("stats.json", stats);
+  // ---------- FIRST-PARTY OVERLAY ----------
+  // Applied last so a refreshed upstream snapshot never drops APEX Hub's own
+  // providers, checks and ThreatScore frameworks.
+  console.log("Applying the first-party check layer…");
+  const defs = await loadDefinitions();
+  assertNoUpstreamCollision(defs, checksFull);
+  for (const def of defs) emitProvider(def, join(__dirname, "..", "checks-source", "providers"));
+  const merged = mergeCustom(
+    { checksIndex, checksFull, complianceIndex, complianceFull, filters, providers, stats },
+    defs
+  );
+  console.log(`  +${merged.addedChecks} checks across ${defs.length} providers`);
+
+  write("checks.index.json", merged.checksIndex);
+  write("checks.full.json", merged.checksFull);
+  write("compliance.index.json", merged.complianceIndex);
+  write("compliance.full.json", merged.complianceFull);
+  write("filters.json", merged.filters);
+  write("providers.json", merged.providers);
+  write("stats.json", merged.stats);
 
   console.log(
-    `\nunique checks: ${stats.checks}  variants: ${stats.checkVariants}  compliance: ${stats.compliance}  artifacts: ${stats.n_artifacts}`
+    `\nunique checks: ${merged.stats.checks}  variants: ${merged.stats.checkVariants}  compliance: ${merged.stats.compliance}  artifacts: ${merged.stats.n_artifacts}`
   );
 }
 

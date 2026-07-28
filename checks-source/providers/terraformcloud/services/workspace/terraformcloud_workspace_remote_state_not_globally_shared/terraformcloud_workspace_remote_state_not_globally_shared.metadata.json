@@ -1,0 +1,40 @@
+{
+  "Provider": "terraformcloud",
+  "CheckID": "terraformcloud_workspace_remote_state_not_globally_shared",
+  "CheckTitle": "HCP Terraform workspaces do not share remote state organization-wide",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "TerraformCloud::Workspace",
+  "ResourceGroup": "storage",
+  "Description": "The `global-remote-state` setting allows **every workspace in the organization** to read a workspace's state. This check reports workspaces with global sharing enabled instead of an explicit consumer list.",
+  "Risk": "Terraform state contains the **full attribute set of every resource**, including generated passwords, private keys, connection strings and any provider output the configuration touched — regardless of whether the corresponding variable was marked sensitive. Sharing it organization-wide means anyone who can create a workspace can read the credentials of your production environment.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/terraform/cloud-docs/workspaces/state",
+    "https://developer.hashicorp.com/terraform/language/state/sensitive-data"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X PATCH \"https://app.terraform.io/api/v2/workspaces/<workspace-id>\" \\\n  -H \"Authorization: Bearer $TFC_TOKEN\" \\\n  -H 'Content-Type: application/vnd.api+json' \\\n  -d '{\"data\":{\"type\":\"workspaces\",\"attributes\":{\"global-remote-state\":false}}}'",
+      "NativeIaC": "",
+      "Other": "1. Open the workspace and go to **Settings > General**\n2. Set remote state sharing to **Share with specific workspaces**\n3. List only the workspaces that genuinely consume this state\n4. Prefer passing values through a data source or a variable set over remote state sharing where practical\n5. Review the existing state for secrets, and rotate anything that was broadly readable\n6. Restrict who can read state at the team level as well",
+      "Terraform": "resource \"tfe_workspace\" \"prod\" {\n  name                  = \"prod\"\n  organization          = var.organization\n  global_remote_state   = false\n  remote_state_consumer_ids = [tfe_workspace.app.id]\n}"
+    },
+    "Recommendation": {
+      "Text": "Replace global remote state sharing with an explicit consumer list, and rotate any secret that appeared in state while it was organization-readable.",
+      "Url": "https://apexhub-lime.vercel.app/check/terraformcloud_workspace_remote_state_not_globally_shared"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "terraformcloud_workspace_sensitive_variables_marked"
+  ],
+  "Notes": ""
+}

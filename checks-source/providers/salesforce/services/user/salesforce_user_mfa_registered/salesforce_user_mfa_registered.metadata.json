@@ -1,0 +1,39 @@
+{
+  "Provider": "salesforce",
+  "CheckID": "salesforce_user_mfa_registered",
+  "CheckTitle": "Salesforce users have a multi-factor verification method registered",
+  "CheckType": [],
+  "ServiceName": "user",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Salesforce::User",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that every active Salesforce user has registered at least one **multi-factor verification method** — an authenticator app, security key or built-in authenticator.",
+  "Risk": "Salesforce orgs hold the **complete customer record**: contacts, pipeline, contracts and often payment detail. A password-only login is directly usable from anywhere, and credential phishing against Salesforce users is a standing, well-tooled attack because the export capability built into the platform turns one session into a full data set.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://help.salesforce.com/s/articleView?id=sf.security_require_two-factor_authentication.htm",
+    "https://help.salesforce.com/s/articleView?id=sf.mfa_overview.htm"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. In Setup, go to **Identity > Identity Verification**\n2. Enable **Require multi-factor authentication (MFA) for all direct UI logins**\n3. For profile-scoped enforcement, assign the **Multi-Factor Authentication for User Interface Logins** permission\n4. Give users an enrolment window and monitor registration in the Identity Verification report\n5. Prefer security keys or built-in authenticators over SMS, which is vulnerable to SIM swap\n6. Where users sign in through an external IdP, enforce MFA in that IdP's conditional access policy",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Require MFA for all direct UI logins, prefer security keys or built-in authenticators over SMS, and enforce MFA in the upstream IdP for federated users.",
+      "Url": "https://apexhub-lime.vercel.app/check/salesforce_user_mfa_registered"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "salesforce_org_session_settings_hardened"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,40 @@
+{
+  "Provider": "auth0",
+  "CheckID": "auth0_application_no_wildcard_callback_urls",
+  "CheckTitle": "Auth0 applications use exact HTTPS callback URLs",
+  "CheckType": [],
+  "ServiceName": "application",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Auth0::Application",
+  "ResourceGroup": "network",
+  "Description": "This check reports applications whose **allowed callback URLs** or **web origins** contain wildcards, use plain HTTP for a non-localhost host, or are left empty for an interactive application.",
+  "Risk": "The callback URL list is the only thing binding an authorization code to the application that requested it. A wildcard entry lets an attacker redirect the flow to a host they control — an unclaimed subdomain, or any path on a domain with an open redirect — and **receive the victim's authorization code**, exchanging it for tokens without ever touching the user's credentials. This is one of the most reliably exploited OAuth misconfigurations.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://auth0.com/docs/get-started/applications/confidential-and-public-applications",
+    "https://auth0.com/docs/secure/attack-protection/state-parameters"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X PATCH \"https://$AUTH0_DOMAIN/api/v2/clients/<client-id>\" \\\n  -H \"Authorization: Bearer $AUTH0_TOKEN\" \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"callbacks\":[\"https://app.example.com/callback\"],\"web_origins\":[\"https://app.example.com\"]}'",
+      "NativeIaC": "",
+      "Other": "1. Open the application in the Auth0 Dashboard\n2. Go to **Settings > Application URIs**\n3. Replace every wildcard entry with the exact HTTPS callback URLs the application actually uses\n4. Do the same for **Allowed Web Origins** and **Allowed Logout URLs**\n5. Keep `http://localhost` entries only in development tenants\n6. Enable PKCE for public clients so an intercepted code cannot be exchanged\n7. Verify each application still completes login after tightening",
+      "Terraform": "resource \"auth0_client\" \"web_app\" {\n  name         = \"web-app\"\n  app_type     = \"regular_web\"\n  callbacks    = [\"https://app.example.com/callback\"]\n  web_origins  = [\"https://app.example.com\"]\n  oidc_conformant = true\n}"
+    },
+    "Recommendation": {
+      "Text": "Replace wildcard callback and origin entries with exact HTTPS URLs, restrict localhost entries to development tenants, and enable PKCE for public clients.",
+      "Url": "https://apexhub-lime.vercel.app/check/auth0_application_no_wildcard_callback_urls"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "auth0_application_refresh_token_rotation_enabled"
+  ],
+  "Notes": ""
+}

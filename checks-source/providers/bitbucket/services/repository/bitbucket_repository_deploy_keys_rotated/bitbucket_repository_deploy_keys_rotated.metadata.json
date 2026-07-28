@@ -1,0 +1,37 @@
+{
+  "Provider": "bitbucket",
+  "CheckID": "bitbucket_repository_deploy_keys_rotated",
+  "CheckTitle": "Bitbucket repository deploy keys are in active use and rotated",
+  "CheckType": [],
+  "ServiceName": "repository",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Bitbucket::Repository::DeployKey",
+  "ResourceGroup": "iam",
+  "Description": "Repository **deploy keys** are long-lived SSH credentials that grant automated access to a repository. This check reports deploy keys that have never been used or that have been idle beyond the configured threshold, indicating an unmanaged standing credential.",
+  "Risk": "A deploy key does not expire, is not tied to a person, and survives the offboarding of whoever created it. An unused key is therefore a **standing credential with no owner** — if the private half was copied to a developer laptop or a decommissioned CI host, it stays valid indefinitely and its use is difficult to attribute during an investigation.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/bitbucket-cloud/docs/use-access-keys/",
+    "https://developer.atlassian.com/cloud/bitbucket/rest/api-group-deployments/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X DELETE -H \"Authorization: Bearer $BITBUCKET_TOKEN\" \"https://api.bitbucket.org/2.0/repositories/<workspace>/<repo>/deploy-keys/<key-id>\"",
+      "NativeIaC": "",
+      "Other": "1. Open the repository in Bitbucket\n2. Go to **Repository settings > Access keys**\n3. Remove any key with no recorded last-used date or a stale one\n4. For keys still needed, generate a fresh key pair and replace the registered public key\n5. Prefer a workspace access token with repository scope over an SSH deploy key, since tokens can be scoped and revoked centrally",
+      "Terraform": "resource \"bitbucket_deploy_key\" \"ci\" {\n  workspace  = var.workspace\n  repository = bitbucket_repository.example.name\n  key        = var.ci_public_key\n  label      = \"ci-runner (rotated 2026-07)\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Remove unused deploy keys, rotate the remainder on a fixed schedule, and migrate automation to scoped workspace access tokens which can be revoked and audited centrally.",
+      "Url": "https://apexhub-lime.vercel.app/check/bitbucket_repository_deploy_keys_rotated"
+    }
+  },
+  "Categories": [
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

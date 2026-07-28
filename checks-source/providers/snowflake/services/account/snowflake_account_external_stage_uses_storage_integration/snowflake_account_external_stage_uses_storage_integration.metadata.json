@@ -1,0 +1,38 @@
+{
+  "Provider": "snowflake",
+  "CheckID": "snowflake_account_external_stage_uses_storage_integration",
+  "CheckTitle": "Snowflake external stages use a storage integration rather than embedded credentials",
+  "CheckType": [],
+  "ServiceName": "account",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Snowflake::Stage",
+  "ResourceGroup": "storage",
+  "Description": "A **storage integration** lets Snowflake reach cloud object storage through a managed IAM trust relationship instead of credentials written into the stage definition. This check reports external stages with no storage integration attached.",
+  "Risk": "An external stage created with inline credentials stores a **long-lived cloud access key inside the stage definition**, where it is visible to anyone who can run `DESC STAGE` and is copied into every clone, backup and DDL export. Those keys are typically over-permissioned on the bucket, so a Snowflake reader-level compromise escalates into direct access to the underlying data lake.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.snowflake.com/en/user-guide/data-load-s3-config-storage-integration",
+    "https://docs.snowflake.com/en/sql-reference/sql/create-storage-integration"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "CREATE STORAGE INTEGRATION s3_data_lake\n  TYPE = EXTERNAL_STAGE\n  STORAGE_PROVIDER = 'S3'\n  STORAGE_AWS_ROLE_ARN = 'arn:aws:iam::123456789012:role/snowflake-stage'\n  ENABLED = TRUE\n  STORAGE_ALLOWED_LOCATIONS = ('s3://data-lake/curated/');\nALTER STAGE curated_stage SET STORAGE_INTEGRATION = s3_data_lake;",
+      "NativeIaC": "",
+      "Other": "1. Create a cloud IAM role trusted by your Snowflake account\n2. Create a storage integration referencing that role, with `STORAGE_ALLOWED_LOCATIONS` scoped to the specific prefix\n3. Recreate or alter each external stage to use the integration\n4. Remove the inline `CREDENTIALS = (...)` clause\n5. Revoke the cloud access key that was embedded in the stage — treat it as compromised\n6. Set `REQUIRE_STORAGE_INTEGRATION_FOR_STAGE_CREATION = TRUE` so new stages cannot reintroduce inline credentials",
+      "Terraform": "resource \"snowflake_storage_integration\" \"data_lake\" {\n  name                      = \"S3_DATA_LAKE\"\n  type                      = \"EXTERNAL_STAGE\"\n  storage_provider          = \"S3\"\n  storage_aws_role_arn      = aws_iam_role.snowflake_stage.arn\n  storage_allowed_locations = [\"s3://data-lake/curated/\"]\n  enabled                   = true\n}"
+    },
+    "Recommendation": {
+      "Text": "Point every external stage at a storage integration scoped to the narrowest possible prefix, revoke any embedded access key, and set REQUIRE_STORAGE_INTEGRATION_FOR_STAGE_CREATION so the pattern cannot recur.",
+      "Url": "https://apexhub-lime.vercel.app/check/snowflake_account_external_stage_uses_storage_integration"
+    }
+  },
+  "Categories": [
+    "secrets",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

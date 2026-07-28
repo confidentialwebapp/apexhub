@@ -1,0 +1,37 @@
+{
+  "Provider": "salesforce",
+  "CheckID": "salesforce_org_event_monitoring_enabled",
+  "CheckTitle": "Salesforce orgs have Event Monitoring enabled",
+  "CheckType": [],
+  "ServiceName": "org",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Salesforce::Org::EventLogFile",
+  "ResourceGroup": "logging",
+  "Description": "**Event Monitoring** exposes login, API, report export and Apex execution events as downloadable log files. This check verifies that `EventLogFile` is queryable, indicating the capability is licensed and available.",
+  "Risk": "Without Event Monitoring there is **no record of data export**: the setup audit trail captures configuration changes but not who ran which report or pulled which records through the API. That is precisely the evidence needed to scope a data breach, and its absence turns an investigation into guesswork about what an attacker actually took.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://help.salesforce.com/s/articleView?id=sf.real_time_event_monitoring_overview.htm",
+    "https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/dome_event_log_file.htm"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Confirm your edition includes Event Monitoring, or add the Salesforce Shield licence\n2. Enable **Real-Time Event Monitoring** in Setup > Event Manager for the events you need, particularly ReportEvent, ApiEvent and LoginEvent\n3. Configure a scheduled job or the Event Monitoring Analytics app to pull EventLogFile daily into your SIEM\n4. Alert on large report exports, API access from unrecognised addresses and Login-As-User events\n5. Add **Transaction Security Policies** to block the highest-risk actions rather than only recording them",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Enable Real-Time Event Monitoring, pull EventLogFile into your SIEM daily, alert on bulk exports and unusual API access, and add transaction security policies to block the worst cases outright.",
+      "Url": "https://apexhub-lime.vercel.app/check/salesforce_org_event_monitoring_enabled"
+    }
+  },
+  "Categories": [
+    "logging"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

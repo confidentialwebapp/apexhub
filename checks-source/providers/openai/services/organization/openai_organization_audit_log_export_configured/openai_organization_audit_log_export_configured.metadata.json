@@ -1,0 +1,37 @@
+{
+  "Provider": "openai",
+  "CheckID": "openai_organization_audit_log_export_configured",
+  "CheckTitle": "OpenAI organizations export audit logs to an external system",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "OpenAI::Organization::AuditLog",
+  "ResourceGroup": "logging",
+  "Description": "This check verifies that the organization's **audit log** is readable and exported to an external system, so records of key creation, member changes and project configuration survive outside the platform.",
+  "Risk": "API key creation is the single most security-relevant event in an OpenAI organization, and without exported logs there is **no durable record of who minted which key and when**. During an investigation into leaked model access or unexpected spend, that gap makes it impossible to distinguish legitimate provisioning from an attacker establishing persistence.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://platform.openai.com/docs/api-reference/audit-logs",
+    "https://help.openai.com/en/articles/8983845-sso-for-chatgpt-enterprise-and-api-organizations"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl https://api.openai.com/v1/organization/audit_logs \\\n  -H \"Authorization: Bearer $OPENAI_ADMIN_KEY\"",
+      "NativeIaC": "",
+      "Other": "1. Confirm your plan includes audit log access\n2. Build or enable a scheduled export that pulls `/v1/organization/audit_logs` into your SIEM\n3. Alert on `api_key.created`, `invite.sent`, `organization.updated` and `project.created` events\n4. Alert specifically on admin key creation, which grants organization-wide control\n5. Retain the exported logs according to your incident investigation window",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Export the OpenAI audit log into your SIEM on a schedule and alert on API key creation, member invitations and organization setting changes.",
+      "Url": "https://apexhub-lime.vercel.app/check/openai_organization_audit_log_export_configured"
+    }
+  },
+  "Categories": [
+    "logging"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

@@ -1,0 +1,40 @@
+{
+  "Provider": "anthropic",
+  "CheckID": "anthropic_apikey_rotated",
+  "CheckTitle": "Anthropic API keys are rotated and inactive keys are removed",
+  "CheckType": [],
+  "ServiceName": "apikey",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Anthropic::ApiKey",
+  "ResourceGroup": "iam",
+  "Description": "This check reports active API keys older than the configured maximum age (365 days by default), and inactive keys left in the organization rather than deleted.",
+  "Risk": "Anthropic API keys **do not expire**, so a key committed to a repository or pasted into a chat stays valid until someone deletes it. Long-lived keys also accumulate copies across environments, which means a single rotation event cannot reliably retire the exposure — the only durable fix is a rotation schedule short enough to bound how long a leak remains useful.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.claude.com/en/api/administration-api",
+    "https://docs.claude.com/en/docs/initial-setup"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X POST https://api.anthropic.com/v1/organizations/api_keys/<key-id> \\\n  -H \"x-api-key: $ANTHROPIC_ADMIN_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\" \\\n  -H 'content-type: application/json' \\\n  -d '{\"status\":\"inactive\"}'",
+      "NativeIaC": "",
+      "Other": "1. List organization API keys and note their creation dates\n2. For each key past your rotation window: create a replacement in the same workspace\n3. Deploy the replacement and confirm traffic has moved\n4. Set the old key to inactive, wait for the observation window, then delete it\n5. Store keys in a secrets manager rather than environment files in source control\n6. Alert on unexpected spend so a leaked key is detected between rotations",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Rotate API keys on a fixed schedule using a create-deploy-deactivate-delete sequence, store them in a secrets manager, and alert on spend anomalies to catch leaks between rotations.",
+      "Url": "https://apexhub-lime.vercel.app/check/anthropic_apikey_rotated"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "anthropic_apikey_scoped_to_workspace"
+  ],
+  "Notes": ""
+}

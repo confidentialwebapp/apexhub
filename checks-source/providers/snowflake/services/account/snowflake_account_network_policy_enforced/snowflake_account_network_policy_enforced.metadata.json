@@ -1,0 +1,39 @@
+{
+  "Provider": "snowflake",
+  "CheckID": "snowflake_account_network_policy_enforced",
+  "CheckTitle": "Snowflake accounts enforce an account-level network policy",
+  "CheckType": [],
+  "ServiceName": "account",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Snowflake::Account",
+  "ResourceGroup": "network",
+  "Description": "An account-level **network policy** limits which IP addresses may connect to the Snowflake account. This check verifies that the `NETWORK_POLICY` account parameter is set rather than left empty.",
+  "Risk": "Without a network policy the account accepts authentication attempts from **any address on the internet**, so a credential harvested elsewhere is immediately usable with no further foothold required. Network scoping is the control that most reliably breaks that path, because it invalidates a stolen password even before authentication policy is considered.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.snowflake.com/en/user-guide/network-policies",
+    "https://docs.snowflake.com/en/user-guide/security-network-overview"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "CREATE NETWORK POLICY corporate_access\n  ALLOWED_IP_LIST = ('203.0.113.0/24', '198.51.100.0/24');\nALTER ACCOUNT SET NETWORK_POLICY = corporate_access;",
+      "NativeIaC": "",
+      "Other": "1. Collect the egress CIDR ranges of your offices, VPN, BI tools and ETL infrastructure\n2. Create a network policy with those ranges in `ALLOWED_IP_LIST`\n3. Verify your own address is included before applying, or you will lock yourself out\n4. Apply it with `ALTER ACCOUNT SET NETWORK_POLICY = <name>`\n5. For cloud-hosted clients, prefer private connectivity (PrivateLink) with a policy restricted to the private endpoint\n6. Review `LOGIN_HISTORY` for connections from outside the intended ranges before enforcing",
+      "Terraform": "resource \"snowflake_network_policy\" \"corporate\" {\n  name            = \"CORPORATE_ACCESS\"\n  allowed_ip_list = [\"203.0.113.0/24\", \"198.51.100.0/24\"]\n}\n\nresource \"snowflake_account_parameter\" \"network_policy\" {\n  key   = \"NETWORK_POLICY\"\n  value = snowflake_network_policy.corporate.name\n}"
+    },
+    "Recommendation": {
+      "Text": "Attach a network policy at the account level covering only your corporate, VPN and data-pipeline egress ranges, and prefer PrivateLink for cloud-hosted clients.",
+      "Url": "https://apexhub-lime.vercel.app/check/snowflake_account_network_policy_enforced"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "snowflake_networkpolicy_no_broad_allowlist"
+  ],
+  "Notes": ""
+}

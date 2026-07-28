@@ -1,0 +1,37 @@
+{
+  "Provider": "databricks",
+  "CheckID": "databricks_workspace_customer_managed_key_configured",
+  "CheckTitle": "Databricks workspaces use customer-managed encryption keys",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Databricks::Account::CustomerManagedKey",
+  "ResourceGroup": "storage",
+  "Description": "Databricks can encrypt managed services (notebooks, secrets, query history) and workspace storage with a **customer-managed key** held in your own cloud KMS. This check verifies that customer-managed keys are registered for both use cases.",
+  "Risk": "With platform-managed keys only, you cannot **independently revoke access to your data** — key material is entirely under the provider's control, so containment during a suspected platform compromise depends on the provider acting. Customer-managed keys also give you the audit trail of key usage that most regulated data handling programmes expect.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.databricks.com/en/security/keys/customer-managed-keys.html",
+    "https://docs.databricks.com/api/account/encryptionkeys"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "databricks account encryption-keys create --json '{\"aws_key_info\":{\"key_arn\":\"<arn>\",\"key_alias\":\"databricks\"},\"use_cases\":[\"MANAGED_SERVICES\",\"STORAGE\"]}'",
+      "NativeIaC": "",
+      "Other": "1. Create a KMS key (or Azure Key Vault key) in your own cloud account\n2. Grant the Databricks service principal the minimum key usage permissions\n3. Register the key in the Databricks account console for both `MANAGED_SERVICES` and `STORAGE`\n4. Attach it to the workspace — managed services keys can be added to an existing workspace, storage keys may require workspace recreation on some clouds\n5. Enable key rotation and monitor key usage in your cloud audit log",
+      "Terraform": "resource \"databricks_mws_customer_managed_keys\" \"this\" {\n  account_id = var.databricks_account_id\n  aws_key_info {\n    key_arn   = aws_kms_key.databricks.arn\n    key_alias = aws_kms_alias.databricks.name\n  }\n  use_cases = [\"MANAGED_SERVICES\", \"STORAGE\"]\n}"
+    },
+    "Recommendation": {
+      "Text": "Register customer-managed keys for both managed services and workspace storage, enable rotation, and monitor key usage in your cloud audit log so you retain independent revocation.",
+      "Url": "https://apexhub-lime.vercel.app/check/databricks_workspace_customer_managed_key_configured"
+    }
+  },
+  "Categories": [
+    "encryption"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

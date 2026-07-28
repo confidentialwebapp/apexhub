@@ -1,0 +1,40 @@
+{
+  "Provider": "okta",
+  "CheckID": "policy_mfa_enrollment_required",
+  "CheckTitle": "Okta orgs have an active MFA enrollment policy",
+  "CheckType": [],
+  "ServiceName": "policy",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Okta::Policy",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that the org has at least one **active MFA enrollment policy**, which is what obliges users to register a factor rather than leaving enrolment optional.",
+  "Risk": "Without an active enrolment policy, MFA is **available but not required**, so coverage depends entirely on individual users choosing to enrol. In practice that leaves a long tail of unprotected accounts — and attackers specifically enumerate for them, since one unenrolled user provides the same federated access as any other.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://help.okta.com/en-us/content/topics/security/mfa/mfa-enrollment-policy.htm",
+    "https://developer.okta.com/docs/reference/api/policy/#multifactor-mfa-enrollment-policy"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. In the Okta Admin Console, go to **Security > Authenticators > Enrollment**\n2. Create or edit an enrolment policy and set it to **Active**\n3. Set FIDO2 (WebAuthn) or Okta Verify to `Required`\n4. Assign the policy to all users, with a stricter policy for administrator groups\n5. Add a rule that prompts for enrolment at next sign-in rather than deferring indefinitely\n6. Track enrolment completion and follow up with the remaining users",
+      "Terraform": "resource \"okta_policy_mfa\" \"default\" {\n  name   = \"MFA Enrollment\"\n  status = \"ACTIVE\"\n  is_oie = true\n\n  okta_verify = {\n    enroll = \"REQUIRED\"\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Activate an MFA enrollment policy requiring a phishing-resistant factor, assign it to all users with a stricter variant for admins, and prompt for enrolment at next sign-in.",
+      "Url": "https://apexhub-lime.vercel.app/check/policy_mfa_enrollment_required"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "user_mfa_factor_enrolled",
+    "policy_password_strength_enforced"
+  ],
+  "Notes": ""
+}

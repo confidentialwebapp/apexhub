@@ -1,0 +1,37 @@
+{
+  "Provider": "gitlab",
+  "CheckID": "gitlab_project_not_publicly_visible",
+  "CheckTitle": "GitLab projects are not publicly visible",
+  "CheckType": [],
+  "ServiceName": "project",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "GitLab::Project",
+  "ResourceGroup": "network",
+  "Description": "A **public** GitLab project exposes its repository, issues, pipelines, job logs and package registry to anonymous users on the internet. This check reports projects whose visibility is `public`, so that public exposure is a deliberate decision rather than an inherited default.",
+  "Risk": "Public projects leak far more than source: **job logs** often contain internal hostnames and unmasked variable values, and the commit history exposes contributor identities and internal service names useful for **reconnaissance**. Public repositories are continuously scraped by automated credential harvesters, so an accidentally public project is typically enumerated within minutes.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.gitlab.com/ee/user/public_access.html",
+    "https://docs.gitlab.com/ee/api/projects.html"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl --request PUT --header \"PRIVATE-TOKEN: $GITLAB_TOKEN\" \"https://gitlab.com/api/v4/projects/<project-id>?visibility=private\"",
+      "NativeIaC": "",
+      "Other": "1. Open the project in GitLab\n2. Go to **Settings > General > Visibility, project features, permissions**\n3. Set **Project visibility** to `Private` (or `Internal` for instance-wide access)\n4. Click **Save changes**\n5. Review job logs and the package registry for anything that was exposed while the project was public, and rotate affected credentials",
+      "Terraform": "resource \"gitlab_project\" \"example\" {\n  name       = \"example\"\n  visibility = \"private\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Set project visibility to private or internal unless publication is intentional. Where a project must stay public, review job logs and artifacts for internal detail and enforce masked variables.",
+      "Url": "https://apexhub-lime.vercel.app/check/gitlab_project_not_publicly_visible"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

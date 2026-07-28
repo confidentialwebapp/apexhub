@@ -1,0 +1,40 @@
+{
+  "Provider": "vault",
+  "CheckID": "vault_auth_no_active_root_tokens",
+  "CheckTitle": "Vault clusters have no outstanding root tokens",
+  "CheckType": [],
+  "ServiceName": "auth",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Vault::Token",
+  "ResourceGroup": "iam",
+  "Description": "A Vault **root token** bypasses all policy enforcement. This check enumerates token accessors and reports any token carrying the `root` policy, which should exist only briefly during break-glass operations.",
+  "Risk": "A root token is **unrestricted and, unless explicitly created with a TTL, never expires**. Anyone holding one can read every secret, disable the audit devices that would record them doing so, and create further tokens for persistence. Root tokens generated during initial setup and never revoked are among the most common serious findings in a Vault deployment.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/vault/docs/concepts/tokens#root-tokens",
+    "https://developer.hashicorp.com/vault/tutorials/operations/generate-root"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "vault list auth/token/accessors\nvault token lookup-accessor <accessor>\nvault token revoke -accessor <accessor>",
+      "NativeIaC": "",
+      "Other": "1. List token accessors and look up each one to identify those holding the root policy\n2. Confirm no automation depends on them — automation should use an auth method, not a root token\n3. Revoke each root token by accessor\n4. When root access is genuinely needed, generate a temporary one with `vault operator generate-root` using the unseal key holders, and revoke it immediately afterwards\n5. Ensure administrators authenticate through an identity-backed auth method with scoped policies for day-to-day work",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Revoke all outstanding root tokens, generate one on demand through the quorum-based generate-root process when break-glass access is needed, and revoke it as soon as the operation completes.",
+      "Url": "https://apexhub-lime.vercel.app/check/vault_auth_no_active_root_tokens"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "vault_auth_identity_backed_methods_enabled"
+  ],
+  "Notes": ""
+}

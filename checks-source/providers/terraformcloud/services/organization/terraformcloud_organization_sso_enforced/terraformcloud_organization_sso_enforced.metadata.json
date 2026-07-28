@@ -1,0 +1,39 @@
+{
+  "Provider": "terraformcloud",
+  "CheckID": "terraformcloud_organization_sso_enforced",
+  "CheckTitle": "HCP Terraform organizations enforce SSO for collaborators",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "TerraformCloud::Organization",
+  "ResourceGroup": "iam",
+  "Description": "The organization's **collaborator authentication policy** governs how members sign in. This check verifies that SAML SSO is enabled and set as the required policy rather than allowing password authentication.",
+  "Risk": "HCP Terraform holds the credentials that **provision your entire cloud estate**, so an account there is effectively an administrative account for the infrastructure it manages. Without enforced SSO there is no conditional access and no central revocation, and a departed engineer's account keeps its apply permissions until someone remembers to remove it.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/terraform/cloud-docs/users-teams-organizations/single-sign-on",
+    "https://developer.hashicorp.com/terraform/cloud-docs/users-teams-organizations/organizations"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X PATCH \"https://app.terraform.io/api/v2/organizations/<organization>\" \\\n  -H \"Authorization: Bearer $TFC_TOKEN\" \\\n  -H 'Content-Type: application/vnd.api+json' \\\n  -d '{\"data\":{\"type\":\"organizations\",\"attributes\":{\"collaborator-auth-policy\":\"sso\"}}}'",
+      "NativeIaC": "",
+      "Other": "1. In the organization settings, go to **SSO** and configure the SAML connection to your identity provider\n2. Test sign-in with a pilot user\n3. Set the **Authentication** policy to require SSO\n4. Map the owners team to a SAML role so organization ownership follows the IdP group\n5. Keep one documented break-glass owner account with a strong credential and monitoring\n6. Review the team API tokens, which continue to work independently of SSO",
+      "Terraform": "resource \"tfe_organization\" \"this\" {\n  name                     = \"example\"\n  email                    = \"platform@example.com\"\n  collaborator_auth_policy = \"sso\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Enforce SAML SSO for collaborators, map ownership to an IdP group, keep one monitored break-glass owner, and review team API tokens separately since they bypass SSO.",
+      "Url": "https://apexhub-lime.vercel.app/check/terraformcloud_organization_sso_enforced"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "terraformcloud_organization_two_factor_conformant"
+  ],
+  "Notes": ""
+}

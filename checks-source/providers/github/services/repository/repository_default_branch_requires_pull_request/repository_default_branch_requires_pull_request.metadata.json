@@ -1,0 +1,38 @@
+{
+  "Provider": "github",
+  "CheckID": "repository_default_branch_requires_pull_request",
+  "CheckTitle": "GitHub default branches require a pull request before merging",
+  "CheckType": [],
+  "ServiceName": "repository",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Github::Repository::Branch",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that the default branch's protection rule requires changes to arrive through a **pull request**, which is the precondition for every other review control to apply.",
+  "Risk": "A protection rule that permits direct pushes makes the **approval count, status checks and code owner requirements irrelevant**, because a commit that never becomes a pull request never encounters them. The repository appears protected in the settings page while the primary control path can simply be bypassed with `git push`.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches",
+    "https://docs.github.com/en/rest/branches/branch-protection"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "gh api -X PUT /repos/<owner>/<repo>/branches/<branch>/protection \\\n  --input - <<'JSON'\n{\n  \"required_pull_request_reviews\": {\"required_approving_review_count\": 1},\n  \"required_status_checks\": null,\n  \"enforce_admins\": true,\n  \"restrictions\": null\n}\nJSON",
+      "NativeIaC": "",
+      "Other": "1. Open the repository's **Settings > Branches**\n2. Edit the default branch protection rule, or add one\n3. Enable **Require a pull request before merging**\n4. Set the required approving review count to 1 or more\n5. Enable **Do not allow bypassing the above settings** so administrators are included\n6. Apply the rule organization-wide with a **repository ruleset** rather than configuring each repository individually",
+      "Terraform": "resource \"github_branch_protection\" \"main\" {\n  repository_id = github_repository.example.node_id\n  pattern       = \"main\"\n  enforce_admins = true\n\n  required_pull_request_reviews {\n    required_approving_review_count = 1\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Require a pull request before merging into the default branch with at least one approval and no admin bypass, and apply it through an organization-wide ruleset rather than per repository.",
+      "Url": "https://apexhub-lime.vercel.app/check/repository_default_branch_requires_pull_request"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

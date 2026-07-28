@@ -1,0 +1,40 @@
+{
+  "Provider": "mongodbatlas",
+  "CheckID": "access_database_user_workload_identity_auth",
+  "CheckTitle": "Atlas application database users authenticate with workload identity",
+  "CheckType": [],
+  "ServiceName": "access",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "MongoDBAtlas::DatabaseUser",
+  "ResourceGroup": "iam",
+  "Description": "Atlas supports **AWS IAM, OIDC and X.509** authentication in place of SCRAM passwords. This check reports database users still authenticating with a static SCRAM password.",
+  "Risk": "A SCRAM password is embedded in the **connection string**, which propagates into environment files, container images, CI logs and application error traces. It does not expire and rotating it requires a coordinated deployment, so in practice it stays unchanged for years. Workload identity removes the stored secret entirely: the credential is issued per session against an identity the cloud provider attests.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://www.mongodb.com/docs/atlas/security/passwordless-authentication/",
+    "https://www.mongodb.com/docs/atlas/workforce-oidc/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "atlas dbusers create --projectId <project-id> \\\n  --awsIAMType ROLE --username arn:aws:iam::123456789012:role/app \\\n  --role readWrite@appdb",
+      "NativeIaC": "",
+      "Other": "1. Identify the workload's cloud identity — an IAM role, a Kubernetes service account, or a workload federation identity\n2. Create an Atlas database user of the corresponding type (`AWS_IAM`, `OIDC` or `X509`)\n3. Grant it the same scoped roles the password user held\n4. Update the application's connection string to use the matching auth mechanism\n5. Verify connectivity, then delete the SCRAM user\n6. For human access, use federated authentication rather than shared database passwords",
+      "Terraform": "resource \"mongodbatlas_database_user\" \"app\" {\n  project_id         = var.project_id\n  username           = aws_iam_role.app.arn\n  auth_database_name = \"$external\"\n  aws_iam_type       = \"ROLE\"\n\n  roles {\n    role_name     = \"readWrite\"\n    database_name = \"appdb\"\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Move application users to AWS IAM, OIDC or X.509 authentication so no static password is stored, and delete the SCRAM user once connectivity is verified.",
+      "Url": "https://apexhub-lime.vercel.app/check/access_database_user_workload_identity_auth"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "access_database_user_no_admin_roles"
+  ],
+  "Notes": ""
+}

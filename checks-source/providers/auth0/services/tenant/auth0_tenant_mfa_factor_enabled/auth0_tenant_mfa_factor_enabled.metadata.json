@@ -1,0 +1,39 @@
+{
+  "Provider": "auth0",
+  "CheckID": "auth0_tenant_mfa_factor_enabled",
+  "CheckTitle": "Auth0 tenants have at least one multi-factor authentication factor enabled",
+  "CheckType": [],
+  "ServiceName": "tenant",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Auth0::Tenant::GuardianFactor",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that the tenant has at least one **Guardian MFA factor** enabled, and reports tenants where SMS is the only available factor.",
+  "Risk": "Auth0 fronts authentication for every application connected to it, so a tenant with no MFA factor means **none of those applications can require a second factor** regardless of their own configuration. Where SMS is the sole factor, SIM swap and SS7 interception defeat it, which is why phishing-resistant factors matter most at the identity provider layer.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://auth0.com/docs/secure/multi-factor-authentication",
+    "https://auth0.com/docs/secure/multi-factor-authentication/configure-webauthn-security-keys-for-mfa"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X PUT \"https://$AUTH0_DOMAIN/api/v2/guardian/factors/webauthn-roaming\" \\\n  -H \"Authorization: Bearer $AUTH0_TOKEN\" \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"enabled\":true}'",
+      "NativeIaC": "",
+      "Other": "1. In the Auth0 Dashboard, go to **Security > Multi-factor Auth**\n2. Enable **WebAuthn with Security Keys** or **WebAuthn with Device Biometrics** as the primary factor\n3. Enable a push or OTP factor as a fallback\n4. Avoid making SMS the only available factor\n5. Define the MFA policy — always, or adaptive based on risk — under **Define policies**\n6. Verify enrolment coverage across your user base before requiring it",
+      "Terraform": "resource \"auth0_guardian\" \"this\" {\n  policy = \"all-applications\"\n\n  webauthn_roaming {\n    enabled = true\n  }\n\n  otp = true\n}"
+    },
+    "Recommendation": {
+      "Text": "Enable a phishing-resistant WebAuthn factor as primary with OTP or push as fallback, avoid SMS-only configurations, and set an explicit MFA policy.",
+      "Url": "https://apexhub-lime.vercel.app/check/auth0_tenant_mfa_factor_enabled"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "auth0_tenant_attack_protection_enabled"
+  ],
+  "Notes": ""
+}

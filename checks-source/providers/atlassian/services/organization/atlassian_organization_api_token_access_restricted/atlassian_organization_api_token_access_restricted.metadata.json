@@ -1,0 +1,40 @@
+{
+  "Provider": "atlassian",
+  "CheckID": "atlassian_organization_api_token_access_restricted",
+  "CheckTitle": "Atlassian authentication policies restrict API token creation",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Atlassian::Organization::AuthenticationPolicy",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that authentication policies restrict or block **API token** creation, rather than allowing every managed account to mint tokens without oversight.",
+  "Risk": "An Atlassian API token **bypasses SSO and two-step verification entirely** — it is a bearer credential that authenticates directly to the REST API with the user's full permissions. That makes unrestricted token creation a standing hole in whatever authentication policy you have configured, and tokens created by a user persist after their session is revoked.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/organization-administration/docs/manage-api-tokens-for-your-organization/",
+    "https://support.atlassian.com/security-and-access-policies/docs/understand-authentication-policies/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -H \"Authorization: Bearer $ATLASSIAN_TOKEN\" \\\n  \"https://api.atlassian.com/admin/v1/orgs/$ATLASSIAN_ORG_ID/policies?type=authentication-policy\"",
+      "NativeIaC": "",
+      "Other": "1. In Atlassian Administration, go to **Security > Authentication policies**\n2. Edit each policy and set **API token access** to blocked, or restricted to tokens with an expiry\n3. Review existing tokens under **Security > API tokens** and revoke those that are unused or unattributed\n4. Move integrations to OAuth 2.0 apps or Connect apps, which can be scoped and revoked centrally\n5. Where tokens remain necessary, require a short maximum expiry and rotate on a schedule",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Block or restrict API token creation in every authentication policy, revoke unattributed tokens, and move integrations to scoped OAuth apps that can be revoked centrally.",
+      "Url": "https://apexhub-lime.vercel.app/check/atlassian_organization_api_token_access_restricted"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "atlassian_organization_authentication_policy_enforces_sso"
+  ],
+  "Notes": ""
+}

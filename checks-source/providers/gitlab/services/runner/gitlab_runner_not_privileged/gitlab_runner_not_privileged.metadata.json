@@ -1,0 +1,40 @@
+{
+  "Provider": "gitlab",
+  "CheckID": "gitlab_runner_not_privileged",
+  "CheckTitle": "GitLab runners do not execute jobs in privileged containers",
+  "CheckType": [],
+  "ServiceName": "runner",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "GitLab::Runner",
+  "ResourceGroup": "compute",
+  "Description": "A GitLab runner using the Docker executor in **privileged mode** grants each CI job full capabilities on the host kernel. This check reports runners configured with `privileged = true`, which is commonly enabled to support Docker-in-Docker image builds.",
+  "Risk": "A privileged container is not a security boundary: any job can mount the **host filesystem**, reach the Docker socket and read the build caches, registry credentials and job tokens of **every other project** that shares the runner. A single untrusted merge request pipeline therefore escalates to full compromise of the runner host and lateral access across tenants.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.gitlab.com/runner/executors/docker.html#use-privileged-containers",
+    "https://docs.gitlab.com/runner/security/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "# Edit /etc/gitlab-runner/config.toml on the runner host:\n#   [runners.docker]\n#     privileged = false\nsudo gitlab-runner restart",
+      "NativeIaC": "",
+      "Other": "1. Open `/etc/gitlab-runner/config.toml` on the runner host\n2. Under `[runners.docker]`, set `privileged = false`\n3. Replace Docker-in-Docker image builds with a rootless builder such as Buildah, Kaniko or BuildKit in rootless mode\n4. Restart the runner with `gitlab-runner restart`\n5. Where privileged builds remain unavoidable, dedicate a single-tenant ephemeral runner to them and never share it with other projects",
+      "Terraform": "# helm_release values for gitlab-runner\nrunners:\n  privileged: false\n  config: |\n    [[runners]]\n      [runners.kubernetes]\n        privileged = false"
+    },
+    "Recommendation": {
+      "Text": "Disable privileged mode on shared runners and build images with a rootless builder such as Kaniko or Buildah. If a privileged runner is unavoidable, isolate it to a single trusted project on ephemeral infrastructure.",
+      "Url": "https://apexhub-lime.vercel.app/check/gitlab_runner_not_privileged"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "gitlab_runner_shared_runners_restricted"
+  ],
+  "Notes": ""
+}

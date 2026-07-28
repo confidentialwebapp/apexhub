@@ -1,0 +1,40 @@
+{
+  "Provider": "bitbucket",
+  "CheckID": "bitbucket_repository_main_branch_restricted",
+  "CheckTitle": "Bitbucket repositories restrict direct pushes to the main branch",
+  "CheckType": [],
+  "ServiceName": "repository",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Bitbucket::Repository::BranchRestriction",
+  "ResourceGroup": "iam",
+  "Description": "Bitbucket **branch restrictions** control who may push to, merge into or delete a branch. This check verifies that each repository carries a `push` restriction covering its main branch, so changes must arrive through a pull request rather than a direct write.",
+  "Risk": "An unrestricted main branch allows any user with write access to commit straight to the branch that drives **deployment pipelines**, with no pull request and no reviewer. It also permits branch deletion and history rewrites that destroy the evidence of what was actually built and shipped.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/bitbucket-cloud/docs/use-branch-permissions/",
+    "https://developer.atlassian.com/cloud/bitbucket/rest/api-group-branch-restrictions/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X POST -H \"Authorization: Bearer $BITBUCKET_TOKEN\" -H 'Content-Type: application/json' -d '{\"kind\":\"push\",\"branch_match_kind\":\"glob\",\"pattern\":\"main\",\"users\":[],\"groups\":[]}' \"https://api.bitbucket.org/2.0/repositories/<workspace>/<repo>/branch-restrictions\"",
+      "NativeIaC": "",
+      "Other": "1. Open the repository in Bitbucket\n2. Go to **Repository settings > Branch restrictions**\n3. Click **Add a branch restriction**\n4. Select the main branch (or the `Production` branch type)\n5. Enable **Prevent a write** with no users or groups exempted\n6. Enable **Prevent rewriting branch history** and **Prevent deletion**\n7. Click **Save**",
+      "Terraform": "resource \"bitbucket_branch_restriction\" \"no_direct_push\" {\n  owner      = var.workspace\n  repository = bitbucket_repository.example.name\n  kind       = \"push\"\n  pattern    = \"main\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Add push, history-rewrite and delete restrictions to the main branch of every repository so all changes arrive through reviewed pull requests.",
+      "Url": "https://apexhub-lime.vercel.app/check/bitbucket_repository_main_branch_restricted"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "bitbucket_repository_pull_request_approvals_required"
+  ],
+  "Notes": ""
+}

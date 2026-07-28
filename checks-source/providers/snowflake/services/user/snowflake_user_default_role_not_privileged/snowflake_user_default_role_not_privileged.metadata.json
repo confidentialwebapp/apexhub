@@ -1,0 +1,38 @@
+{
+  "Provider": "snowflake",
+  "CheckID": "snowflake_user_default_role_not_privileged",
+  "CheckTitle": "Snowflake users do not default to ACCOUNTADMIN or SECURITYADMIN",
+  "CheckType": [],
+  "ServiceName": "user",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Snowflake::User",
+  "ResourceGroup": "iam",
+  "Description": "A user's **default role** is assumed automatically on connection. This check reports enabled users whose default role is `ACCOUNTADMIN`, `SECURITYADMIN` or `ORGADMIN`, so privileged roles must be selected deliberately rather than inherited by every session.",
+  "Risk": "When a session starts as ACCOUNTADMIN, every routine query, notebook and BI connection runs with **full account privileges**, and any SQL injection or compromised client immediately inherits them. Snowflake's own guidance is that ACCOUNTADMIN should be assumed explicitly for administrative work only, so a privileged default role removes the last barrier between an ordinary mistake and account-wide impact.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.snowflake.com/en/user-guide/security-access-control-considerations",
+    "https://docs.snowflake.com/en/sql-reference/sql/alter-user"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "ALTER USER analyst SET DEFAULT_ROLE = ANALYST_RO;\n-- Confirm who holds ACCOUNTADMIN:\nSHOW GRANTS OF ROLE ACCOUNTADMIN;",
+      "NativeIaC": "",
+      "Other": "1. List users whose default role is privileged\n2. Create or identify a least-privilege functional role for each user's day-to-day work\n3. Set it with `ALTER USER <name> SET DEFAULT_ROLE = <functional_role>`\n4. Keep ACCOUNTADMIN granted to a small named set of administrators who assume it explicitly with `USE ROLE`\n5. Ensure every ACCOUNTADMIN holder is MFA-enrolled\n6. Alert on ACCOUNTADMIN usage in `QUERY_HISTORY`",
+      "Terraform": "resource \"snowflake_user\" \"analyst\" {\n  name         = \"ANALYST\"\n  default_role = snowflake_role.analyst_ro.name\n  default_warehouse = snowflake_warehouse.bi.name\n}"
+    },
+    "Recommendation": {
+      "Text": "Give every user a least-privilege functional default role, reserve ACCOUNTADMIN for explicit assumption by a small named group, and alert on its use.",
+      "Url": "https://apexhub-lime.vercel.app/check/snowflake_user_default_role_not_privileged"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

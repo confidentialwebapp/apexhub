@@ -1,0 +1,38 @@
+{
+  "Provider": "slack",
+  "CheckID": "slack_workspace_enterprise_key_management_enabled",
+  "CheckTitle": "Slack Enterprise Grid organizations use enterprise key management",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "low",
+  "ResourceType": "Slack::Workspace",
+  "ResourceGroup": "storage",
+  "Description": "**Enterprise Key Management** encrypts Slack messages and files with a customer-managed key held in your own cloud KMS. This check reports Enterprise Grid organizations that have not enabled it; standalone workspaces where the feature is unavailable are skipped.",
+  "Risk": "With platform-managed keys only, you cannot **independently revoke access to your message history** — containment during a suspected platform incident depends entirely on the provider acting. Customer-managed keys also let you revoke access at channel or workspace granularity and give you the key-usage audit trail that regulated programmes expect.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://slack.com/help/articles/360019110974-Slack-Enterprise-Key-Management",
+    "https://slack.com/enterprise-key-management"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Confirm the organization is on Enterprise Grid with the EKM add-on\n2. Create a KMS key in your own cloud account\n3. Grant Slack the minimum key usage permissions required\n4. Enable EKM in the organization settings and select the channels or workspaces to cover\n5. Enable key rotation and monitor key usage in your cloud audit log\n6. Document the revocation runbook, including who is authorised to revoke and what it makes inaccessible",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Enable Enterprise Key Management with a key in your own KMS, monitor key usage in your cloud audit log, and document a revocation runbook before you need it.",
+      "Url": "https://apexhub-lime.vercel.app/check/slack_workspace_enterprise_key_management_enabled"
+    }
+  },
+  "Categories": [
+    "encryption",
+    "data-protection"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

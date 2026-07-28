@@ -1,0 +1,38 @@
+{
+  "Provider": "salesforce",
+  "CheckID": "salesforce_connectedapp_oauth_scopes_least_privilege",
+  "CheckTitle": "Salesforce connected apps request least-privilege OAuth scopes",
+  "CheckType": [],
+  "ServiceName": "connectedapp",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Salesforce::ConnectedApp",
+  "ResourceGroup": "iam",
+  "Description": "This check reports connected apps requesting the **full**, **refresh_token** with unrestricted access, or **web** scopes without restricting which users may authorise them, and apps whose callback URLs are not exact HTTPS endpoints.",
+  "Risk": "The `full` scope grants a third-party application **everything the authorising user can do**, including exporting the entire customer record, and the accompanying refresh token makes that access indefinite and survivable across password resets. Connected apps are also a favoured persistence mechanism: an attacker who authorises one retains access long after the compromised session is closed.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://help.salesforce.com/s/articleView?id=sf.connected_app_overview.htm",
+    "https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_tokens_scopes.htm"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. In Setup, go to **Apps > Connected Apps > Manage Connected Apps**\n2. Review the OAuth scopes each app requests and remove `full` where a narrower scope suffices\n3. Set **Permitted Users** to `Admin approved users are pre-authorized` and assign only the profiles that need it\n4. Enable **Require Proof Key for Code Exchange (PKCE)**\n5. Set callback URLs to exact HTTPS endpoints — no wildcards, no HTTP\n6. Revoke apps that are no longer in use, which also invalidates their refresh tokens",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Replace the full scope with narrow ones, pre-authorise apps to named profiles only, require PKCE, use exact HTTPS callback URLs, and revoke unused apps to invalidate their refresh tokens.",
+      "Url": "https://apexhub-lime.vercel.app/check/salesforce_connectedapp_oauth_scopes_least_privilege"
+    }
+  },
+  "Categories": [
+    "trust-boundaries",
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "Provider": "openai",
+  "CheckID": "openai_organization_sso_enforced",
+  "CheckTitle": "OpenAI organizations enforce SSO with a verified domain",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "OpenAI::Organization",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that the organization enforces **single sign-on** and has verified its email domain, so membership follows the corporate identity provider rather than individually created accounts.",
+  "Risk": "Without enforced SSO, members sign in with **personal credentials outside your control**, so leavers keep access until someone remembers to remove them manually, and there is no conditional access or central session revocation. An unverified domain also allows anyone with a company email address to self-register outside the governed organization entirely.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://help.openai.com/en/articles/8983845-sso-for-chatgpt-enterprise-and-api-organizations",
+    "https://platform.openai.com/docs/guides/production-best-practices"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Sign in to the OpenAI platform console as an owner\n2. Go to **Settings > Organization > Security**\n3. Verify your email domain by publishing the supplied DNS record\n4. Configure the SAML connection to your identity provider\n5. Test with a pilot user, then enable **Enforce SSO**\n6. Remove any accounts using personal email addresses once federation is proven",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Verify your domain and enforce SSO so OpenAI membership is governed by your identity provider, with SCIM provisioning where available so leavers are deprovisioned automatically.",
+      "Url": "https://apexhub-lime.vercel.app/check/openai_organization_sso_enforced"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "openai_organization_mfa_required"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "Provider": "databricks",
+  "CheckID": "databricks_workspace_ip_access_list_enabled",
+  "CheckTitle": "Databricks workspaces enforce IP access lists",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Databricks::Workspace::IpAccessList",
+  "ResourceGroup": "network",
+  "Description": "**IP access lists** restrict which source addresses may reach the Databricks workspace UI and REST API. This check verifies that the feature is enabled and that at least one enabled ALLOW list exists.",
+  "Risk": "A Databricks personal access token is a **bearer credential usable from anywhere**, and it grants the ability to launch compute that reads the data lake. Without an IP access list, a token leaked through a notebook, a CI log or a laptop compromise can be used directly from the attacker's own infrastructure with no further obstacle.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.databricks.com/en/security/network/front-end/ip-access-list.html",
+    "https://docs.databricks.com/api/workspace/ipaccesslists"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "databricks workspace-conf set-status --json '{\"enableIpAccessLists\":\"true\"}'\ndatabricks ip-access-lists create --json '{\"label\":\"corp-egress\",\"list_type\":\"ALLOW\",\"ip_addresses\":[\"203.0.113.0/24\"]}'",
+      "NativeIaC": "",
+      "Other": "1. Collect the egress CIDR ranges for your offices, VPN and CI systems\n2. Create an ALLOW list containing those ranges\n3. Verify your own address is covered — an incorrect list locks everyone out of the workspace\n4. Enable the feature with `enableIpAccessLists`\n5. For front-end private access, prefer Private Link and keep the list as defence in depth\n6. Test that jobs and external tools still connect after enabling",
+      "Terraform": "resource \"databricks_workspace_conf\" \"this\" {\n  custom_config = {\n    \"enableIpAccessLists\" = true\n  }\n}\n\nresource \"databricks_ip_access_list\" \"corp\" {\n  label        = \"corp-egress\"\n  list_type    = \"ALLOW\"\n  ip_addresses = [\"203.0.113.0/24\"]\n}"
+    },
+    "Recommendation": {
+      "Text": "Enable IP access lists with an ALLOW list covering corporate, VPN and CI egress ranges, and use Private Link for front-end access where available.",
+      "Url": "https://apexhub-lime.vercel.app/check/databricks_workspace_ip_access_list_enabled"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "databricks_workspace_token_lifetime_limited"
+  ],
+  "Notes": ""
+}

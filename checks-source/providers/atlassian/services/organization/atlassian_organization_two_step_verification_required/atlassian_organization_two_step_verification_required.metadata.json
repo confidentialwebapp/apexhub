@@ -1,0 +1,39 @@
+{
+  "Provider": "atlassian",
+  "CheckID": "atlassian_organization_two_step_verification_required",
+  "CheckTitle": "Atlassian authentication policies require two-step verification",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Atlassian::Organization::AuthenticationPolicy",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that every enabled authentication policy requires **two-step verification**, covering the accounts that sign in with an Atlassian password rather than through SSO.",
+  "Risk": "Where SSO is not enforced for a policy, the accounts it covers are protected by **a password alone against an internet-facing login endpoint**. Atlassian credentials are heavily targeted precisely because Jira and Confluence describe the organisation's systems, unpatched vulnerabilities and operational procedures in detail — valuable reconnaissance for a follow-on intrusion.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/security-and-access-policies/docs/manage-two-step-verification/",
+    "https://developer.atlassian.com/cloud/admin/organization/rest/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. In Atlassian Administration, go to **Security > Authentication policies**\n2. Edit each enabled policy\n3. Enable **Require two-step verification**\n4. Notify affected members before enforcing, since those without it enrolled lose access\n5. Where a policy enforces SSO instead, apply the equivalent requirement in the identity provider\n6. Keep one break-glass administrator account documented and monitored",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Require two-step verification in every enabled authentication policy, or enforce the equivalent in your IdP where the policy uses SSO, keeping a documented break-glass account.",
+      "Url": "https://apexhub-lime.vercel.app/check/atlassian_organization_two_step_verification_required"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "atlassian_organization_authentication_policy_enforces_sso"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,37 @@
+{
+  "Provider": "anthropic",
+  "CheckID": "anthropic_organization_zero_data_retention_configured",
+  "CheckTitle": "Anthropic organizations configure zero data retention where eligible",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Anthropic::Organization",
+  "ResourceGroup": "storage",
+  "Description": "This check verifies that the organization has **zero data retention** configured, so prompts and completions are not stored after the request completes.",
+  "Risk": "Prompts routinely carry **source code, customer records and internal documents** that were never assessed for third-party storage, and retained copies fall outside your own deletion and residency commitments. Zero data retention narrows the window in which that content exists anywhere outside your environment to the duration of the request itself.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://privacy.anthropic.com/en/articles/10440198-does-anthropic-train-on-customer-data",
+    "https://trust.anthropic.com/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Confirm your agreement and plan support zero data retention\n2. Request the configuration for your organization through your account contact\n3. Verify it is applied for every endpoint your workloads use, since eligibility can vary by feature\n4. Record the configuration in your processing register and vendor assessment\n5. Independently reduce exposure by redacting identifiers before they are sent, rather than relying on retention configuration alone",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Request zero data retention where your agreement allows, confirm it covers every endpoint in use, and redact sensitive identifiers client-side so the control does not depend solely on provider configuration.",
+      "Url": "https://apexhub-lime.vercel.app/check/anthropic_organization_zero_data_retention_configured"
+    }
+  },
+  "Categories": [
+    "data-protection"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

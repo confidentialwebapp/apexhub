@@ -1,0 +1,37 @@
+{
+  "Provider": "gitlab",
+  "CheckID": "gitlab_group_audit_events_streaming_enabled",
+  "CheckTitle": "GitLab groups stream audit events to an external destination",
+  "CheckType": [],
+  "ServiceName": "group",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "GitLab::Group::AuditEventDestination",
+  "ResourceGroup": "logging",
+  "Description": "**Audit event streaming** forwards group audit events to an external SIEM or log sink in near real time. This check verifies that at least one streaming destination is configured, so the record of privilege changes and access grants survives outside GitLab itself.",
+  "Risk": "Audit events held only inside GitLab are subject to **retention limits** and, more importantly, are visible to the same administrators whose actions they record. An attacker who reaches owner privileges can alter group configuration and let the in-product record age out, leaving no independent evidence for **incident reconstruction**.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.gitlab.com/ee/administration/audit_event_streaming/",
+    "https://docs.gitlab.com/ee/api/audit_events.html"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl --request POST --header \"PRIVATE-TOKEN: $GITLAB_TOKEN\" --header 'Content-Type: application/json' --data '{\"destination_url\":\"https://siem.example.com/gitlab\"}' \"https://gitlab.com/api/v4/groups/<group-id>/audit_events/external_audit_event_destinations\"",
+      "NativeIaC": "",
+      "Other": "1. Open the top-level group in GitLab\n2. Go to **Secure > Audit events**\n3. Select the **Streams** tab\n4. Click **Add streaming destination** and enter the HTTPS endpoint of your SIEM\n5. Record the verification token and configure the receiver to validate it\n6. Click **Add**",
+      "Terraform": "resource \"gitlab_group_audit_event_streaming\" \"siem\" {\n  group           = gitlab_group.example.id\n  destination_url = \"https://siem.example.com/gitlab\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Stream group audit events to a SIEM held outside GitLab's administrative boundary, verify the receiver validates the streaming token, and alert on owner-role grants and protected-branch changes.",
+      "Url": "https://apexhub-lime.vercel.app/check/gitlab_group_audit_events_streaming_enabled"
+    }
+  },
+  "Categories": [
+    "logging"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

@@ -1,0 +1,40 @@
+{
+  "Provider": "databricks",
+  "CheckID": "databricks_cluster_init_scripts_from_trusted_source",
+  "CheckTitle": "Databricks cluster init scripts come from a governed source",
+  "CheckType": [],
+  "ServiceName": "cluster",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Databricks::Cluster::InitScript",
+  "ResourceGroup": "compute",
+  "Description": "Cluster **init scripts** run as root on every node before Spark starts. This check reports clusters whose init scripts are loaded from DBFS or a plain cloud storage URI rather than from a workspace file or a Unity Catalog volume, where access is governed and changes are attributable.",
+  "Risk": "DBFS-hosted init scripts are writable by **any workspace user**, so anyone who can attach a notebook can modify a script that then executes as root on every node of every cluster using it. That is a direct path from ordinary analyst access to full compute takeover, including theft of the instance profile credentials the cluster uses to read the data lake.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.databricks.com/en/init-scripts/index.html",
+    "https://docs.databricks.com/en/dbfs/root-locations.html"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "databricks clusters edit --json '{\"cluster_id\":\"<id>\",\"init_scripts\":[{\"workspace\":{\"destination\":\"/Shared/init/hardening.sh\"}}]}'",
+      "NativeIaC": "",
+      "Other": "1. Move each init script to a workspace file (`/Shared/init/...`) or a Unity Catalog volume\n2. Restrict write permission on that path to the platform team\n3. Update the cluster definition to reference the new location\n4. Disable DBFS-hosted init scripts at the workspace level so the pattern cannot return\n5. Review the DBFS script's history: if it was writable by all users, treat any credential the cluster could reach as potentially exposed",
+      "Terraform": "resource \"databricks_cluster\" \"etl\" {\n  cluster_name = \"etl\"\n\n  init_scripts {\n    workspace {\n      destination = \"/Shared/init/hardening.sh\"\n    }\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Host init scripts in workspace files or Unity Catalog volumes with write access limited to the platform team, and disable DBFS-hosted init scripts at the workspace level.",
+      "Url": "https://apexhub-lime.vercel.app/check/databricks_cluster_init_scripts_from_trusted_source"
+    }
+  },
+  "Categories": [
+    "trust-boundaries",
+    "ci-cd"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "databricks_cluster_unity_catalog_isolation_enforced"
+  ],
+  "Notes": ""
+}

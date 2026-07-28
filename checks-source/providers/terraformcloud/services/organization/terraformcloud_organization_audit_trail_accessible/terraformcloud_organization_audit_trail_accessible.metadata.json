@@ -1,0 +1,37 @@
+{
+  "Provider": "terraformcloud",
+  "CheckID": "terraformcloud_organization_audit_trail_accessible",
+  "CheckTitle": "HCP Terraform organizations have an accessible audit trail",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "TerraformCloud::Organization::AuditTrail",
+  "ResourceGroup": "logging",
+  "Description": "This check verifies that the organization's **audit trail** API is readable, so runs, variable changes, permission grants and token creation can be exported to a SIEM.",
+  "Risk": "The Terraform audit trail is the record of **who changed the infrastructure and what credentials were touched**, and it is retained for a limited period. Without an export, a compromise of the Terraform organization cannot be reconstructed: you cannot establish which state files were read, which variables were altered, or when the attacker's team token was created.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/terraform/cloud-docs/api-docs/audit-trails",
+    "https://developer.hashicorp.com/terraform/cloud-docs/users-teams-organizations/organizations"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -H \"Authorization: Bearer $TFC_TOKEN\" \\\n  \"https://app.terraform.io/api/v2/organization/audit-trails\"",
+      "NativeIaC": "",
+      "Other": "1. Confirm your tier includes audit trail access\n2. Create an organization token with audit trail read permission\n3. Build a scheduled pull of `/api/v2/organization/audit-trails` into your SIEM, or use the HCP audit log streaming integration\n4. Alert on team token creation, variable changes on production workspaces, permission grants and workspace deletion\n5. Retain exported records for at least your investigation window",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Export the organization audit trail to your SIEM on a schedule and alert on token creation, production variable changes, permission grants and workspace deletion.",
+      "Url": "https://apexhub-lime.vercel.app/check/terraformcloud_organization_audit_trail_accessible"
+    }
+  },
+  "Categories": [
+    "logging"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

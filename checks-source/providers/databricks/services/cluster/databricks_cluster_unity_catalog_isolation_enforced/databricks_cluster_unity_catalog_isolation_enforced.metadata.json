@@ -1,0 +1,39 @@
+{
+  "Provider": "databricks",
+  "CheckID": "databricks_cluster_unity_catalog_isolation_enforced",
+  "CheckTitle": "Databricks clusters enforce a Unity Catalog access mode",
+  "CheckType": [],
+  "ServiceName": "cluster",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Databricks::Cluster",
+  "ResourceGroup": "compute",
+  "Description": "A cluster's **data security mode** determines whether Unity Catalog governance applies to workloads running on it. This check reports clusters running in `NONE` or legacy no-isolation modes, where table ACLs and row filters are not enforced.",
+  "Risk": "A no-isolation cluster executes every user's code in the **same JVM with the same identity**, so one user can read another's credentials in memory and bypass Unity Catalog grants entirely. The governance model appears intact in the catalog while the compute layer ignores it, which makes the gap easy to miss during review.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.databricks.com/en/compute/configure.html#access-modes",
+    "https://docs.databricks.com/en/data-governance/unity-catalog/index.html"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "databricks clusters edit --json '{\"cluster_id\":\"<id>\",\"data_security_mode\":\"USER_ISOLATION\"}'",
+      "NativeIaC": "",
+      "Other": "1. Open the cluster in the Databricks workspace\n2. Click **Edit** and set **Access mode** to `Shared` (user isolation) or `Single user`\n3. Migrate workloads that require a legacy mode to a supported runtime\n4. Use a cluster policy to prevent creation of no-isolation clusters\n5. Assign the workspace to a Unity Catalog metastore if it is not already",
+      "Terraform": "resource \"databricks_cluster\" \"analytics\" {\n  cluster_name        = \"analytics\"\n  data_security_mode  = \"USER_ISOLATION\"\n  spark_version       = data.databricks_spark_version.lts.id\n}"
+    },
+    "Recommendation": {
+      "Text": "Run clusters in Shared (user isolation) or Single user access mode so Unity Catalog grants are enforced at compute time, and pin the setting with a cluster policy.",
+      "Url": "https://apexhub-lime.vercel.app/check/databricks_cluster_unity_catalog_isolation_enforced"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "databricks_cluster_init_scripts_from_trusted_source"
+  ],
+  "Notes": ""
+}

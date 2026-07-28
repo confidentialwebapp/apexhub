@@ -1,0 +1,40 @@
+{
+  "Provider": "gitlab",
+  "CheckID": "gitlab_project_ci_variables_masked_and_protected",
+  "CheckTitle": "GitLab CI/CD variables are masked and protected",
+  "CheckType": [],
+  "ServiceName": "project",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "GitLab::Project::Variable",
+  "ResourceGroup": "secrets",
+  "Description": "**Masked** CI/CD variables are redacted from job logs, and **protected** variables are exposed only to jobs running on protected branches and tags. This check verifies that every project CI/CD variable carries both flags, so pipeline credentials cannot leak through logs or be read by code on an unprotected branch.",
+  "Risk": "An unmasked variable is printed verbatim into **job logs** by any command that echoes its environment, and those logs are readable by every project member and often retained indefinitely. An unprotected variable is injected into pipelines on **any branch**, so anyone who can open a merge request can add a job that prints or exfiltrates the deployment credential.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.gitlab.com/ee/ci/variables/#mask-a-cicd-variable",
+    "https://docs.gitlab.com/ee/ci/variables/#protect-a-cicd-variable"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl --request PUT --header \"PRIVATE-TOKEN: $GITLAB_TOKEN\" \"https://gitlab.com/api/v4/projects/<project-id>/variables/<key>?masked=true&protected=true\"",
+      "NativeIaC": "",
+      "Other": "1. Open the project in GitLab\n2. Go to **Settings > CI/CD > Variables**\n3. Edit each variable holding a credential\n4. Enable **Mask variable** and **Protect variable**\n5. Click **Update variable**\n6. Rotate any credential that was previously stored unmasked, since it may already be present in retained job logs",
+      "Terraform": "resource \"gitlab_project_variable\" \"deploy_token\" {\n  project   = gitlab_project.example.id\n  key       = \"DEPLOY_TOKEN\"\n  value     = var.deploy_token\n  masked    = true\n  protected = true\n}"
+    },
+    "Recommendation": {
+      "Text": "Mask and protect every CI/CD variable that carries a secret, and prefer short-lived OIDC-issued credentials over long-lived static tokens. Rotate any secret that was stored unmasked.",
+      "Url": "https://apexhub-lime.vercel.app/check/gitlab_project_ci_variables_masked_and_protected"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "gitlab_project_pipeline_job_token_scope_restricted"
+  ],
+  "Notes": ""
+}

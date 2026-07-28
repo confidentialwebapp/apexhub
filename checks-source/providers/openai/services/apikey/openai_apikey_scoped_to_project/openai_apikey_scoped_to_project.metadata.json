@@ -1,0 +1,40 @@
+{
+  "Provider": "openai",
+  "CheckID": "openai_apikey_scoped_to_project",
+  "CheckTitle": "OpenAI API keys are scoped to a project rather than the organization",
+  "CheckType": [],
+  "ServiceName": "apikey",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "OpenAI::ApiKey",
+  "ResourceGroup": "iam",
+  "Description": "**Project API keys** are limited to one project's models, rate limits and budget, while **admin keys** carry organization-wide control. This check reports keys issued at organization scope, which should exist only for administrative automation.",
+  "Risk": "An organization-scoped admin key can **create further keys, add members and change billing**, so leaking one is equivalent to losing the console itself rather than losing access to a single workload. Because these keys are often pasted into shared automation, one exposure grants durable, self-renewing control of the entire account.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://platform.openai.com/docs/api-reference/administration",
+    "https://help.openai.com/en/articles/9186755-managing-your-work-in-the-api-platform-with-projects"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X DELETE https://api.openai.com/v1/organization/admin_api_keys/<key-id> \\\n  -H \"Authorization: Bearer $OPENAI_ADMIN_KEY\"",
+      "NativeIaC": "",
+      "Other": "1. Create a project for each workload in **Settings > Projects**\n2. Issue a project API key owned by a **service account**, not a person\n3. Update the workload to use the project key\n4. Delete the admin key it replaced\n5. Retain admin keys only for provisioning automation, and store them in a secrets manager with access logging\n6. Set per-project rate limits and budgets so a compromised project key has a bounded cost",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Issue one service-account-owned project key per workload, keep admin keys to the minimum needed for provisioning automation, and bound each project with its own rate limit and budget.",
+      "Url": "https://apexhub-lime.vercel.app/check/openai_apikey_scoped_to_project"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "openai_apikey_no_stale_keys"
+  ],
+  "Notes": ""
+}

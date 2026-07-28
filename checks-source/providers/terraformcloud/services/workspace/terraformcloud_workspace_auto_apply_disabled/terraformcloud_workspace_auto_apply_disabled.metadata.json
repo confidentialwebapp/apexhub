@@ -1,0 +1,40 @@
+{
+  "Provider": "terraformcloud",
+  "CheckID": "terraformcloud_workspace_auto_apply_disabled",
+  "CheckTitle": "HCP Terraform workspaces require manual apply approval",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "TerraformCloud::Workspace",
+  "ResourceGroup": "compute",
+  "Description": "With **auto-apply** enabled, a workspace applies a successful plan without human review. This check reports workspaces where auto-apply is on, so approval is a deliberate exception rather than the default.",
+  "Risk": "Auto-apply removes the last review point between a merged configuration change and **live infrastructure**, so a malicious or mistaken commit reaches production without anyone reading the plan. Terraform plans also surface destructive actions — resource replacement and deletion — that a reviewer would catch; auto-apply executes them silently.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/terraform/cloud-docs/workspaces/settings",
+    "https://developer.hashicorp.com/terraform/cloud-docs/policy-enforcement"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X PATCH \"https://app.terraform.io/api/v2/workspaces/<workspace-id>\" \\\n  -H \"Authorization: Bearer $TFC_TOKEN\" \\\n  -H 'Content-Type: application/vnd.api+json' \\\n  -d '{\"data\":{\"type\":\"workspaces\",\"attributes\":{\"auto-apply\":false}}}'",
+      "NativeIaC": "",
+      "Other": "1. Open the workspace and go to **Settings > General**\n2. Set **Apply Method** to `Manual apply`\n3. Restrict apply permission to a specific team through **Team Access**\n4. Add Sentinel or OPA policies to block high-risk changes automatically, so review effort concentrates on what matters\n5. Where auto-apply is genuinely appropriate — a low-risk, non-production workspace — record the exception explicitly",
+      "Terraform": "resource \"tfe_workspace\" \"prod\" {\n  name         = \"prod\"\n  organization = var.organization\n  auto_apply   = false\n}"
+    },
+    "Recommendation": {
+      "Text": "Require manual apply on production workspaces, restrict apply permission to a named team, and add policy checks so risky changes are blocked rather than only reviewed.",
+      "Url": "https://apexhub-lime.vercel.app/check/terraformcloud_workspace_auto_apply_disabled"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "terraformcloud_workspace_health_assessments_enabled"
+  ],
+  "Notes": ""
+}

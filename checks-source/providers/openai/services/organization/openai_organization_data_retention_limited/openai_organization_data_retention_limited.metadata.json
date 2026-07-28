@@ -1,0 +1,37 @@
+{
+  "Provider": "openai",
+  "CheckID": "openai_organization_data_retention_limited",
+  "CheckTitle": "OpenAI organizations limit prompt data retention and opt out of training",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "OpenAI::Organization",
+  "ResourceGroup": "storage",
+  "Description": "This check verifies that the organization opts out of using API data for **model training** and has a bounded retention window — ideally zero data retention — for prompts and completions.",
+  "Risk": "Prompts routinely carry **customer records, source code and internal documents** that were never classified for third-party storage. Where retention is unbounded, that content sits outside your environment beyond the reach of your own deletion and residency commitments, and any breach of the provider's storage becomes a breach of your data.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://platform.openai.com/docs/guides/your-data",
+    "https://openai.com/enterprise-privacy/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Sign in to the OpenAI platform console as an owner\n2. Go to **Settings > Organization > Data controls**\n3. Confirm that API data is not used for model training\n4. Request **Zero Data Retention** for eligible endpoints if your data handling requirements call for it\n5. Record the configured retention window in your processing register\n6. Independently reduce what is sent: redact identifiers before they reach the API rather than relying on retention settings alone",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Opt out of training, request zero data retention where eligible, and redact sensitive identifiers before they are sent so the control does not depend solely on the provider's configuration.",
+      "Url": "https://apexhub-lime.vercel.app/check/openai_organization_data_retention_limited"
+    }
+  },
+  "Categories": [
+    "data-protection"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

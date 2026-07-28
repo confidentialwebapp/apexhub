@@ -1,0 +1,37 @@
+{
+  "Provider": "anthropic",
+  "CheckID": "anthropic_organization_audit_log_export_configured",
+  "CheckTitle": "Anthropic organizations export audit logs to an external system",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Anthropic::Organization::AuditLog",
+  "ResourceGroup": "logging",
+  "Description": "This check verifies that organization audit events — key creation, member changes and workspace configuration — are exported to a system outside the Anthropic Console.",
+  "Risk": "API key creation is the event that matters most in this platform, and without an external export there is **no durable, independently held record** of who created which key. An attacker who reaches admin can mint a key and, with no exported trail, the organization cannot later establish when the access was granted or which keys to consider compromised.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.claude.com/en/api/administration-api",
+    "https://support.anthropic.com/en/collections/4078531-claude-for-work"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl https://api.anthropic.com/v1/organizations/api_keys \\\n  -H \"x-api-key: $ANTHROPIC_ADMIN_KEY\" \\\n  -H \"anthropic-version: 2023-06-01\"",
+      "NativeIaC": "",
+      "Other": "1. Confirm your plan includes audit log access\n2. Configure the export, or build a scheduled job that pulls organization events into your SIEM\n3. Alert on API key creation, admin role grants and workspace creation\n4. Retain exported records for at least your incident investigation window\n5. Reconcile the exported key inventory against your secrets manager periodically so unmanaged keys surface",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Export organization audit events into your SIEM, alert on key creation and admin grants, and periodically reconcile the key inventory against your secrets manager.",
+      "Url": "https://apexhub-lime.vercel.app/check/anthropic_organization_audit_log_export_configured"
+    }
+  },
+  "Categories": [
+    "logging"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

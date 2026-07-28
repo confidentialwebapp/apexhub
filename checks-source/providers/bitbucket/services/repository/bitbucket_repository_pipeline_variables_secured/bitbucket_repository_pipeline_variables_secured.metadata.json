@@ -1,0 +1,38 @@
+{
+  "Provider": "bitbucket",
+  "CheckID": "bitbucket_repository_pipeline_variables_secured",
+  "CheckTitle": "Bitbucket Pipelines variables holding credentials are secured",
+  "CheckType": [],
+  "ServiceName": "repository",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Bitbucket::Repository::PipelineVariable",
+  "ResourceGroup": "secrets",
+  "Description": "A **secured** Bitbucket Pipelines variable is encrypted at rest, hidden in the UI and masked in build logs. This check reports repository pipeline variables whose names indicate a credential but that are not marked secured.",
+  "Risk": "An unsecured variable is readable in the repository settings by every user with write access and is printed verbatim into **build logs** by any step that dumps its environment. Build logs are retained and widely readable, so an unsecured deployment credential is effectively published to the whole workspace.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/bitbucket-cloud/docs/variables-and-secrets/",
+    "https://developer.atlassian.com/cloud/bitbucket/rest/api-group-pipelines/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X PUT -H \"Authorization: Bearer $BITBUCKET_TOKEN\" -H 'Content-Type: application/json' -d '{\"key\":\"AWS_SECRET_ACCESS_KEY\",\"value\":\"<value>\",\"secured\":true}' \"https://api.bitbucket.org/2.0/repositories/<workspace>/<repo>/pipelines_config/variables/<uuid>\"",
+      "NativeIaC": "",
+      "Other": "1. Open the repository in Bitbucket\n2. Go to **Repository settings > Pipelines > Repository variables**\n3. Delete each credential variable that is not secured\n4. Re-add it with **Secured** ticked\n5. Rotate the credential, since the previous value may already appear in retained build logs\n6. Prefer **deployment**-scoped variables so production secrets are only available to production deployment steps",
+      "Terraform": "resource \"bitbucket_pipeline_variable\" \"deploy\" {\n  workspace  = var.workspace\n  repository = bitbucket_repository.example.name\n  key        = \"AWS_SECRET_ACCESS_KEY\"\n  value      = var.aws_secret\n  secured    = true\n}"
+    },
+    "Recommendation": {
+      "Text": "Mark every credential-bearing pipeline variable as secured, scope production secrets to deployment environments, and rotate any secret that was stored unsecured.",
+      "Url": "https://apexhub-lime.vercel.app/check/bitbucket_repository_pipeline_variables_secured"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

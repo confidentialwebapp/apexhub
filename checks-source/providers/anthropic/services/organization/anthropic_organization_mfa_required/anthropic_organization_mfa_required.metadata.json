@@ -1,0 +1,39 @@
+{
+  "Provider": "anthropic",
+  "CheckID": "anthropic_organization_mfa_required",
+  "CheckTitle": "Anthropic organizations require multi-factor authentication",
+  "CheckType": [],
+  "ServiceName": "organization",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Anthropic::Organization",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that console sign-in requires **multi-factor authentication**, either enforced in the Anthropic Console or upstream in the federated identity provider.",
+  "Risk": "A password-only console account gives an attacker the ability to **mint API keys and add workspace members**, establishing persistence that survives a password reset. Because usage is metered, a compromised organization also produces immediate financial loss and exposes whatever data the organization's prompts carry.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.anthropic.com/en/collections/4078531-claude-for-work",
+    "https://docs.claude.com/en/api/administration-api"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Sign in to the Anthropic Console as an organization admin\n2. Go to **Settings > Security**\n3. Enable the multi-factor authentication requirement\n4. Where sign-in is federated, enforce MFA in the identity provider's conditional access policy so it applies consistently\n5. Prefer phishing-resistant factors (WebAuthn/passkeys) over one-time codes\n6. Verify that all existing members have enrolled",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Require multi-factor authentication for console access, preferring phishing-resistant factors, and enforce it in your identity provider when sign-in is federated.",
+      "Url": "https://apexhub-lime.vercel.app/check/anthropic_organization_mfa_required"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "anthropic_organization_sso_enforced"
+  ],
+  "Notes": ""
+}

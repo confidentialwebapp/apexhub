@@ -1,0 +1,40 @@
+{
+  "Provider": "salesforce",
+  "CheckID": "salesforce_user_no_excessive_admin_permissions",
+  "CheckTitle": "Salesforce users do not hold excessive administrative permissions",
+  "CheckType": [],
+  "ServiceName": "user",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Salesforce::User::Profile",
+  "ResourceGroup": "iam",
+  "Description": "This check reports active users whose profile grants **Modify All Data**, **Manage Users** or **Author Apex** — permissions that together allow reading every record, creating accounts and deploying executable code.",
+  "Risk": "**Modify All Data** overrides every sharing rule, field permission and record ownership control in the org, so a single compromised account with it holds the entire data set regardless of the sharing model. **Author Apex** additionally allows deploying code that runs in system context, giving an attacker a persistent, auditable-looking mechanism to exfiltrate data on a schedule.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://help.salesforce.com/s/articleView?id=sf.admin_userperms.htm",
+    "https://help.salesforce.com/s/articleView?id=sf.users_profiles.htm"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. In Setup, run the **Permission Set and Profile** reports to list holders of Modify All Data\n2. For each, determine whether the access is genuinely required\n3. Replace broad profile grants with narrowly scoped **permission sets** assigned only when needed\n4. Use **permission set groups with a muting permission set** to remove specific dangerous permissions from otherwise appropriate roles\n5. Restrict Author Apex to a small named release team\n6. Review the remaining holders on a recurring schedule and require MFA for all of them",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Move from broad profile grants to narrowly scoped permission sets, restrict Modify All Data and Author Apex to a small named group, and review holders on a recurring schedule.",
+      "Url": "https://apexhub-lime.vercel.app/check/salesforce_user_no_excessive_admin_permissions"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "salesforce_user_mfa_registered"
+  ],
+  "Notes": ""
+}

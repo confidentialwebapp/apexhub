@@ -1,0 +1,37 @@
+{
+  "Provider": "databricks",
+  "CheckID": "databricks_cluster_local_disk_encryption_enabled",
+  "CheckTitle": "Databricks clusters encrypt local disks",
+  "CheckType": [],
+  "ServiceName": "cluster",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Databricks::Cluster",
+  "ResourceGroup": "compute",
+  "Description": "Databricks can encrypt the temporary storage attached to cluster nodes, covering shuffle files, cached data and spill. This check verifies that `enable_local_disk_encryption` is set on each cluster.",
+  "Risk": "Spark writes intermediate results to local disk whenever a join or aggregation exceeds memory, so **production data lands unencrypted on node storage** even when the source tables are encrypted at rest. Snapshots, forensic images or a recovered instance store therefore expose data that governance controls in the catalog would otherwise protect.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.databricks.com/en/security/keys/local-disk-encryption.html",
+    "https://docs.databricks.com/en/security/keys/index.html"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "databricks clusters edit --json '{\"cluster_id\":\"<id>\",\"enable_local_disk_encryption\":true}'",
+      "NativeIaC": "",
+      "Other": "1. Open the cluster in the Databricks workspace\n2. Click **Edit > Advanced options**\n3. Enable **Local disk encryption**\n4. Restart the cluster for the setting to take effect\n5. Add the setting to a cluster policy so new clusters inherit it\n6. Note the small performance cost on shuffle-heavy workloads and size accordingly",
+      "Terraform": "resource \"databricks_cluster\" \"etl\" {\n  cluster_name                 = \"etl\"\n  enable_local_disk_encryption = true\n}"
+    },
+    "Recommendation": {
+      "Text": "Enable local disk encryption on all clusters and enforce it through a cluster policy so shuffle and spill data is protected on node storage.",
+      "Url": "https://apexhub-lime.vercel.app/check/databricks_cluster_local_disk_encryption_enabled"
+    }
+  },
+  "Categories": [
+    "encryption"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

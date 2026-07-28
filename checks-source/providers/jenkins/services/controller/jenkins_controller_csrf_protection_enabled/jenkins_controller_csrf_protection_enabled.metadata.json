@@ -1,0 +1,37 @@
+{
+  "Provider": "jenkins",
+  "CheckID": "jenkins_controller_csrf_protection_enabled",
+  "CheckTitle": "Jenkins controllers enable CSRF protection",
+  "CheckType": [],
+  "ServiceName": "controller",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Jenkins::Controller",
+  "ResourceGroup": "network",
+  "Description": "Jenkins issues a **crumb** that state-changing requests must present, preventing another site from acting as an authenticated user's browser. This check verifies that a crumb issuer is configured and that it does not exclude the client IP from the crumb, which weakens the token.",
+  "Risk": "Without CSRF protection, visiting a hostile page while signed in to Jenkins is enough for that page to **trigger builds, modify jobs or create an administrator account** using the victim's session. Because Jenkins builds execute arbitrary code with production credentials, a single click by an administrator can hand over the build system.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://www.jenkins.io/doc/book/security/csrf-protection/",
+    "https://www.jenkins.io/doc/book/security/managing-security/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Sign in to Jenkins as an administrator\n2. Go to **Manage Jenkins > Security**\n3. Under **CSRF Protection**, ensure a crumb issuer is selected\n4. Clear **Enable proxy compatibility** unless a reverse proxy genuinely requires it, since it removes the client IP from the crumb\n5. Save and confirm that scripted API clients send the `Jenkins-Crumb` header",
+      "Terraform": "# Jenkins Configuration as Code (jenkins.yaml)\njenkins:\n  crumbIssuer:\n    standard:\n      excludeClientIPFromCrumb: false"
+    },
+    "Recommendation": {
+      "Text": "Keep the default crumb issuer enabled and leave proxy compatibility off so the crumb remains bound to the client IP. Update API clients to fetch and send the crumb header rather than disabling the protection.",
+      "Url": "https://apexhub-lime.vercel.app/check/jenkins_controller_csrf_protection_enabled"
+    }
+  },
+  "Categories": [
+    "ci-cd"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

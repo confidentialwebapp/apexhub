@@ -1,0 +1,40 @@
+{
+  "Provider": "snowflake",
+  "CheckID": "snowflake_user_mfa_enrolled",
+  "CheckTitle": "Snowflake human users are enrolled in multi-factor authentication",
+  "CheckType": [],
+  "ServiceName": "user",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "critical",
+  "ResourceType": "Snowflake::User",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that every enabled Snowflake user who can authenticate with a password is enrolled in **multi-factor authentication**. Service users authenticating by key pair are excluded, since they carry no password to phish.",
+  "Risk": "Snowflake accounts hold consolidated analytical copies of an organisation's most sensitive data, and a password-only login is directly usable from anywhere on the internet. Large-scale intrusions into Snowflake tenants have been driven almost entirely by **credential reuse against accounts without MFA**, using passwords harvested from unrelated infostealer infections rather than any flaw in the platform.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.snowflake.com/en/user-guide/security-mfa",
+    "https://docs.snowflake.com/en/user-guide/authentication-policies"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "ALTER ACCOUNT SET MFA_ENROLLMENT = 'REQUIRED';\n-- Or enforce through an authentication policy:\nCREATE AUTHENTICATION POLICY require_mfa\n  MFA_ENROLLMENT = REQUIRED\n  CLIENT_TYPES = ('SNOWFLAKE_UI', 'DRIVERS');\nALTER ACCOUNT SET AUTHENTICATION POLICY require_mfa;",
+      "NativeIaC": "",
+      "Other": "1. Sign in to Snowsight as ACCOUNTADMIN\n2. Create an authentication policy with `MFA_ENROLLMENT = REQUIRED`\n3. Apply it at the account level, exempting only service users that authenticate by key pair\n4. Notify users, then enforce\n5. Review `SNOWFLAKE.ACCOUNT_USAGE.LOGIN_HISTORY` for password logins that predate enforcement and treat those credentials as exposed",
+      "Terraform": "resource \"snowflake_authentication_policy\" \"require_mfa\" {\n  database = \"SECURITY\"\n  schema   = \"POLICIES\"\n  name     = \"REQUIRE_MFA\"\n  mfa_enrollment = \"REQUIRED\"\n  client_types   = [\"SNOWFLAKE_UI\", \"DRIVERS\"]\n}"
+    },
+    "Recommendation": {
+      "Text": "Require MFA enrolment through an account-level authentication policy, and move every service user to key-pair authentication so the policy can be enforced without exempting automation.",
+      "Url": "https://apexhub-lime.vercel.app/check/snowflake_user_mfa_enrolled"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "snowflake_user_service_account_uses_key_pair_auth",
+    "snowflake_account_sso_enabled"
+  ],
+  "Notes": ""
+}

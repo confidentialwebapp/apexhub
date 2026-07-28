@@ -1,0 +1,7 @@
+{
+  "id": "atlassian",
+  "name": "Atlassian Cloud",
+  "origin": "apexhub-first-party",
+  "license": "Apache-2.0",
+  "generated_by": "scripts/build-custom.mjs"
+}

@@ -1,0 +1,39 @@
+{
+  "Provider": "vault",
+  "CheckID": "vault_system_not_sealed",
+  "CheckTitle": "Vault clusters are unsealed and serving requests",
+  "CheckType": [],
+  "ServiceName": "system",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Vault::Seal",
+  "ResourceGroup": "compute",
+  "Description": "A sealed Vault cannot decrypt its storage and refuses all requests. This check reports clusters found in a sealed state, and confirms high availability is enabled.",
+  "Risk": "A sealed Vault is a **total outage for every application that depends on it** for database credentials, certificates and API keys, and the recovery path requires assembling unseal key holders under time pressure. Teams routinely respond by caching secrets locally or falling back to static credentials, which quietly undoes the controls Vault was deployed to provide.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/vault/docs/concepts/seal",
+    "https://developer.hashicorp.com/vault/docs/internals/high-availability"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "vault status\nvault operator unseal\n# Prefer auto-unseal so restarts recover without human intervention.",
+      "NativeIaC": "",
+      "Other": "1. Determine why the cluster is sealed — a restart, a crash, or a manual seal\n2. Unseal it with the required key shares, or confirm the auto-unseal KMS key is reachable\n3. Configure auto-unseal so restarts recover automatically\n4. Run Vault in HA with at least three nodes, so a single node restart does not interrupt service\n5. Alert on seal status changes and on nodes leaving the cluster\n6. Verify applications retry gracefully rather than caching secrets when Vault is unavailable",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Restore the cluster to unsealed, configure auto-unseal so restarts recover unattended, run at least three nodes in HA, and alert on seal status transitions.",
+      "Url": "https://apexhub-lime.vercel.app/check/vault_system_not_sealed"
+    }
+  },
+  "Categories": [
+    "resilience"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "vault_system_auto_unseal_configured"
+  ],
+  "Notes": ""
+}

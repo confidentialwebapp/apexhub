@@ -1,0 +1,39 @@
+{
+  "Provider": "gitlab",
+  "CheckID": "gitlab_group_ip_restriction_enabled",
+  "CheckTitle": "GitLab groups restrict access by IP address range",
+  "CheckType": [],
+  "ServiceName": "group",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "GitLab::Group",
+  "ResourceGroup": "network",
+  "Description": "GitLab groups can limit access to a list of **allowed IP ranges**, so group resources are reachable only from corporate networks or egress gateways. This check reports groups with no IP allowlist configured.",
+  "Risk": "Without an IP allowlist, a **stolen personal access token** is usable from anywhere in the world, and token theft leaves no authentication trail to alert on. Network-level scoping turns an exfiltrated credential into a much weaker artifact, because it must also be replayed from inside an approved network range.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.gitlab.com/ee/user/group/access_and_permissions.html#restrict-group-access-by-ip-address",
+    "https://docs.gitlab.com/ee/api/groups.html"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl --request PUT --header \"PRIVATE-TOKEN: $GITLAB_TOKEN\" \"https://gitlab.com/api/v4/groups/<group-id>?ip_restriction_ranges=203.0.113.0/24,198.51.100.0/24\"",
+      "NativeIaC": "",
+      "Other": "1. Open the top-level group in GitLab\n2. Go to **Settings > General > Permissions and group features**\n3. Enter the approved CIDR ranges in **Restrict access by IP address**\n4. Include the egress ranges of your CI runners and VPN before saving, or automation will break\n5. Click **Save changes**",
+      "Terraform": "resource \"gitlab_group\" \"example\" {\n  name                  = \"example\"\n  path                  = \"example\"\n  ip_restriction_ranges = [\"203.0.113.0/24\", \"198.51.100.0/24\"]\n}"
+    },
+    "Recommendation": {
+      "Text": "Restrict top-level group access to the CIDR ranges of your corporate egress, VPN and CI runners. Note that this control applies to top-level groups only and does not cover public project content.",
+      "Url": "https://apexhub-lime.vercel.app/check/gitlab_group_ip_restriction_enabled"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "gitlab_group_two_factor_authentication_required"
+  ],
+  "Notes": ""
+}

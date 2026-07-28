@@ -1,0 +1,39 @@
+{
+  "Provider": "slack",
+  "CheckID": "slack_app_oauth_scopes_least_privilege",
+  "CheckTitle": "Slack apps do not hold workspace-wide message read scopes",
+  "CheckType": [],
+  "ServiceName": "app",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Slack::App",
+  "ResourceGroup": "iam",
+  "Description": "This check reports installed apps holding broad scopes such as `channels:history`, `groups:history`, `files:read` or any `admin.*` scope, which grant access far beyond a single channel's interaction.",
+  "Risk": "A `history` scope lets an app read the **complete message archive of every conversation it can see**, not just messages that mention it, so one compromised vendor becomes a full export of your internal discussion. `admin.*` scopes go further still, allowing the app to change workspace settings and manage other apps — a self-sustaining foothold.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://api.slack.com/scopes",
+    "https://slack.com/help/articles/222386767-Manage-app-installation-settings-for-your-workspace"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Go to **Settings & administration > Manage apps**\n2. Open each app and review its granted scopes\n3. Remove apps holding history or admin scopes that they do not demonstrably need\n4. Where an app must read messages, restrict it to specific channels rather than the workspace\n5. Prefer apps that use Slack Connect or narrow event subscriptions over polling history\n6. Re-review app scopes when an app updates, since new versions can request additional permissions",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Remove apps holding workspace-wide history or admin scopes unless clearly justified, scope message access to specific channels, and re-review scopes when apps update.",
+      "Url": "https://apexhub-lime.vercel.app/check/slack_app_oauth_scopes_least_privilege"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "slack_workspace_app_approval_required"
+  ],
+  "Notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "Provider": "snowflake",
+  "CheckID": "snowflake_account_sso_enabled",
+  "CheckTitle": "Snowflake accounts federate authentication through SSO",
+  "CheckType": [],
+  "ServiceName": "account",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Snowflake::Account::Integration",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that the account has a **SAML2 or External OAuth security integration** configured, so human access is governed by the corporate identity provider rather than by Snowflake-local passwords.",
+  "Risk": "Snowflake-local passwords sit outside the controls your identity provider applies — **no conditional access, no device posture, no central session revocation**, and no automatic disablement when someone leaves. During an incident, the inability to revoke access centrally materially extends the time an attacker keeps a working credential.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.snowflake.com/en/user-guide/admin-security-fed-auth-overview",
+    "https://docs.snowflake.com/en/user-guide/oauth-ext-overview"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "CREATE SECURITY INTEGRATION corporate_sso\n  TYPE = SAML2\n  ENABLED = TRUE\n  SAML2_ISSUER = 'https://idp.example.com'\n  SAML2_SSO_URL = 'https://idp.example.com/sso/saml'\n  SAML2_PROVIDER = 'CUSTOM'\n  SAML2_X509_CERT = '<certificate>';",
+      "NativeIaC": "",
+      "Other": "1. Register Snowflake as an application in your identity provider\n2. Create a SAML2 (or External OAuth) security integration in Snowflake\n3. Test federated login with a pilot user before broad rollout\n4. Add a SCIM integration so user and role provisioning follows the IdP\n5. Once federation is proven, remove Snowflake-local passwords from human users\n6. Retain one break-glass local administrator with a stored, monitored credential",
+      "Terraform": "resource \"snowflake_saml_integration\" \"corporate_sso\" {\n  name           = \"CORPORATE_SSO\"\n  enabled        = true\n  saml2_issuer   = \"https://idp.example.com\"\n  saml2_sso_url  = \"https://idp.example.com/sso/saml\"\n  saml2_provider = \"CUSTOM\"\n  saml2_x509_cert = var.idp_certificate\n}"
+    },
+    "Recommendation": {
+      "Text": "Federate human authentication through SAML2 or External OAuth, add SCIM for provisioning, then remove local passwords — keeping one monitored break-glass administrator.",
+      "Url": "https://apexhub-lime.vercel.app/check/snowflake_account_sso_enabled"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "snowflake_user_mfa_enrolled"
+  ],
+  "Notes": ""
+}

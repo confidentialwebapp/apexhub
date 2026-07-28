@@ -1,0 +1,40 @@
+{
+  "Provider": "vault",
+  "CheckID": "vault_audit_device_redundant",
+  "CheckTitle": "Vault clusters have more than one audit device enabled",
+  "CheckType": [],
+  "ServiceName": "audit",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Vault::AuditDevice",
+  "ResourceGroup": "logging",
+  "Description": "Vault refuses to serve requests when an enabled audit device cannot write. This check verifies that at least two audit devices are enabled so a single failing sink does not take the cluster offline.",
+  "Risk": "A single audit device is both a logging and an **availability** dependency: if its disk fills or the syslog target becomes unreachable, Vault stops answering requests and every application depending on it for credentials fails. Operators under that pressure frequently disable auditing to restore service, which removes the record precisely when it matters most.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://developer.hashicorp.com/vault/docs/audit",
+    "https://developer.hashicorp.com/vault/tutorials/monitoring/blocked-audit-devices"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "vault audit enable file file_path=/var/log/vault/audit.log\nvault audit enable -path=syslog syslog tag=\"vault\" facility=\"AUTH\"\nvault audit enable -path=socket socket address=\"siem.example.com:9090\" socket_type=\"tcp\"",
+      "NativeIaC": "",
+      "Other": "1. Enable a second audit device with a different failure mode — a local file plus syslog, for example\n2. Monitor free space on the audit log volume and alert well before it fills\n3. Configure log rotation with an agent that does not hold the file handle open\n4. Test the failure path in a non-production cluster so the operational response is known\n5. Never leave a socket device as the only sink; a network partition then blocks Vault entirely",
+      "Terraform": "resource \"vault_audit\" \"file\" {\n  type    = \"file\"\n  options = { file_path = \"/var/log/vault/audit.log\" }\n}\n\nresource \"vault_audit\" \"syslog\" {\n  path    = \"syslog\"\n  type    = \"syslog\"\n  options = { tag = \"vault\", facility = \"AUTH\" }\n}"
+    },
+    "Recommendation": {
+      "Text": "Enable two audit devices with independent failure modes, monitor the audit volume's free space, and rehearse the blocked-audit-device response so nobody disables auditing under pressure.",
+      "Url": "https://apexhub-lime.vercel.app/check/vault_audit_device_redundant"
+    }
+  },
+  "Categories": [
+    "logging",
+    "resilience"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "vault_audit_device_enabled"
+  ],
+  "Notes": ""
+}

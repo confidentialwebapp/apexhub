@@ -1,0 +1,38 @@
+{
+  "Provider": "auth0",
+  "CheckID": "auth0_application_signing_algorithm_asymmetric",
+  "CheckTitle": "Auth0 applications sign tokens with an asymmetric algorithm",
+  "CheckType": [],
+  "ServiceName": "application",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Auth0::Application",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that each application signs ID tokens with **RS256** or another asymmetric algorithm rather than the symmetric HS256, and that OIDC conformance is enabled.",
+  "Risk": "HS256 signs and verifies with the **same shared secret**, so every party that validates a token also holds the key needed to forge one. A client secret leaked from a mobile binary, a repository or a misconfigured backend therefore allows an attacker to mint tokens for arbitrary users. RS256 removes this entirely: verifiers hold only the public key.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://auth0.com/docs/get-started/applications/change-application-signing-algorithm",
+    "https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-token-structure"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X PATCH \"https://$AUTH0_DOMAIN/api/v2/clients/<client-id>\" \\\n  -H \"Authorization: Bearer $AUTH0_TOKEN\" \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"jwt_configuration\":{\"alg\":\"RS256\"},\"oidc_conformant\":true}'",
+      "NativeIaC": "",
+      "Other": "1. Open the application in the Auth0 Dashboard\n2. Go to **Settings > Advanced Settings > OAuth**\n3. Set **JsonWebToken Signature Algorithm** to `RS256`\n4. Enable **OIDC Conformant**\n5. Update the application to fetch the tenant's JWKS and verify with the public key rather than the client secret\n6. Rotate the client secret afterwards, since it may previously have been distributed to token verifiers",
+      "Terraform": "resource \"auth0_client\" \"api_client\" {\n  name            = \"api-client\"\n  oidc_conformant = true\n\n  jwt_configuration {\n    alg = \"RS256\"\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Sign tokens with RS256 and verify against the tenant JWKS, enable OIDC conformance, and rotate any client secret that was previously shared with verifiers.",
+      "Url": "https://apexhub-lime.vercel.app/check/auth0_application_signing_algorithm_asymmetric"
+    }
+  },
+  "Categories": [
+    "encryption",
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

@@ -1,0 +1,39 @@
+{
+  "Provider": "slack",
+  "CheckID": "slack_workspace_two_factor_required",
+  "CheckTitle": "Slack workspaces require two-factor authentication",
+  "CheckType": [],
+  "ServiceName": "workspace",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Slack::Workspace",
+  "ResourceGroup": "iam",
+  "Description": "This check verifies that the workspace requires **two-factor authentication** for members who sign in with a Slack password, which applies wherever SSO is not enforced.",
+  "Risk": "Where SSO is not required, a Slack password is the **only barrier to a fully searchable message history**, including any credential a colleague pasted into a channel. Slack account takeover is also a favoured route for internal phishing, because a message from a trusted colleague's real account bypasses the scepticism an external email would attract.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://slack.com/help/articles/204509068-Set-up-two-factor-authentication",
+    "https://api.slack.com/methods/team.info"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Sign in to Slack as a workspace owner or admin\n2. Go to **Settings & administration > Workspace settings > Authentication**\n3. Enable **Require two-factor authentication for everyone**\n4. Notify members before enforcing, since those without 2FA are signed out until they enrol\n5. Prefer an authenticator app over SMS, which is vulnerable to SIM swap\n6. Where SSO is enforced, apply the equivalent requirement in the identity provider instead",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Require two-factor authentication for all password-based sign-ins, preferring authenticator apps over SMS, and enforce the equivalent policy in your IdP where SSO is used.",
+      "Url": "https://apexhub-lime.vercel.app/check/slack_workspace_two_factor_required"
+    }
+  },
+  "Categories": [
+    "authentication"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "slack_workspace_sso_required"
+  ],
+  "Notes": ""
+}

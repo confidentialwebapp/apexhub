@@ -1,0 +1,39 @@
+{
+  "Provider": "atlassian",
+  "CheckID": "atlassian_jira_no_anonymous_access",
+  "CheckTitle": "Jira projects grant no permissions to anonymous users",
+  "CheckType": [],
+  "ServiceName": "jira",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Atlassian::Jira::Project",
+  "ResourceGroup": "iam",
+  "Description": "This check reports Jira projects covered by a permission scheme that grants any permission to the **Anyone** (anonymous) holder, which makes issues readable without authentication.",
+  "Risk": "Anonymous Jira access exposes the **issue tracker to the internet**, and issue tracking is where organisations record unpatched vulnerabilities, internal hostnames, credentials pasted into comments and the exact sequence of steps that reproduce a bug. Attackers actively search for open Jira instances precisely because they describe the target's weaknesses in the defenders' own words.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/jira-cloud-administration/docs/manage-project-permissions/",
+    "https://confluence.atlassian.com/jira/jira-security-advisories"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. In Jira, go to **Settings > Issues > Permission schemes**\n2. Review each scheme for grants to the **Anyone** holder\n3. Remove those grants, replacing them with a specific group or project role\n4. Check **Settings > System > Global permissions** for anonymous grants such as Browse Users\n5. If a project must be public, move it to a dedicated site with no internal data and confirm attachments are reviewed\n6. Search existing issues for credentials before and after making a project private, since anything exposed should be treated as leaked",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Remove Anyone grants from permission schemes and global permissions, isolate genuinely public projects to a separate site, and treat anything previously exposed as leaked.",
+      "Url": "https://apexhub-lime.vercel.app/check/atlassian_jira_no_anonymous_access"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "atlassian_confluence_no_anonymous_access"
+  ],
+  "Notes": ""
+}

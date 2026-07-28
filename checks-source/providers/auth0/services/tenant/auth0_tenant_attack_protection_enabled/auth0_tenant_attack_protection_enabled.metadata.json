@@ -1,0 +1,40 @@
+{
+  "Provider": "auth0",
+  "CheckID": "auth0_tenant_attack_protection_enabled",
+  "CheckTitle": "Auth0 tenants enable all attack protection features",
+  "CheckType": [],
+  "ServiceName": "tenant",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Auth0::Tenant",
+  "ResourceGroup": "network",
+  "Description": "This check verifies that the tenant enables **brute force protection**, **suspicious IP throttling** and **breached password detection**, the three built-in defences against automated credential attacks.",
+  "Risk": "Auth0 login endpoints are internet-facing and enumerable, so without throttling an attacker can run **credential stuffing at full speed** against your entire user base using passwords from unrelated breaches. Breached password detection is what catches the accounts that will fall first, and its absence means those compromises are only discovered after the account is used.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://auth0.com/docs/secure/attack-protection",
+    "https://auth0.com/docs/secure/attack-protection/breached-password-detection"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X PATCH \"https://$AUTH0_DOMAIN/api/v2/attack-protection/breached-password-detection\" \\\n  -H \"Authorization: Bearer $AUTH0_TOKEN\" \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"enabled\":true,\"shields\":[\"block\",\"admin_notification\"]}'",
+      "NativeIaC": "",
+      "Other": "1. In the Auth0 Dashboard, go to **Security > Attack Protection**\n2. Enable **Bot Detection**, **Suspicious IP Throttling**, **Brute-force Protection** and **Breached Password Detection**\n3. For each, configure the shields — blocking and administrator notification rather than notification alone\n4. Add your monitoring and load-testing egress ranges to the allowlist so legitimate automation is not throttled\n5. Route the resulting security events into your SIEM through a log stream",
+      "Terraform": "resource \"auth0_attack_protection\" \"this\" {\n  breached_password_detection {\n    enabled = true\n    shields = [\"block\", \"admin_notification\"]\n  }\n\n  brute_force_protection {\n    enabled      = true\n    max_attempts = 10\n    shields      = [\"block\", \"user_notification\"]\n  }\n\n  suspicious_ip_throttling {\n    enabled = true\n    shields = [\"block\", \"admin_notification\"]\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Enable brute force protection, suspicious IP throttling and breached password detection with blocking shields, allowlist your own automation, and stream the resulting events to your SIEM.",
+      "Url": "https://apexhub-lime.vercel.app/check/auth0_tenant_attack_protection_enabled"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "resilience"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "auth0_connection_password_policy_strong"
+  ],
+  "Notes": ""
+}

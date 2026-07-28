@@ -1,0 +1,40 @@
+{
+  "Provider": "bitbucket",
+  "CheckID": "bitbucket_repository_pull_request_approvals_required",
+  "CheckTitle": "Bitbucket repositories require pull request approvals before merge",
+  "CheckType": [],
+  "ServiceName": "repository",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "Bitbucket::Repository::BranchRestriction",
+  "ResourceGroup": "iam",
+  "Description": "The `require_approvals_to_merge` branch restriction sets the minimum number of approvals a pull request must collect before it can be merged. This check verifies that each repository requires at least one approval on its main branch.",
+  "Risk": "Without a required approval, a single account both authors and merges the change, so the pull request workflow records a review that never occurred. An attacker holding one developer credential can introduce a **malicious build step or dependency** and merge it immediately, defeating the primary control over what enters the release pipeline.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://support.atlassian.com/bitbucket-cloud/docs/use-branch-permissions/",
+    "https://developer.atlassian.com/cloud/bitbucket/rest/api-group-branch-restrictions/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "curl -X POST -H \"Authorization: Bearer $BITBUCKET_TOKEN\" -H 'Content-Type: application/json' -d '{\"kind\":\"require_approvals_to_merge\",\"branch_match_kind\":\"glob\",\"pattern\":\"main\",\"value\":2}' \"https://api.bitbucket.org/2.0/repositories/<workspace>/<repo>/branch-restrictions\"",
+      "NativeIaC": "",
+      "Other": "1. Open the repository in Bitbucket\n2. Go to **Repository settings > Branch restrictions**\n3. Edit the restriction covering the main branch\n4. Enable **Check for at least N approvals** and set N to `1` or higher (`2` for production repositories)\n5. Enable **Check for unresolved pull request tasks**\n6. Click **Save**",
+      "Terraform": "resource \"bitbucket_branch_restriction\" \"approvals\" {\n  owner      = var.workspace\n  repository = bitbucket_repository.example.name\n  kind       = \"require_approvals_to_merge\"\n  pattern    = \"main\"\n  value      = 2\n}"
+    },
+    "Recommendation": {
+      "Text": "Require at least one approval to merge into the main branch, and add the `reset_pullrequest_approvals_on_change` restriction so approvals do not carry over to a rewritten diff.",
+      "Url": "https://apexhub-lime.vercel.app/check/bitbucket_repository_pull_request_approvals_required"
+    }
+  },
+  "Categories": [
+    "ci-cd",
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "bitbucket_repository_main_branch_restricted"
+  ],
+  "Notes": ""
+}

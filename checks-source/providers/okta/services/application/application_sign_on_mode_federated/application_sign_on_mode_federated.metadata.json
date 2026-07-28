@@ -1,0 +1,38 @@
+{
+  "Provider": "okta",
+  "CheckID": "application_sign_on_mode_federated",
+  "CheckTitle": "Okta applications use federated sign-on rather than stored passwords",
+  "CheckType": [],
+  "ServiceName": "application",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Okta::Application",
+  "ResourceGroup": "iam",
+  "Description": "This check reports active applications using `SECURE_PASSWORD_STORE`, `BASIC_AUTH` or `BOOKMARK` sign-on modes, where Okta stores and replays a password rather than issuing a federated assertion.",
+  "Risk": "Password-replay sign-on modes mean Okta **holds a reusable credential for the downstream application**, so compromising the Okta org yields working passwords for those systems directly rather than only session assertions. Those credentials also bypass the downstream application's own MFA, and they survive an Okta session revocation because the password itself is unchanged.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://help.okta.com/en-us/content/topics/apps/apps-about-sign-on-options.htm",
+    "https://developer.okta.com/docs/reference/api/apps/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. In the Okta Admin Console, list applications and review the **Sign-On Method** of each\n2. For applications that support SAML 2.0 or OpenID Connect, migrate them to federated sign-on\n3. Where an application only supports password replay, restrict its assignment to the smallest possible group\n4. Ensure those applications enforce their own MFA independently\n5. Remove BOOKMARK apps that point at systems now reachable through federation\n6. Rotate the stored passwords for any application that remains on password replay",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Migrate applications to SAML or OIDC federation, restrict assignment for those that only support password replay, and rotate the passwords Okta stores for them.",
+      "Url": "https://apexhub-lime.vercel.app/check/application_sign_on_mode_federated"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

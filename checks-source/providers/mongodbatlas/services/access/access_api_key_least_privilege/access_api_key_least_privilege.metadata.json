@@ -1,0 +1,40 @@
+{
+  "Provider": "mongodbatlas",
+  "CheckID": "access_api_key_least_privilege",
+  "CheckTitle": "Atlas organization API keys do not hold owner privileges",
+  "CheckType": [],
+  "ServiceName": "access",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "high",
+  "ResourceType": "MongoDBAtlas::ApiKey",
+  "ResourceGroup": "iam",
+  "Description": "This check reports organization API keys granted `ORG_OWNER` or `GROUP_OWNER`, which allow creating and deleting clusters, changing network access lists and issuing further credentials.",
+  "Risk": "An owner-scoped API key is a **long-lived credential with full control of the Atlas organization**, and it is typically stored in the automation that provisions clusters — CI variables, Terraform state, or a configuration file. Its compromise allows an attacker to open the network access list to the internet and create a database user, reaching the data without touching any existing credential.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://www.mongodb.com/docs/atlas/configure-api-access/",
+    "https://www.mongodb.com/docs/atlas/reference/user-roles/"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "atlas organizations apiKeys update <api-key-id> \\\n  --role ORG_READ_ONLY",
+      "NativeIaC": "",
+      "Other": "1. In Atlas, go to **Organization Settings > Access Manager > API Keys**\n2. For each key, review its roles and reduce them to the minimum the automation needs\n3. Prefer project-scoped keys (`GROUP_DATA_ACCESS_READ_ONLY`, `GROUP_CLUSTER_MANAGER`) over organization-wide ones\n4. Set an **API access list** on every key so it only works from your automation's egress addresses\n5. Rotate keys on a schedule and delete those with no recent use\n6. Store keys in a secrets manager, never in a repository or CI variable in plaintext",
+      "Terraform": "resource \"mongodbatlas_project_api_key\" \"ci\" {\n  project_id  = var.project_id\n  description = \"ci-provisioner\"\n\n  project_assignment {\n    project_id = var.project_id\n    role_names = [\"GROUP_CLUSTER_MANAGER\"]\n  }\n}"
+    },
+    "Recommendation": {
+      "Text": "Reduce API keys to the narrowest project-scoped role that works, bind each key to an API access list, rotate on a schedule, and store them in a secrets manager.",
+      "Url": "https://apexhub-lime.vercel.app/check/access_api_key_least_privilege"
+    }
+  },
+  "Categories": [
+    "authentication",
+    "secrets"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [
+    "access_private_endpoint_configured"
+  ],
+  "Notes": ""
+}

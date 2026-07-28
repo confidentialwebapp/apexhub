@@ -1,0 +1,37 @@
+{
+  "Provider": "slack",
+  "CheckID": "slack_channel_external_sharing_reviewed",
+  "CheckTitle": "Slack channels shared externally are private and actively used",
+  "CheckType": [],
+  "ServiceName": "channel",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Slack::Channel",
+  "ResourceGroup": "network",
+  "Description": "This check reports **externally shared** (Slack Connect) channels that are public within the workspace, and external channels left unarchived with no members, both of which extend a trust boundary beyond what anyone is actively managing.",
+  "Risk": "An externally shared channel gives another organisation's members a **live view into your workspace**, and when the channel is also public internally, anyone who joins it — including a newly compromised account — is exposed to that external party. Forgotten Connect channels from ended engagements are the common case: the counterparty retains access long after the commercial relationship stops.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://slack.com/help/articles/115004151203-Slack-Connect-guide",
+    "https://api.slack.com/methods/conversations.list"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "",
+      "NativeIaC": "",
+      "Other": "1. Go to **Settings & administration > Manage organization > Channels** and filter to externally shared channels\n2. Confirm each still corresponds to an active engagement\n3. Convert externally shared channels to private so membership is deliberate\n4. Archive or disconnect channels for finished engagements — disconnecting revokes the external party's access to history\n5. Restrict who may create Slack Connect invitations to admins\n6. Add the review to your vendor offboarding checklist",
+      "Terraform": ""
+    },
+    "Recommendation": {
+      "Text": "Keep externally shared channels private, disconnect them when an engagement ends, restrict who may send Connect invitations, and add the review to vendor offboarding.",
+      "Url": "https://apexhub-lime.vercel.app/check/slack_channel_external_sharing_reviewed"
+    }
+  },
+  "Categories": [
+    "trust-boundaries"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}

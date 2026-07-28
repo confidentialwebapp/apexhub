@@ -43,11 +43,11 @@ jobs:
         run: |
           git config user.name "apexhub-bot"
           git config user.email "actions@users.noreply.github.com"
-          if git diff --quiet -- src/data; then
+          if git diff --quiet -- src/data checks-source/providers; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No data changes."
           else
-            git add src/data
+            git add src/data checks-source/providers
             git commit -m "chore(data): daily dataset refresh ($(date -u +%Y-%m-%d))"
             git push
             echo "changed=true" >> "$GITHUB_OUTPUT"

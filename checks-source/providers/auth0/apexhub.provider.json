@@ -1,0 +1,7 @@
+{
+  "id": "auth0",
+  "name": "Auth0",
+  "origin": "apexhub-first-party",
+  "license": "Apache-2.0",
+  "generated_by": "scripts/build-custom.mjs"
+}

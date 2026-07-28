@@ -1,0 +1,37 @@
+{
+  "Provider": "snowflake",
+  "CheckID": "snowflake_account_periodic_rekeying_enabled",
+  "CheckTitle": "Snowflake accounts enable periodic data rekeying",
+  "CheckType": [],
+  "ServiceName": "account",
+  "SubServiceName": "",
+  "ResourceIdTemplate": "",
+  "Severity": "medium",
+  "ResourceType": "Snowflake::Account",
+  "ResourceGroup": "storage",
+  "Description": "With `PERIODIC_DATA_REKEYING` enabled, Snowflake re-encrypts data whose encryption key is older than one year with a fresh key. This check verifies that the account parameter is set to true.",
+  "Risk": "Without rekeying, the same data encryption key protects a table for its entire lifetime, so the **window in which a single compromised key is useful is unbounded**. Periodic rekeying limits the blast radius of key compromise and satisfies the cryptoperiod expectations that appear in most data protection standards.",
+  "RelatedUrl": "",
+  "AdditionalURLs": [
+    "https://docs.snowflake.com/en/user-guide/security-encryption-manage",
+    "https://docs.snowflake.com/en/user-guide/security-encryption-end-to-end"
+  ],
+  "Remediation": {
+    "Code": {
+      "CLI": "ALTER ACCOUNT SET PERIODIC_DATA_REKEYING = TRUE;",
+      "NativeIaC": "",
+      "Other": "1. Sign in to Snowsight as ACCOUNTADMIN\n2. Run `ALTER ACCOUNT SET PERIODIC_DATA_REKEYING = TRUE`\n3. Note that rekeying consumes credits as it re-encrypts historical data; plan for the one-off cost\n4. For stricter key control, additionally enable Tri-Secret Secure so a customer-managed key in your cloud KMS is required alongside Snowflake's key\n5. Confirm the parameter with `SHOW PARAMETERS LIKE 'PERIODIC_DATA_REKEYING' IN ACCOUNT`",
+      "Terraform": "resource \"snowflake_account_parameter\" \"rekeying\" {\n  key   = \"PERIODIC_DATA_REKEYING\"\n  value = \"true\"\n}"
+    },
+    "Recommendation": {
+      "Text": "Enable periodic data rekeying so encryption keys are rotated annually, and consider Tri-Secret Secure where you need the ability to revoke access with a customer-managed key.",
+      "Url": "https://apexhub-lime.vercel.app/check/snowflake_account_periodic_rekeying_enabled"
+    }
+  },
+  "Categories": [
+    "encryption"
+  ],
+  "DependsOn": [],
+  "RelatedTo": [],
+  "Notes": ""
+}
